@@ -38,6 +38,7 @@ import java.awt.font.TextAttribute;
 import java.util.Map;
 
 import javax.swing.SwingConstants;
+import java.awt.Cursor;
 
 public class ItemPanel extends JPanel {
 	
@@ -63,12 +64,16 @@ public class ItemPanel extends JPanel {
 	public ItemPanel (ItemModel itemModel, boolean isSelected,
 			ListFrame parentFrame, int row) {
 		this.itemModel = itemModel;
-		this.isSelected = isSelected;
+		//this.isSelected = isSelected;
 		this.parentFrame = parentFrame;
 		this.row = row;
 		
 		initComponents();
 		render();
+		
+		if (isSelected) {
+			highlight();
+		}
 	}
 	
 //	private void setFlagIcon () {
@@ -85,10 +90,8 @@ public class ItemPanel extends JPanel {
 		setMinimumSize(new Dimension(256, panelHight));
 		setLayout(new BorderLayout(0, 0));
 		this.textField = new JTextField();
+		this.textField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		this.textField.setBorder(new EmptyBorder(0, 0, 0, 0));
-		if (isSelected) {
-			highlight();
-		}
 		add(this.textField, BorderLayout.CENTER);
 		this.textField.setColumns(10);
 		this.textField.getDocument().addDocumentListener(new DocumentListener() {
@@ -123,17 +126,17 @@ public class ItemPanel extends JPanel {
 		this.buttonEdit.setBorderPainted(false);
 		this.buttonEdit.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.buttonEdit.setBackground(Color.WHITE);
-		this.buttonEdit.setIcon(new ImageIcon(ItemPanel.class.getResource("resources/edit.gif")));
+		this.buttonEdit.setIcon(new ImageIcon(ItemPanel.class.getResource("resources/more.gif")));
 		this.buttonEdit.setPreferredSize(new Dimension(24, 40));
 		this.buttonEdit.setMinimumSize(new Dimension(24, 40));
 		this.buttonEdit.setMaximumSize(new Dimension(24, 40));
 		this.panel.add(this.buttonEdit);
 		
 		icons = new ImageIcon[4];
-		icons[0] = new ImageIcon(ItemPanel.class.getResource("resources/unchecked.gif"));
-		icons[1] = new ImageIcon(ItemPanel.class.getResource("resources/checked.gif"));
-		icons[2] = new ImageIcon(ItemPanel.class.getResource("resources/alert.gif"));
-		icons[3] = new ImageIcon(ItemPanel.class.getResource("resources/question.gif"));
+		icons[0] = new ImageIcon(ItemPanel.class.getResource("resources/unchecked.png"));
+		icons[1] = new ImageIcon(ItemPanel.class.getResource("resources/checked.png"));
+		icons[2] = new ImageIcon(ItemPanel.class.getResource("resources/urgent.png"));
+		icons[3] = new ImageIcon(ItemPanel.class.getResource("resources/question.png"));
 	
 		
 		this.labelFlag = new JLabel();
@@ -157,12 +160,7 @@ public class ItemPanel extends JPanel {
 	private void render () {
 		this.textField.setText(itemModel.getTitle());
 		this.labelFlag.setIcon(icons[itemModel.getFlag()]);
-		if (itemModel.getFlag() == 1) {
-			Map atts = (new Font("Arial",Font.PLAIN, 14)).getAttributes();
-			atts.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
-			
-			this.textField.setFont(new Font(atts));
-		}
+		
 	}
 	
 //	/*
@@ -182,8 +180,18 @@ public class ItemPanel extends JPanel {
 //	}
 	
 	public void highlight () {
+		this.labelFlag.setBackground(JayListConstants.HIGHLIGHT_COLOR);
 		this.textField.setBackground(JayListConstants.HIGHLIGHT_COLOR);
+		this.buttonEdit.setBackground(JayListConstants.HIGHLIGHT_COLOR);
+		
+		
+		Map atts = (new Font("Arial",Font.PLAIN, 16)).getAttributes();
+		//atts.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
+		this.textField.setFont(new Font(atts));
+		
+		
 	}
+	
 	private class ButtonEditActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			parentFrame.removeItemModel(row);

@@ -1,8 +1,12 @@
 package org.doetsch.jaylist;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Image;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -12,6 +16,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -35,6 +40,9 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.font.TextAttribute;
+
+import javax.swing.ImageIcon;
 
 public class ListFrame extends JFrame {
 
@@ -52,6 +60,9 @@ public class ListFrame extends JFrame {
 	private JMenu menuWindow;
 	private JMenuItem menuItemReset;
 	private MagicEditor magicEditor;
+	private Component horizontalGlue;
+	private Component horizontalGlue_1;
+	private Component horizontalStrut;
 
 	/**
 	 * Launch the application.
@@ -75,47 +86,29 @@ public class ListFrame extends JFrame {
 	public ListFrame() {
 		initComponents();
 	}
+	
 	private void initComponents() {
+		
+		//set up the frame itself
+		this.setIconImage(new ImageIcon(ListFrame.class.getResource("resources/icon_32.png")).getImage());
+		this.setTitle("To Do - March 29, 2015.xml - JayList");
 		
 		//set up frame content pane
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		this.contentPane = new JPanel();
+		this.contentPane.setBackground(Color.WHITE);
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.contentPane.setLayout(new BorderLayout(0, 0));
+		this.contentPane.setPreferredSize(new Dimension(
+				JayListConstants.DEFAULT_FRAME_WIDTH, JayListConstants.DEFAULT_FRAME_HEIGHT));
 		setContentPane(this.contentPane);
-		this.contentPane.addMouseListener(new MouseListener() {
-
+		this.contentPane.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				clearSelection();
 				//table.repaint();
 			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
 		});
 		
 		//set up menu and items
@@ -130,12 +123,15 @@ public class ListFrame extends JFrame {
 		this.menuWindow = new JMenu("Window");
 		this.menuBar.add(this.menuWindow);
 		this.menuItemReset = new JMenuItem("Reset");
+		this.menuItemReset.addActionListener(new MenuItemResetActionListener());
 		this.menuWindow.add(this.menuItemReset);
+		//this.menuWindow.setFon
 		
 		
 		
 		//set up the header text pane such that text centers
 		this.textPane = new JTextPane();
+		this.textPane.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		StyledDocument doc = textPane.getStyledDocument();
 		SimpleAttributeSet center = new SimpleAttributeSet();
 		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
@@ -197,13 +193,70 @@ public class ListFrame extends JFrame {
 		
 		//set up control buttons
 		this.horizontalBox = Box.createHorizontalBox();
+		this.horizontalBox.setBorder(new EmptyBorder(5, 0, 0, 0));
 		this.contentPane.add(this.horizontalBox, BorderLayout.SOUTH);
-		this.buttonAdd = new JButton("Add Item");
+		this.buttonAdd = new JButton("");
+		this.buttonAdd.setBorderPainted(false);
+		this.buttonAdd.setMaximumSize(new Dimension(128, 64));
+		this.buttonAdd.setMinimumSize(new Dimension(128, 64));
+		this.buttonAdd.setPreferredSize(new Dimension(128, 64));
+		this.buttonAdd.setBackground(Color.WHITE);
+		this.buttonAdd.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/add.png")));
 		this.buttonAdd.addActionListener(new ButtonAddActionListener());
+		//this.buttonAdd.setColor
+		
+		this.horizontalGlue = Box.createHorizontalGlue();
+		this.horizontalBox.add(this.horizontalGlue);
 		this.horizontalBox.add(this.buttonAdd);
-		this.buttonRemove = new JButton("Remove Item");
+		this.buttonRemove = new JButton("");
+		this.buttonRemove.setBorderPainted(false);
+		this.buttonRemove.setPreferredSize(new Dimension(128, 64));
+		this.buttonRemove.setMinimumSize(new Dimension(128, 64));
+		this.buttonRemove.setMaximumSize(new Dimension(128, 64));
+		this.buttonRemove.setBackground(Color.WHITE);
+		this.buttonRemove.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/remove.png")));
 		this.buttonRemove.addActionListener(new ButtonRemoveActionListener());
+		this.buttonRemove.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		
+		this.horizontalStrut = Box.createHorizontalStrut(5);
+		this.horizontalBox.add(this.horizontalStrut);
 		this.horizontalBox.add(this.buttonRemove);
+		this.horizontalGlue_1 = Box.createHorizontalGlue();
+		this.horizontalBox.add(this.horizontalGlue_1);
+		
+		pack();
 	}
 	
 
@@ -268,13 +321,37 @@ public class ListFrame extends JFrame {
 	private class ButtonRemoveActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println(table.getSelectedRow());
+			if (table.getSelectedRow() > -1) {
+				
+//				final JOptionPane choice =
+//						new JOptionPane(
+//								"Are you sure you want to remove this item?",
+//								JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION);
+//				
+				int choice = JOptionPane.showConfirmDialog(
+						ListFrame.this,
+						"Are you sure you want to remove this item?",
+						"Remove Item Warning",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.WARNING_MESSAGE);
+				
+				if (choice == JOptionPane.YES_OPTION) {
+					removeItemModel(table.getSelectedRow());
+				}
+			}
 		}
 	}
 	private class ButtonAddActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
 			
-			tableModel.addRow(new ItemModel[] {ItemModel.create(0, "type in the item's title here")});
+			tableModel.addRow(new ItemModel[]
+					{ItemModel.create(0, "type in the item's title here")});
+		}
+	}
+	private class MenuItemResetActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			pack();
 		}
 	}
 }
