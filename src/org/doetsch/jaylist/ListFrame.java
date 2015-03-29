@@ -90,7 +90,7 @@ public class ListFrame extends JFrame {
 	private void initComponents() {
 		
 		//set up the frame itself
-		this.setIconImage(new ImageIcon(ListFrame.class.getResource("resources/icon_32.png")).getImage());
+		this.setIconImage(JLConstants.ICON_APP.getImage());
 		this.setTitle("To Do - March 29, 2015.xml - JayList");
 		
 		//set up frame content pane
@@ -101,7 +101,15 @@ public class ListFrame extends JFrame {
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.contentPane.setLayout(new BorderLayout(0, 0));
 		this.contentPane.setPreferredSize(new Dimension(
-				JayListConstants.DEFAULT_FRAME_WIDTH, JayListConstants.DEFAULT_FRAME_HEIGHT));
+				JLConstants.DEFAULT_FRAME_WIDTH, JLConstants.DEFAULT_FRAME_HEIGHT));
+		this.contentPane.setMinimumSize(new Dimension(JLConstants.DEFAULT_FRAME_WIDTH, 0));
+		
+		
+//		double dx = ListFrame.this.getSize().getWidth();// - (double)JLConstants.DEFAULT_FRAME_WIDTH;
+//		double dy = ListFrame.this.getSize().getHeight();// - (double)JLConstants.DEFAULT_FRAME_WIDTH;
+		
+		
+		
 		setContentPane(this.contentPane);
 		this.contentPane.addMouseListener(new MouseAdapter() {
 			@Override
@@ -131,7 +139,7 @@ public class ListFrame extends JFrame {
 		
 		//set up the header text pane such that text centers
 		this.textPane = new JTextPane();
-		this.textPane.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		this.textPane.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		StyledDocument doc = textPane.getStyledDocument();
 		SimpleAttributeSet center = new SimpleAttributeSet();
 		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
@@ -201,7 +209,7 @@ public class ListFrame extends JFrame {
 		this.buttonAdd.setMinimumSize(new Dimension(128, 64));
 		this.buttonAdd.setPreferredSize(new Dimension(128, 64));
 		this.buttonAdd.setBackground(Color.WHITE);
-		this.buttonAdd.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/add.png")));
+		this.buttonAdd.setIcon(JLConstants.ICON_ADD);
 		this.buttonAdd.addActionListener(new ButtonAddActionListener());
 		//this.buttonAdd.setColor
 		
@@ -214,7 +222,7 @@ public class ListFrame extends JFrame {
 		this.buttonRemove.setMinimumSize(new Dimension(128, 64));
 		this.buttonRemove.setMaximumSize(new Dimension(128, 64));
 		this.buttonRemove.setBackground(Color.WHITE);
-		this.buttonRemove.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/remove.png")));
+		this.buttonRemove.setIcon(JLConstants.ICON_REMOVE);
 		this.buttonRemove.addActionListener(new ButtonRemoveActionListener());
 		this.buttonRemove.addMouseListener(new MouseListener() {
 
@@ -257,6 +265,7 @@ public class ListFrame extends JFrame {
 		this.horizontalBox.add(this.horizontalGlue_1);
 		
 		pack();
+		setMinimumSize(new Dimension(getSize().width, 256));
 	}
 	
 
