@@ -116,9 +116,6 @@ public class ItemPanel extends JPanel {
 			}
 			
 		});
-		Map atts = (new Font("Arial",Font.PLAIN, 14)).getAttributes();
-		//atts.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
-		this.textField.setFont(new Font(atts));
 		
 		this.panel = new JPanel();
 		this.panel.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -136,14 +133,10 @@ public class ItemPanel extends JPanel {
 		this.panel.add(this.buttonEdit);
 		
 		icons = new ImageIcon[4];
-//		icons[0] = new ImageIcon(ItemPanel.class.getResource("resources/unchecked.png"));
-//		icons[1] = new ImageIcon(ItemPanel.class.getResource("resources/checked.png"));
-//		icons[2] = new ImageIcon(ItemPanel.class.getResource("resources/urgent.png"));
-//		icons[3] = new ImageIcon(ItemPanel.class.getResource("resources/question.png"));
-		icons[0] = JLConstants.ICON_UNCHECKED;
-		icons[1] = JLConstants.ICON_CHECKED;
-		icons[2] = JLConstants.ICON_URGENT;
-		icons[3] = JLConstants.ICON_QUESTION;
+		icons[0] = new ImageIcon(ItemPanel.class.getResource("resources/unchecked.png"));
+		icons[1] = new ImageIcon(ItemPanel.class.getResource("resources/checked.png"));
+		icons[2] = new ImageIcon(ItemPanel.class.getResource("resources/urgent.png"));
+		icons[3] = new ImageIcon(ItemPanel.class.getResource("resources/question.png"));
 	
 		
 		this.labelFlag = new JLabel();
@@ -187,9 +180,9 @@ public class ItemPanel extends JPanel {
 //	}
 	
 	public void highlight () {
-		this.labelFlag.setBackground(JLConstants.HIGHLIGHT_COLOR);
-		this.textField.setBackground(JLConstants.HIGHLIGHT_COLOR);
-		this.buttonEdit.setBackground(JLConstants.HIGHLIGHT_COLOR);
+		this.labelFlag.setBackground(JayListConstants.HIGHLIGHT_COLOR);
+		this.textField.setBackground(JayListConstants.HIGHLIGHT_COLOR);
+		this.buttonEdit.setBackground(JayListConstants.HIGHLIGHT_COLOR);
 		
 		
 		Map atts = (new Font("Arial",Font.PLAIN, 16)).getAttributes();
