@@ -13,10 +13,11 @@ class ItemModel {
 	 * @param title
 	 * @return
 	 */
-	static ItemModel create (int flag, String title) {
+	static ItemModel create (int flag, String title, String desc) {
 		ItemModel itemModel = new ItemModel();
 		itemModel.setFlag(flag);
 		itemModel.setTitle(title);
+		itemModel.setDesc("DESCRIPTION");
 		return itemModel;
 	}
 	
@@ -48,6 +49,15 @@ class ItemModel {
 		return (String)fields.get("title");
 	}
 	
+	void setDesc (String description) {
+		//description = "DESCRIPTION OVERRIDE";
+		fields.put("desc", description);
+	}
+	
+	String getDesc () {
+		return (String)fields.get("desc");
+	}
+	
 	HashMap<String, Object> getFields () {
 		return fields;
 	}
@@ -57,4 +67,12 @@ class ItemModel {
 		return this;
 	}
 
+	public static void main (String[] args) {
+		ItemModel m = ItemModel.create(0, "", "");
+//		System.out.println(m.getDesc());
+		//m.setDesc("foobar description");
+		ItemPanel p = new ItemPanel(m, false, null, 0);
+		System.out.println(m.getDesc());
+	}
+	
 }

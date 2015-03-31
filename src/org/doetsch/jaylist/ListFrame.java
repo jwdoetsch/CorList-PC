@@ -163,8 +163,8 @@ public class ListFrame extends JFrame {
 		this.table.setRowHeight(40);
 		this.table.setModel(new DefaultTableModel(
 			new ItemModel[][] {
-				{ItemModel.create(1, "1. Foo")},
-				{ItemModel.create(0, "2. Bar")},
+				{ItemModel.create(1, "1. Foo", "")},
+				{ItemModel.create(0, "2. Bar", "")},
 			},
 			new String[] {
 				"Items"
@@ -346,7 +346,7 @@ public class ListFrame extends JFrame {
 			DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
 			
 			tableModel.addRow(new ItemModel[]
-					{ItemModel.create(0, "type in the item's title here")});
+					{ItemModel.create(0, "type in the item's title here", "")});
 		}
 	}
 	private class MenuItemResetActionListener implements ActionListener {
