@@ -189,7 +189,9 @@ public class ItemPanel2 extends JPanel {
 	
 	void requestRowResize () {
 		parentTable.setRowHeight(this.rowIndex,
-				(this.expanded ? 160 : 40));
+				(this.expanded ? 
+						JLConstants2.ITEMPANEL_HEIGHT_EXPANDED : 
+							JLConstants2.ITEMPANEL_HEIGHT));
 	}
 	
 	void setStatusButtonIcon () {

@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
+import javax.swing.CellEditor;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
@@ -22,7 +23,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+
 import javax.swing.ListSelectionModel;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -191,7 +194,9 @@ public class ListFrame2 extends JFrame {
 	private class ContentPaneMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent arg0) {
-			ListFrame2.this.table.getCellEditor().stopCellEditing();
+			if (table.isEditing()) {
+				ListFrame2.this.table.getCellEditor().stopCellEditing();
+			}
 			ListFrame2.this.table.getSelectionModel().clearSelection();
 		}
 	}
