@@ -44,7 +44,7 @@ import java.awt.font.TextAttribute;
 
 import javax.swing.ImageIcon;
 
-public class ListFrame extends JFrame {
+public class ListFrameOLD extends JFrame {
 
 	private JPanel contentPane;
 	private JMenuBar menuBar;
@@ -71,7 +71,7 @@ public class ListFrame extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ListFrame frame = new ListFrame();
+					ListFrameOLD frame = new ListFrameOLD();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -83,14 +83,14 @@ public class ListFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public ListFrame() {
+	public ListFrameOLD() {
 		initComponents();
 	}
 	
 	private void initComponents() {
 		
 		//set up the frame itself
-		this.setIconImage(new ImageIcon(ListFrame.class.getResource("resources/icon_32.png")).getImage());
+		this.setIconImage(new ImageIcon(ListFrameOLD.class.getResource("resources/icon_32.png")).getImage());
 		this.setTitle("To Do - March 29, 2015.xml - JayList");
 		
 		//set up frame content pane
@@ -101,7 +101,7 @@ public class ListFrame extends JFrame {
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.contentPane.setLayout(new BorderLayout(0, 0));
 		this.contentPane.setPreferredSize(new Dimension(
-				JayListConstants.DEFAULT_FRAME_WIDTH, JayListConstants.DEFAULT_FRAME_HEIGHT));
+				JayListConstantsOLD.DEFAULT_FRAME_WIDTH, JayListConstantsOLD.DEFAULT_FRAME_HEIGHT));
 		setContentPane(this.contentPane);
 		this.contentPane.addMouseListener(new MouseAdapter() {
 			@Override
@@ -162,9 +162,9 @@ public class ListFrame extends JFrame {
 		this.table.setTableHeader(null);
 		this.table.setRowHeight(40);
 		this.table.setModel(new DefaultTableModel(
-			new ItemModel[][] {
-				{ItemModel.create(1, "1. Foo", "")},
-				{ItemModel.create(0, "2. Bar", "")},
+			new ItemModelOLD[][] {
+				{ItemModelOLD.create(1, "1. Foo", "")},
+				{ItemModelOLD.create(0, "2. Bar", "")},
 			},
 			new String[] {
 				"Items"
@@ -201,7 +201,7 @@ public class ListFrame extends JFrame {
 		this.buttonAdd.setMinimumSize(new Dimension(128, 64));
 		this.buttonAdd.setPreferredSize(new Dimension(128, 64));
 		this.buttonAdd.setBackground(Color.WHITE);
-		this.buttonAdd.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/add.png")));
+		this.buttonAdd.setIcon(new ImageIcon(ListFrameOLD.class.getResource("/org/doetsch/jaylist/resources/add.png")));
 		this.buttonAdd.addActionListener(new ButtonAddActionListener());
 		//this.buttonAdd.setColor
 		
@@ -214,7 +214,7 @@ public class ListFrame extends JFrame {
 		this.buttonRemove.setMinimumSize(new Dimension(128, 64));
 		this.buttonRemove.setMaximumSize(new Dimension(128, 64));
 		this.buttonRemove.setBackground(Color.WHITE);
-		this.buttonRemove.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/remove.png")));
+		this.buttonRemove.setIcon(new ImageIcon(ListFrameOLD.class.getResource("/org/doetsch/jaylist/resources/remove.png")));
 		this.buttonRemove.addActionListener(new ButtonRemoveActionListener());
 		this.buttonRemove.addMouseListener(new MouseListener() {
 
@@ -270,8 +270,8 @@ public class ListFrame extends JFrame {
 				Object value, boolean isSelected, boolean hasFocus,
 				int row, int col) {
 			
-			ItemPanel curItemPanel = new ItemPanel((ItemModel)value, isSelected,
-					ListFrame.this, table.getRowCount());
+			ItemPanelOLD curItemPanel = new ItemPanelOLD((ItemModelOLD)value, isSelected,
+					ListFrameOLD.this, table.getRowCount());
 
 			//curItemPanel.highlight();
 			
@@ -283,7 +283,7 @@ public class ListFrame extends JFrame {
 	
 	private class MagicEditor extends AbstractCellEditor implements TableCellEditor {
 
-		private ItemPanel itemPanel;
+		private ItemPanelOLD itemPanel;
 		
 		@Override
 		public Object getCellEditorValue() {
@@ -299,8 +299,8 @@ public class ListFrame extends JFrame {
 		public Component getTableCellEditorComponent(JTable table, Object value,
 				boolean isSelected, int row, int col) {
 
-			ItemModel curItemModel = (ItemModel)value;
-			itemPanel = new ItemPanel(curItemModel, true, ListFrame.this, row);
+			ItemModelOLD curItemModel = (ItemModelOLD)value;
+			itemPanel = new ItemPanelOLD(curItemModel, true, ListFrameOLD.this, row);
 			
 			
 			return itemPanel;
@@ -329,7 +329,7 @@ public class ListFrame extends JFrame {
 //								JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION);
 //				
 				int choice = JOptionPane.showConfirmDialog(
-						ListFrame.this,
+						ListFrameOLD.this,
 						"Are you sure you want to remove this item?",
 						"Remove Item Warning",
 						JOptionPane.YES_NO_OPTION,
@@ -345,8 +345,8 @@ public class ListFrame extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
 			
-			tableModel.addRow(new ItemModel[]
-					{ItemModel.create(0, "type in the item's title here", "")});
+			tableModel.addRow(new ItemModelOLD[]
+					{ItemModelOLD.create(0, "type in the item's title here", "")});
 		}
 	}
 	private class MenuItemResetActionListener implements ActionListener {

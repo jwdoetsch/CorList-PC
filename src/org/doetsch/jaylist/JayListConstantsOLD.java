@@ -2,7 +2,7 @@ package org.doetsch.jaylist;
 
 import java.awt.Color;
 
-public class JayListConstants {
+public class JayListConstantsOLD {
 
 	public static final Color HIGHLIGHT_COLOR = new Color(225, 245, 255);
 

@@ -2,7 +2,7 @@ package org.doetsch.jaylist;
 
 import java.util.HashMap;
 
-class ItemModel {
+class ItemModelOLD {
 	
 	private HashMap<String, Object> fields;
 	
@@ -13,19 +13,19 @@ class ItemModel {
 	 * @param title
 	 * @return
 	 */
-	static ItemModel create (int flag, String title, String desc) {
-		ItemModel itemModel = new ItemModel();
+	static ItemModelOLD create (int flag, String title, String desc) {
+		ItemModelOLD itemModel = new ItemModelOLD();
 		itemModel.setFlag(flag);
 		itemModel.setTitle(title);
 		itemModel.setDesc("DESCRIPTION");
 		return itemModel;
 	}
 	
-	static ItemModel clone (ItemModel itemModel) {
-		return (new ItemModel()).setFields(itemModel.getFields());
+	static ItemModelOLD clone (ItemModelOLD itemModel) {
+		return (new ItemModelOLD()).setFields(itemModel.getFields());
 	}
 	
-	ItemModel () {
+	ItemModelOLD () {
 		fields = new HashMap<String, Object>();
 	}
 	
@@ -62,16 +62,16 @@ class ItemModel {
 		return fields;
 	}
 	
-	ItemModel setFields (HashMap<String, Object> fields) {
+	ItemModelOLD setFields (HashMap<String, Object> fields) {
 		this.fields = fields;
 		return this;
 	}
 
 	public static void main (String[] args) {
-		ItemModel m = ItemModel.create(0, "", "");
+		ItemModelOLD m = ItemModelOLD.create(0, "", "");
 //		System.out.println(m.getDesc());
 		//m.setDesc("foobar description");
-		ItemPanel p = new ItemPanel(m, false, null, 0);
+		ItemPanelOLD p = new ItemPanelOLD(m, false, null, 0);
 		System.out.println(m.getDesc());
 	}
 	

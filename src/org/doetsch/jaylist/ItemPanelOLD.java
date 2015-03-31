@@ -40,15 +40,15 @@ import java.util.Map;
 import javax.swing.SwingConstants;
 import java.awt.Cursor;
 
-public class ItemPanel extends JPanel {
+public class ItemPanelOLD extends JPanel {
 	
 	private JTextField textField;
 	private JPanel panel;
 	private JButton buttonEdit;
 
-	private ItemModel itemModel;
+	private ItemModelOLD itemModel;
 	private boolean isSelected;
-	private ListFrame parentFrame;
+	private ListFrameOLD parentFrame;
 	private int row;
 	private ImageIcon[] icons;
 	private JLabel labelFlag;
@@ -61,8 +61,8 @@ public class ItemPanel extends JPanel {
 //		initComponents (isMarked, title);
 //	}
 
-	public ItemPanel (ItemModel itemModel, boolean isSelected,
-			ListFrame parentFrame, int row) {
+	public ItemPanelOLD (ItemModelOLD itemModel, boolean isSelected,
+			ListFrameOLD parentFrame, int row) {
 		this.itemModel = itemModel;
 		//this.isSelected = isSelected;
 		this.parentFrame = parentFrame;
@@ -126,17 +126,17 @@ public class ItemPanel extends JPanel {
 		this.buttonEdit.setBorderPainted(false);
 		this.buttonEdit.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.buttonEdit.setBackground(Color.WHITE);
-		this.buttonEdit.setIcon(new ImageIcon(ItemPanel.class.getResource("resources/more.gif")));
+		this.buttonEdit.setIcon(new ImageIcon(ItemPanelOLD.class.getResource("resources/more.gif")));
 		this.buttonEdit.setPreferredSize(new Dimension(24, 40));
 		this.buttonEdit.setMinimumSize(new Dimension(24, 40));
 		this.buttonEdit.setMaximumSize(new Dimension(24, 40));
 		this.panel.add(this.buttonEdit);
 		
 		icons = new ImageIcon[4];
-		icons[0] = new ImageIcon(ItemPanel.class.getResource("resources/unchecked.png"));
-		icons[1] = new ImageIcon(ItemPanel.class.getResource("resources/checked.png"));
-		icons[2] = new ImageIcon(ItemPanel.class.getResource("resources/urgent.png"));
-		icons[3] = new ImageIcon(ItemPanel.class.getResource("resources/question.png"));
+		icons[0] = new ImageIcon(ItemPanelOLD.class.getResource("resources/unchecked.png"));
+		icons[1] = new ImageIcon(ItemPanelOLD.class.getResource("resources/checked.png"));
+		icons[2] = new ImageIcon(ItemPanelOLD.class.getResource("resources/urgent.png"));
+		icons[3] = new ImageIcon(ItemPanelOLD.class.getResource("resources/question.png"));
 	
 		
 		this.labelFlag = new JLabel();
@@ -170,7 +170,7 @@ public class ItemPanel extends JPanel {
 //		
 //	}
 	
-	public ItemModel getItemModel () {
+	public ItemModelOLD getItemModel () {
 		return this.itemModel;
 	}
 	
@@ -180,9 +180,9 @@ public class ItemPanel extends JPanel {
 //	}
 	
 	public void highlight () {
-		this.labelFlag.setBackground(JayListConstants.HIGHLIGHT_COLOR);
-		this.textField.setBackground(JayListConstants.HIGHLIGHT_COLOR);
-		this.buttonEdit.setBackground(JayListConstants.HIGHLIGHT_COLOR);
+		this.labelFlag.setBackground(JayListConstantsOLD.HIGHLIGHT_COLOR);
+		this.textField.setBackground(JayListConstantsOLD.HIGHLIGHT_COLOR);
+		this.buttonEdit.setBackground(JayListConstantsOLD.HIGHLIGHT_COLOR);
 		
 		
 		Map atts = (new Font("Arial",Font.PLAIN, 16)).getAttributes();
