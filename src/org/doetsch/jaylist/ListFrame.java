@@ -28,14 +28,16 @@ import javax.swing.ListSelectionModel;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JTextPane;
 
-public class ListFrame2 extends JFrame {
+public class ListFrame extends JFrame {
 
 	private JPanel contentPane;
 	private JScrollPane scrollPane;
 	private JTable table;
 	private JPanel panel;
 	private JButton btnNewButton;
+	private JTextPane textPane;
 
 	/**
 	 * Launch the application.
@@ -44,7 +46,7 @@ public class ListFrame2 extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ListFrame2 frame = new ListFrame2();
+					ListFrame frame = new ListFrame();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -56,7 +58,7 @@ public class ListFrame2 extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public ListFrame2() {
+	public ListFrame() {
 		initComponents();
 	}
 	private void initComponents() {
@@ -64,8 +66,8 @@ public class ListFrame2 extends JFrame {
 		//set up this JFrame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100,
-				JLConstants2.FRAME_DEFAULT_WIDTH, JLConstants2.FRAME_DEFAULT_HEIGHT);
-		this.setIconImage(JLConstants2.ICON_APP.getImage());
+				JLConstants.FRAME_DEFAULT_WIDTH, JLConstants.FRAME_DEFAULT_HEIGHT);
+		this.setIconImage(JLConstants.ICON_APP.getImage());
 		
 		//set up content pane
 		this.contentPane = new JPanel();
@@ -76,20 +78,20 @@ public class ListFrame2 extends JFrame {
 		
 		//set up scroll pane
 		this.scrollPane = new JScrollPane();
-		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.scrollPane.setBorder(new EmptyBorder(5, 0, 0, 0));
 		this.contentPane.add(this.scrollPane, BorderLayout.CENTER);
 		
 		//set up table model
 		this.table = new JTable();
 		this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.table.setFillsViewportHeight(true);
-		this.table.setGridColor(JLConstants2.COLOR_GRID);
+		this.table.setGridColor(JLConstants.COLOR_GRID);
 		this.table.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.table.setTableHeader(null);
 		this.table.setModel(new DefaultTableModel(
-			new ItemModel2[][] {
-				{new ItemModel2("Title One", "Description One", 0, true)},
-				{new ItemModel2("Title Two", "Description Two", 0, false)},
+			new ItemModel[][] {
+				{new ItemModel("Title One", "Description One", 0, true)},
+				{new ItemModel("Title Two", "Description Two", 0, false)},
 			},
 			new String[] {
 				"New column"
@@ -129,6 +131,10 @@ public class ListFrame2 extends JFrame {
 		this.btnNewButton = new JButton("New button");
 		this.btnNewButton.addActionListener(new BtnNewButtonActionListener());
 		this.panel.add(this.btnNewButton);
+		this.textPane = new JTextPane();
+		this.contentPane.add(this.textPane, BorderLayout.NORTH);
+		
+		//this.textPane.getDocument()getCon
 	}
 	
 	class MagicRenderer implements TableCellRenderer {
@@ -138,14 +144,14 @@ public class ListFrame2 extends JFrame {
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 
-			ItemModel2 renderingModel = (ItemModel2)value;
+			ItemModel renderingModel = (ItemModel)value;
 //			if (renderingModel.expanded) {
 //				table.setRowHeight(row, JLConstants2.ITEMPANEL_HEIGHT_EXPANDED);
 //			} else {
 //				table.setRowHeight(row, JLConstants2.ITEMPANEL_HEIGHT);
 //			}
 			
-			ItemPanel2 itemPanel = new ItemPanel2(renderingModel, ListFrame2.this.table, row, isSelected);
+			ItemPanel itemPanel = new ItemPanel(renderingModel, ListFrame.this.table, row, isSelected);
 			return itemPanel;
 		}
 		
@@ -153,17 +159,17 @@ public class ListFrame2 extends JFrame {
 	
 	class MagicEditor extends AbstractCellEditor implements TableCellEditor {
 
-		ItemPanel2 itemPanel;
+		ItemPanel itemPanel;
 		
 		@Override
 		public void cancelCellEditing () {
-			ListFrame2.this.table.getSelectionModel().clearSelection();
+			ListFrame.this.table.getSelectionModel().clearSelection();
 			fireEditingCanceled();			
 		}
 		
 		@Override
 		public boolean stopCellEditing () {
-			ListFrame2.this.table.getSelectionModel().clearSelection();
+			ListFrame.this.table.getSelectionModel().clearSelection();
 			fireEditingStopped();
 			return true;
 		}
@@ -178,8 +184,8 @@ public class ListFrame2 extends JFrame {
 		public Component getTableCellEditorComponent (JTable table, Object value,
 				boolean isSelected, int row, int column) {
 
-			ItemModel2 model = (ItemModel2)value;
-			itemPanel = new ItemPanel2(model, ListFrame2.this.table, row, true);
+			ItemModel model = (ItemModel)value;
+			itemPanel = new ItemPanel(model, ListFrame.this.table, row, true);
 			
 			return itemPanel;
 		}
@@ -188,16 +194,16 @@ public class ListFrame2 extends JFrame {
 
 	private class BtnNewButtonActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
-			System.out.println(ListFrame2.this.table.getSelectedRow());
+			System.out.println(ListFrame.this.table.getSelectedRow());
 		}
 	}
 	private class ContentPaneMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent arg0) {
 			if (table.isEditing()) {
-				ListFrame2.this.table.getCellEditor().stopCellEditing();
+				ListFrame.this.table.getCellEditor().stopCellEditing();
 			}
-			ListFrame2.this.table.getSelectionModel().clearSelection();
+			ListFrame.this.table.getSelectionModel().clearSelection();
 		}
 	}
 }

@@ -21,7 +21,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.Color;
 import java.awt.Rectangle;
 
-public class ItemPanel2 extends JPanel {
+public class ItemPanel extends JPanel {
 	private JPanel panel;
 	private JScrollPane scrollPane;
 	private JTextArea textArea;
@@ -43,7 +43,7 @@ public class ItemPanel2 extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	ItemPanel2 (ItemModel2 itemModel, JTable parentTable,
+	ItemPanel (ItemModel itemModel, JTable parentTable,
 			int rowIndex, boolean isSelected) {
 		this.parentTable = parentTable;
 		this.rowIndex = rowIndex;
@@ -57,8 +57,8 @@ public class ItemPanel2 extends JPanel {
 	
 
 
-	ItemModel2 toItemModel () {
-		ItemModel2 model = new ItemModel2(
+	ItemModel toItemModel () {
+		ItemModel model = new ItemModel(
 				this.textField.getText(),
 				this.textArea.getText(),
 				this.statusFlag,
@@ -66,7 +66,7 @@ public class ItemPanel2 extends JPanel {
 		return model;
 	}
 	
-	private void injectItemModelValues (ItemModel2 itemModel) {
+	private void injectItemModelValues (ItemModel itemModel) {
 		this.textField.setText(itemModel.title);
 		this.textArea.setText(itemModel.desc);
 		this.statusFlag = itemModel.flag;
@@ -85,21 +85,21 @@ public class ItemPanel2 extends JPanel {
 		statusFlagIcons = new ImageIcon[4];
 //		statusFlagIcons[0] = new ImageIcon(
 //				ItemPanel2.class.getResource("resources/unchecked.png"));
-		statusFlagIcons[0] = JLConstants2.ICON_UNCHECKED;
-		statusFlagIcons[1] = JLConstants2.ICON_CHECKED;
-		statusFlagIcons[2] = JLConstants2.ICON_URGENT;
-		statusFlagIcons[3] = JLConstants2.ICON_ISSUE;
+		statusFlagIcons[0] = JLConstants.ICON_UNCHECKED;
+		statusFlagIcons[1] = JLConstants.ICON_CHECKED;
+		statusFlagIcons[2] = JLConstants.ICON_URGENT;
+		statusFlagIcons[3] = JLConstants.ICON_ISSUE;
 		
 		
 		this.iconExpand = new ImageIcon(
-				ItemPanel2.class.getResource("resources/set2/expand.png"));
+				ItemPanel.class.getResource("resources/set2/expand.png"));
 		this.iconCollapse = new ImageIcon(
-				ItemPanel2.class.getResource("resources/set2/collapse.png"));
+				ItemPanel.class.getResource("resources/set2/collapse.png"));
 	}
 	
 	private void initComponents () {
 		setPreferredSize(new Dimension(
-				JLConstants2.ITEMPANEL_WIDTH, JLConstants2.ITEMPANEL_HEIGHT_EXPANDED));
+				JLConstants.ITEMPANEL_WIDTH, JLConstants.ITEMPANEL_HEIGHT_EXPANDED));
 		
 		setLayout(new BorderLayout(0, 0));
 		this.panel = new JPanel();
@@ -115,15 +115,15 @@ public class ItemPanel2 extends JPanel {
 		this.panel.add(this.buttonStatus, BorderLayout.WEST);
 		this.textField = new JTextField();
 		this.textField.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.textField.setPreferredSize(new Dimension(6, JLConstants2.ITEMPANEL_HEIGHT));
+		this.textField.setPreferredSize(new Dimension(6, JLConstants.ITEMPANEL_HEIGHT));
 		this.panel.add(this.textField, BorderLayout.CENTER);
 		this.textField.setColumns(10);
 		this.textField.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (ItemPanel2.this.expanded) {
-					ItemPanel2.this.textArea.requestFocus();
+				if (ItemPanel.this.expanded) {
+					ItemPanel.this.textArea.requestFocus();
 				}
 			}
 			
@@ -167,12 +167,12 @@ public class ItemPanel2 extends JPanel {
 		 * should be highlighted?						
 		 */
 		if (isSelected) {
-			this.buttonStatus.setBackground(JLConstants2.COLOR_HIGHLIGHT2);
-			this.textField.setBackground(JLConstants2.COLOR_HIGHLIGHT);
-			this.buttonDrop.setBackground(JLConstants2.COLOR_HIGHLIGHT2);
-			this.textArea.setBackground(JLConstants2.COLOR_HIGHLIGHT);
-			this.labelSpacer.setBackground(JLConstants2.COLOR_HIGHLIGHT);
-			this.panelDrop.setBackground(JLConstants2.COLOR_HIGHLIGHT2);
+			this.buttonStatus.setBackground(JLConstants.COLOR_HIGHLIGHT2);
+			this.textField.setBackground(JLConstants.COLOR_HIGHLIGHT);
+			this.buttonDrop.setBackground(JLConstants.COLOR_HIGHLIGHT2);
+			this.textArea.setBackground(JLConstants.COLOR_HIGHLIGHT);
+			this.labelSpacer.setBackground(JLConstants.COLOR_HIGHLIGHT);
+			this.panelDrop.setBackground(JLConstants.COLOR_HIGHLIGHT2);
 		}
 		
 		
@@ -180,7 +180,7 @@ public class ItemPanel2 extends JPanel {
 	
 	private void setDropButtonIcon () {
 		
-		if (ItemPanel2.this.expanded) {
+		if (ItemPanel.this.expanded) {
 			buttonDrop.setIcon(iconCollapse);
 		} else {
 			buttonDrop.setIcon(iconExpand);
@@ -190,18 +190,18 @@ public class ItemPanel2 extends JPanel {
 	void requestRowResize () {
 		parentTable.setRowHeight(this.rowIndex,
 				(this.expanded ? 
-						JLConstants2.ITEMPANEL_HEIGHT_EXPANDED : 
-							JLConstants2.ITEMPANEL_HEIGHT));
+						JLConstants.ITEMPANEL_HEIGHT_EXPANDED : 
+							JLConstants.ITEMPANEL_HEIGHT));
 	}
 	
 	void setStatusButtonIcon () {
-		ItemPanel2.this.buttonStatus.setIcon(
-				statusFlagIcons[ItemPanel2.this.statusFlag]);
+		ItemPanel.this.buttonStatus.setIcon(
+				statusFlagIcons[ItemPanel.this.statusFlag]);
 	}
 	
 	private class BtnNewButton_1ActionListener implements ActionListener {
 		public void actionPerformed (ActionEvent arg0) {
-			ItemPanel2.this.expanded = !ItemPanel2.this.expanded;
+			ItemPanel.this.expanded = !ItemPanel.this.expanded;
 			
 			setDropButtonIcon();
 			
@@ -210,8 +210,8 @@ public class ItemPanel2 extends JPanel {
 	}
 	private class ButtonStatusActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
-			ItemPanel2.this.statusFlag =
-					(ItemPanel2.this.statusFlag + 1) % 4;
+			ItemPanel.this.statusFlag =
+					(ItemPanel.this.statusFlag + 1) % JLConstants.ICON_FLAG_COUNT;
 			setStatusButtonIcon();
 
 		}

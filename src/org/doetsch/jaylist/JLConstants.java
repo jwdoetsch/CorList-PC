@@ -1,10 +1,11 @@
 package org.doetsch.jaylist;
 
 import java.awt.Color;
+import java.awt.Font;
 
 import javax.swing.ImageIcon;
 
-class JLConstants2 {
+class JLConstants {
 
 	public static final int FRAME_DEFAULT_WIDTH = 266;
 	public static final int FRAME_DEFAULT_HEIGHT = 368;
@@ -18,20 +19,23 @@ class JLConstants2 {
 	public static final Color COLOR_GRID = new Color(240, 240, 240);
 	
 	public static final ImageIcon ICON_APP = new ImageIcon(
-			ItemPanel2.class.getResource("resources/icon_32.png"));
+			ItemPanel.class.getResource("resources/icon_32.png"));
 	
+	public static final int ICON_FLAG_COUNT = 2;
 	public static final ImageIcon ICON_CHECKED = new ImageIcon(
-			ItemPanel2.class.getResource("resources/set2/checked_32x32.png"));
+			ItemPanel.class.getResource("resources/set2/checked_32x32.png"));
 	public static final ImageIcon ICON_UNCHECKED = new ImageIcon(
-			JLConstants2.class.getResource("resources/set2/unchecked_32x32.png"));
+			JLConstants.class.getResource("resources/set2/unchecked_32x32.png"));
 	public static final ImageIcon ICON_URGENT = new ImageIcon(
-			JLConstants2.class.getResource("resources/set2/urgent_32x32.png"));
+			JLConstants.class.getResource("resources/set2/urgent_32x32.png"));
 	public static final ImageIcon ICON_ISSUE = new ImageIcon(
-			JLConstants2.class.getResource("resources/question.png"));
+			JLConstants.class.getResource("resources/set2/question_32x32.png"));
 	public static final ImageIcon ICON_EXPAND = new ImageIcon(
-			JLConstants2.class.getResource("resources/set2/expand.png"));
+			JLConstants.class.getResource("resources/set2/expand.png"));
 	public static final ImageIcon ICON_COLLAPSE = new ImageIcon(
-			JLConstants2.class.getResource("resources/set2/collapse.png"));
+			JLConstants.class.getResource("resources/set2/collapse.png"));
+	
+	public static final Font FONT_ITEM_TITLE = new Font("Arial", Font.PLAIN, 14);
 	
 
 }
