@@ -55,6 +55,8 @@ import org.xml.sax.SAXException;
 import java.awt.Window.Type;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+
 import javax.swing.Box;
 
 public class ListFrame extends JFrame {
@@ -72,6 +74,7 @@ public class ListFrame extends JFrame {
 	private JMenuItem mntmOpen;
 	private JButton btnRemove;
 	private Component horizontalStrut;
+	private JMenuItem mntmNewMenuItem;
 
 	/**
 	 * Launch the application.
@@ -105,6 +108,13 @@ public class ListFrame extends JFrame {
 	
 	private void injectListModel (ListModel listModel) {
 		//this.setTitle(listModel.getHeader());
+		this.setTitle(listModel.getPath().getFile() + " - JayList");
+		try {
+			System.out.println(listModel.getPath().toURI().getPath());
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.textPane.setText(listModel.getHeader());
 		
 		DefaultTableModel tableModel = new DefaultTableModel(
@@ -153,12 +163,16 @@ public class ListFrame extends JFrame {
 		setJMenuBar(this.menuBar);
 		this.menuItemSave = new JMenuItem("Save");
 		this.menuItemSave.addActionListener(new MenuItemSaveActionListener());
-		this.menuItemSave.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/save_20x20.png")));
-		this.menuBar.add(this.menuItemSave);
+		this.mntmNewMenuItem = new JMenuItem("New");
+		this.mntmNewMenuItem.addActionListener(new MntmNewMenuItemActionListener());
+		this.mntmNewMenuItem.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/new_20x20.png")));
+		this.menuBar.add(this.mntmNewMenuItem);
 		this.mntmOpen = new JMenuItem("Open");
 		this.mntmOpen.addActionListener(new MntmOpenActionListener());
 		this.mntmOpen.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/open_20x20.png")));
 		this.menuBar.add(this.mntmOpen);
+		this.menuItemSave.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/save_20x20.png")));
+		this.menuBar.add(this.menuItemSave);
 		this.contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(this.contentPane);
@@ -394,6 +408,42 @@ public class ListFrame extends JFrame {
 				
 			}
 			
+		}
+	}
+	private class MntmNewMenuItemActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			//JFileChooser fc = new JFileChooser();
+			
+			if (table.isEditing()) {
+				ListFrame.this.table.getCellEditor().stopCellEditing();
+			}
+			ListFrame.this.table.getSelectionModel().clearSelection();
+			
+//			int state = fc.showOpenDialog(ListFrame.this);
+//			if (state == JFileChooser.APPROVE_OPTION) {
+				ListMarshall marshall = new ListMarshall();
+				
+					
+				//marshall.marshall(ListFrame.this.extractListModel(), fc.getSelectedFile().toURI().toURL());
+			try {
+				ListFrame newFrame = new ListFrame(marshall.unmarshall(ListFrame.class.getResource("xml/new.xml")));
+				newFrame.setVisible(true);
+				newFrame.setLocation(ListFrame.this.getLocation().x + 64,
+						ListFrame.this.getLocation().y + 64);
+				
+			} catch (MalformedURLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SAXException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ParserConfigurationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 	}
 }
