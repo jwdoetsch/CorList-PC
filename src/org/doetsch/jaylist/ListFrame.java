@@ -3,10 +3,13 @@ package org.doetsch.jaylist;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Point;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
 import javax.swing.CellEditor;
+import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
@@ -16,19 +19,43 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import javax.swing.JButton;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.ListSelectionModel;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import javax.swing.JTextPane;
+
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Color;
+
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
+import java.awt.Window.Type;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import javax.swing.Box;
 
 public class ListFrame extends JFrame {
 
@@ -36,8 +63,15 @@ public class ListFrame extends JFrame {
 	private JScrollPane scrollPane;
 	private JTable table;
 	private JPanel panel;
-	private JButton btnNewButton;
+	private JButton btnAdd;
 	private JTextPane textPane;
+	private Point pt1;
+	private Point pt2;
+	private JMenuBar menuBar;
+	private JMenuItem menuItemSave;
+	private JMenuItem mntmOpen;
+	private JButton btnRemove;
+	private Component horizontalStrut;
 
 	/**
 	 * Launch the application.
@@ -46,7 +80,9 @@ public class ListFrame extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ListFrame frame = new ListFrame();
+					ListMarshall marshall = new ListMarshall();
+					ListFrame frame = new ListFrame(marshall.unmarshall(
+							ListFrame.class.getResource("xml/new.xml")));
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -58,23 +94,75 @@ public class ListFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public ListFrame() {
+	public ListFrame () {
 		initComponents();
 	}
-	private void initComponents() {
+	
+	public ListFrame (ListModel listModel) {
+		initComponents();
+		injectListModel(listModel);
+	}
+	
+	private void injectListModel (ListModel listModel) {
+		//this.setTitle(listModel.getHeader());
+		this.textPane.setText(listModel.getHeader());
 		
-		//set up this JFrame
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		DefaultTableModel tableModel = new DefaultTableModel(
+				new ItemModel[][] {
+				},
+				new String[] {
+					"Items"
+				}
+			);
+			
+		this.table.setModel(tableModel);
+		
+		for (ItemModel itemModel : listModel.getItemModels()) {
+			tableModel.addRow(new ItemModel[] {itemModel});
+		}
+		
+	}
+	
+	private ListModel extractListModel () {
+		ListModel listModel = new ListModel();
+		listModel.setHeader(this.textPane.getText());
+		
+		
+		for (int i = 0; i < table.getRowCount(); i++) {
+			
+			ItemModel itemModel = (ItemModel)table.getValueAt(i, 0);
+			listModel.addItemModels(itemModel);
+		}
+		
+		return listModel;
+	}
+	
+	private void initComponents () {
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100,
 				JLConstants.FRAME_DEFAULT_WIDTH, JLConstants.FRAME_DEFAULT_HEIGHT);
 		this.setIconImage(JLConstants.ICON_APP.getImage());
+		this.setMinimumSize(new Dimension(JLConstants.FRAME_DEFAULT_WIDTH, 192));
+		
 		
 		//set up content pane
 		this.contentPane = new JPanel();
+		this.contentPane.setBackground(Color.WHITE);
 		this.contentPane.addMouseListener(new ContentPaneMouseListener());
-		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		this.menuBar = new JMenuBar();
+		setJMenuBar(this.menuBar);
+		this.menuItemSave = new JMenuItem("Save");
+		this.menuItemSave.addActionListener(new MenuItemSaveActionListener());
+		this.menuItemSave.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/save_20x20.png")));
+		this.menuBar.add(this.menuItemSave);
+		this.mntmOpen = new JMenuItem("Open");
+		this.mntmOpen.addActionListener(new MntmOpenActionListener());
+		this.mntmOpen.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/open_20x20.png")));
+		this.menuBar.add(this.mntmOpen);
+		this.contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(this.contentPane);
+		
 		
 		//set up scroll pane
 		this.scrollPane = new JScrollPane();
@@ -94,7 +182,7 @@ public class ListFrame extends JFrame {
 				{new ItemModel("Title Two", "Description Two", 0, false)},
 			},
 			new String[] {
-				"New column"
+				"Items"
 			}
 		));
 		this.scrollPane.setViewportView(this.table);
@@ -127,14 +215,47 @@ public class ListFrame extends JFrame {
 //		}
 		
 		this.panel = new JPanel();
+		this.panel.setOpaque(false);
+		FlowLayout flowLayout = (FlowLayout) this.panel.getLayout();
+		flowLayout.setVgap(0);
+		flowLayout.setHgap(0);
+		this.panel.setBorder(new EmptyBorder(5, 0, 5, 0));
 		this.contentPane.add(this.panel, BorderLayout.SOUTH);
-		this.btnNewButton = new JButton("New button");
-		this.btnNewButton.addActionListener(new BtnNewButtonActionListener());
-		this.panel.add(this.btnNewButton);
+		this.btnAdd = new JButton("Add");
+		this.btnAdd.setPreferredSize(new Dimension(96, 24));
+		this.btnAdd.addActionListener(new BtnNewButtonActionListener());
+		this.panel.add(this.btnAdd);
+		this.horizontalStrut = Box.createHorizontalStrut(20);
+		this.horizontalStrut.setPreferredSize(new Dimension(16, 0));
+		this.panel.add(this.horizontalStrut);
+		this.btnRemove = new JButton("Remove");
+		this.btnRemove.setPreferredSize(new Dimension(96, 24));
+		this.panel.add(this.btnRemove);
 		this.textPane = new JTextPane();
 		this.contentPane.add(this.textPane, BorderLayout.NORTH);
-		
-		//this.textPane.getDocument()getCon
+		StyledDocument doc = textPane.getStyledDocument();
+		SimpleAttributeSet center = new SimpleAttributeSet();
+		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
+		doc.setParagraphAttributes(0, doc.getLength(), center, false);
+		this.textPane.addFocusListener(new FocusAdapter() {
+
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				if (table.isEditing()) {
+					ListFrame.this.table.getCellEditor().stopCellEditing();
+				}
+				ListFrame.this.table.getSelectionModel().clearSelection();
+			}
+//
+//			@Override
+//			public void focusLost(FocusEvent arg0) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+			
+		});
+		this.textPane.setFont(JLConstants.FONT_HEADER);
+
 	}
 	
 	class MagicRenderer implements TableCellRenderer {
@@ -195,15 +316,84 @@ public class ListFrame extends JFrame {
 	private class BtnNewButtonActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
 			System.out.println(ListFrame.this.table.getSelectedRow());
+			
+			
+			DefaultTableModel tableModel =
+					(DefaultTableModel)ListFrame.this.table.getModel();
+			
+			tableModel.addRow(new ItemModel[] {new ItemModel("<add a title>", "<add a description>", 0, false)});
+			
+			if (table.isEditing()) {
+				table.getCellEditor().stopCellEditing();
+			}
+			table.getSelectionModel().clearSelection();
+			table.changeSelection(table.getRowCount() - 1, 0, true, false);
 		}
 	}
 	private class ContentPaneMouseListener extends MouseAdapter {
 		@Override
-		public void mouseClicked(MouseEvent arg0) {
+		public void mousePressed(MouseEvent arg0) {
 			if (table.isEditing()) {
 				ListFrame.this.table.getCellEditor().stopCellEditing();
 			}
 			ListFrame.this.table.getSelectionModel().clearSelection();
+		}
+	}
+	private class MenuItemSaveActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			JFileChooser fc = new JFileChooser();
+			
+			if (table.isEditing()) {
+				ListFrame.this.table.getCellEditor().stopCellEditing();
+			}
+			ListFrame.this.table.getSelectionModel().clearSelection();
+			
+			int state = fc.showSaveDialog(ListFrame.this);
+			if (state == JFileChooser.APPROVE_OPTION) {
+				ListMarshall marshall = new ListMarshall();
+				try {
+					
+					marshall.marshall(ListFrame.this.extractListModel(), fc.getSelectedFile().toURI().toURL());
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	private class MntmOpenActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser fc = new JFileChooser();
+			
+			if (table.isEditing()) {
+				ListFrame.this.table.getCellEditor().stopCellEditing();
+			}
+			ListFrame.this.table.getSelectionModel().clearSelection();
+			
+			int state = fc.showOpenDialog(ListFrame.this);
+			if (state == JFileChooser.APPROVE_OPTION) {
+				ListMarshall marshall = new ListMarshall();
+				
+					
+				//marshall.marshall(ListFrame.this.extractListModel(), fc.getSelectedFile().toURI().toURL());
+				try {
+					ListFrame newFrame = new ListFrame(marshall.unmarshall(fc.getSelectedFile().toURI().toURL()));
+					newFrame.setVisible(true);
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SAXException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParserConfigurationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+			
 		}
 	}
 }

@@ -8,12 +8,12 @@ import javax.swing.ImageIcon;
 class JLConstants {
 
 	public static final int FRAME_DEFAULT_WIDTH = 266;
-	public static final int FRAME_DEFAULT_HEIGHT = 368;
+	public static final int FRAME_DEFAULT_HEIGHT = 500;
 	
 	public static final int ITEMPANEL_WIDTH = 256;
-	public static final int ITEMPANEL_HEIGHT = 40;
+	public static final int ITEMPANEL_HEIGHT = 24;
 	public static final int ITEMPANEL_HEIGHT_EXPANDED = 90;
-	
+
 	public static final Color COLOR_HIGHLIGHT = new Color(235, 240, 245);
 	public static final Color COLOR_HIGHLIGHT2 = new Color(225, 230, 235);
 	public static final Color COLOR_GRID = new Color(240, 240, 240);
@@ -36,6 +36,8 @@ class JLConstants {
 			JLConstants.class.getResource("resources/set2/collapse.png"));
 	
 	public static final Font FONT_ITEM_TITLE = new Font("Arial", Font.PLAIN, 14);
+	public static final Font FONT_HEADER = new Font("Arial", Font.PLAIN, 16);
+	public static final Font FONT_ITEM_DESCRIPTIOn = new Font("Arial", Font.PLAIN, 12);
 	
 
 }

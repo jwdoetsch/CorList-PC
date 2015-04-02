@@ -1,0 +1,21 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:element name="list" type="listType" />
+	
+	<xs:complexType name="listType">
+		<xs:sequence>
+			<xs:element name="header" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="item" type="itemType" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="itemType">
+		<xs:all>
+			<xs:element name="title" type="xs:string" />
+			<xs:element name="desc" type="xs:string" />
+			<xs:element name="flag" type="xs:integer" />
+			<xs:element name="expanded" type="xs:boolean" />
+		</xs:all>
+	</xs:complexType>
+
+</xs:schema>

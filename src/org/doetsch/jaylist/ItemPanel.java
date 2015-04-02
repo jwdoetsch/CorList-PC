@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.border.EmptyBorder;
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.Insets;
 
 public class ItemPanel extends JPanel {
 	private JPanel panel;
@@ -39,6 +40,7 @@ public class ItemPanel extends JPanel {
 	private int rowIndex;
 	private boolean isSelected;
 	private JPanel panelDrop;
+	private JLabel label;
 
 	/**
 	 * Create the panel.
@@ -109,7 +111,8 @@ public class ItemPanel extends JPanel {
 		this.buttonStatus = new JButton("");
 		this.buttonStatus.setBackground(Color.WHITE);
 		this.buttonStatus.addActionListener(new ButtonStatusActionListener());
-		this.buttonStatus.setPreferredSize(new Dimension(40, 40));
+		this.buttonStatus.setPreferredSize(new Dimension(
+			JLConstants.ITEMPANEL_HEIGHT, JLConstants.ITEMPANEL_HEIGHT));
 		this.buttonStatus.setBorderPainted(false);
 		this.buttonStatus.setFocusPainted(false);
 		this.panel.add(this.buttonStatus, BorderLayout.WEST);
@@ -130,11 +133,11 @@ public class ItemPanel extends JPanel {
 		});
 		this.panelDrop = new JPanel();
 		this.panelDrop.setBackground(Color.WHITE);
-		this.panelDrop.setBorder(new EmptyBorder(10, 10, 10, 10));
-		this.panelDrop.setSize(new Dimension(40, 40));
-		this.panelDrop.setMaximumSize(new Dimension(40, 40));
-		this.panelDrop.setMinimumSize(new Dimension(40, 40));
-		this.panelDrop.setPreferredSize(new Dimension(40, 40));
+		this.panelDrop.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.panelDrop.setSize(new Dimension(JLConstants.ITEMPANEL_HEIGHT, JLConstants.ITEMPANEL_HEIGHT));
+		this.panelDrop.setMaximumSize(new Dimension(JLConstants.ITEMPANEL_HEIGHT, JLConstants.ITEMPANEL_HEIGHT));
+		this.panelDrop.setMinimumSize(new Dimension(JLConstants.ITEMPANEL_HEIGHT, JLConstants.ITEMPANEL_HEIGHT));
+		this.panelDrop.setPreferredSize(new Dimension(JLConstants.ITEMPANEL_HEIGHT, JLConstants.ITEMPANEL_HEIGHT));
 		this.panel.add(this.panelDrop, BorderLayout.EAST);
 		this.panelDrop.setLayout(new BorderLayout(0, 0));
 		
@@ -142,10 +145,11 @@ public class ItemPanel extends JPanel {
 		
 		
 		this.buttonDrop = new JButton("");
+		this.buttonDrop.setMargin(new Insets(0, 0, 0, 0));
 		this.panelDrop.add(this.buttonDrop);
 		this.buttonDrop.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.buttonDrop.setBackground(Color.WHITE);
-		this.buttonDrop.setPreferredSize(new Dimension(20, 20));
+		this.buttonDrop.setPreferredSize(new Dimension(40, 40));
 		this.buttonDrop.setBorderPainted(false);
 		this.buttonDrop.setFocusPainted(false);
 		this.buttonDrop.addActionListener(new BtnNewButton_1ActionListener());
@@ -160,7 +164,7 @@ public class ItemPanel extends JPanel {
 		this.labelSpacer = new JLabel("");
 		this.labelSpacer.setBackground(Color.WHITE);
 		this.labelSpacer.setOpaque(true);
-		this.labelSpacer.setPreferredSize(new Dimension(40, 0));
+		this.labelSpacer.setPreferredSize(new Dimension(JLConstants.ITEMPANEL_HEIGHT, 0));
 		add(this.labelSpacer, BorderLayout.WEST);
 		
 		/*
@@ -174,6 +178,14 @@ public class ItemPanel extends JPanel {
 			this.labelSpacer.setBackground(JLConstants.COLOR_HIGHLIGHT);
 			this.panelDrop.setBackground(JLConstants.COLOR_HIGHLIGHT2);
 		}
+		
+		this.textField.setFont(JLConstants.FONT_ITEM_TITLE);
+		this.textArea.setFont(JLConstants.FONT_ITEM_DESCRIPTIOn);
+		this.label = new JLabel("");
+		this.label.setPreferredSize(new Dimension(24, 0));
+		this.label.setOpaque(true);
+		this.label.setBackground(Color.WHITE);
+		add(this.label, BorderLayout.EAST);
 		
 		
 	}
