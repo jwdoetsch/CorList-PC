@@ -111,19 +111,15 @@ class ListMarshall {
 				for (int j = 0; j < grandchildren.getLength(); j++) {
 					if (grandchildren.item(j).getNodeName().equals("title")) {
 						title = grandchildren.item(j).getTextContent();
-						System.out.println(title);
 					}
 					if (grandchildren.item(j).getNodeName().equals("desc")) {
 						desc = grandchildren.item(j).getTextContent();
-						System.out.println(desc);
 					}
 					if (grandchildren.item(j).getNodeName().equals("flag")) {
 						flag = Integer.valueOf(grandchildren.item(j).getTextContent());
-						System.out.println(flag);
 					}
 					if (grandchildren.item(j).getNodeName().equals("expanded")) {
 						expanded = Boolean.valueOf(grandchildren.item(j).getTextContent());
-						System.out.println(expanded);
 					}
 					
 				}
@@ -208,15 +204,6 @@ class ListMarshall {
 				
 	}
 
-	public static void main (String[] args) throws IOException, SAXException, ParserConfigurationException {
-		ListMarshall marshall = new ListMarshall();
-		
-		ListModel listModel = marshall.unmarshall(ListMarshall.class.getResource("xml/example.xml"));
-		
-		marshall.marshall(listModel, null);
-		
-		
-		
-	}
+	
 	
 }

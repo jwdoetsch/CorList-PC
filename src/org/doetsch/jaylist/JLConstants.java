@@ -18,10 +18,11 @@ class JLConstants {
 
 	public static final Color COLOR_BUTTON_BG = new Color(27, 125, 255);
 	public static final Color COLOR_BUTTON_FG = Color.WHITE;
-	public static final Color COLOR_HEADER_BG = new Color(251, 251, 251);
+	public static final Color COLOR_HEADER_BG = new Color(248, 248, 248);
+	public static final Color COLOR_ITEM = new Color(254, 254, 254);
 	public static final Color COLOR_HIGHLIGHT = new Color(228, 241, 254);
 	public static final Color COLOR_HIGHLIGHT2 = new Color(228, 241, 254);
-	public static final Color COLOR_GRID = new Color(218, 230, 242);
+	public static final Color COLOR_GRID = new Color(128, 128, 128);
 	
 	public static final ImageIcon ICON_APP = new ImageIcon(
 			ItemPanel.class.getResource("resources/icon_32.png"));
@@ -41,10 +42,16 @@ class JLConstants {
 			JLConstants.class.getResource("resources/set2/collapse.png"));
 	public static final Icon ICON_BIRD = new ImageIcon(
 			JLConstants.class.getResource("resources/set3/bird.png"));
+	public static final Icon ICON_SAVEAS = new ImageIcon(
+			JLConstants.class.getResource("resources/set2/saveas.png"));;
 	
 	public static final Font FONT_ITEM_TITLE = new Font("Arial", Font.PLAIN, 14);
 	public static final Font FONT_HEADER = new Font("Arial", Font.PLAIN, 16);
 	public static final Font FONT_ITEM_DESCRIPTIOn = new Font("Arial", Font.PLAIN, 12);
+	public static final Font LAUNCHER_FONT = new Font("Arial", Font.PLAIN, 16);
+	public static final Color LAUNCHER_COLOR_BUTTON = new Color(69, 153, 235);
+	public static final Color LAUNCHER_COLOR_BG = new Color(246, 251, 255);
+
 	
 
 }
