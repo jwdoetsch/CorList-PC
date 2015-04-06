@@ -6,7 +6,7 @@ import java.awt.Font;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-class JLConstants {
+class Constants {
 
 	public static final int FRAME_DEFAULT_WIDTH = 266;
 	public static final int FRAME_DEFAULT_HEIGHT = 500;
@@ -31,19 +31,23 @@ class JLConstants {
 	public static final ImageIcon ICON_CHECKED = new ImageIcon(
 			ItemPanel.class.getResource("resources/set3/checked.png"));
 	public static final ImageIcon ICON_UNCHECKED = new ImageIcon(
-			JLConstants.class.getResource("resources/set3/unchecked.png"));
+			Constants.class.getResource("resources/set3/unchecked.png"));
 	public static final ImageIcon ICON_URGENT = new ImageIcon(
-			JLConstants.class.getResource("resources/set2/urgent_32x32.png"));
+			Constants.class.getResource("resources/set2/urgent_32x32.png"));
 	public static final ImageIcon ICON_ISSUE = new ImageIcon(
-			JLConstants.class.getResource("resources/set2/question_32x32.png"));
+			Constants.class.getResource("resources/set2/question_32x32.png"));
 	public static final ImageIcon ICON_EXPAND = new ImageIcon(
-			JLConstants.class.getResource("resources/set2/expand.png"));
+			Constants.class.getResource("resources/set2/expand.png"));
 	public static final ImageIcon ICON_COLLAPSE = new ImageIcon(
-			JLConstants.class.getResource("resources/set2/collapse.png"));
+			Constants.class.getResource("resources/set2/collapse.png"));
 	public static final Icon ICON_BIRD = new ImageIcon(
-			JLConstants.class.getResource("resources/set3/bird.png"));
+			Constants.class.getResource("resources/set3/bird.png"));
 	public static final Icon ICON_SAVEAS = new ImageIcon(
-			JLConstants.class.getResource("resources/set2/saveas.png"));;
+			Constants.class.getResource("resources/set2/saveas.png"));
+	public static final Icon ICON_ADD = new ImageIcon(
+			Constants.class.getResource("resources/set3/menu-add.png"));
+	public static final Icon ICON_REMOVE = new ImageIcon(
+			Constants.class.getResource("resources/set3/menu-remove.png"));
 	
 	public static final Font FONT_ITEM_TITLE = new Font("Arial", Font.PLAIN, 14);
 	public static final Font FONT_HEADER = new Font("Arial", Font.PLAIN, 16);

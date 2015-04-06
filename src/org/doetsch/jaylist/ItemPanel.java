@@ -31,7 +31,7 @@ public class ItemPanel extends JPanel {
 	private JPanel panel;
 	private JScrollPane scrollPane;
 	private JTextArea textArea;
-	private JLabel labelSpacer;
+	private JLabel labelSpacerRight;
 	private JButton buttonStatus;
 	private JTextField textField;
 	private JButton buttonDrop;
@@ -45,7 +45,6 @@ public class ItemPanel extends JPanel {
 	private int rowIndex;
 	private boolean isSelected;
 	private JPanel panelDrop;
-	private JLabel label;
 
 	/**
 	 * Create the panel.
@@ -92,10 +91,10 @@ public class ItemPanel extends JPanel {
 		statusFlagIcons = new ImageIcon[4];
 //		statusFlagIcons[0] = new ImageIcon(
 //				ItemPanel2.class.getResource("resources/unchecked.png"));
-		statusFlagIcons[0] = JLConstants.ICON_UNCHECKED;
-		statusFlagIcons[1] = JLConstants.ICON_CHECKED;
-		statusFlagIcons[2] = JLConstants.ICON_URGENT;
-		statusFlagIcons[3] = JLConstants.ICON_ISSUE;
+		statusFlagIcons[0] = Constants.ICON_UNCHECKED;
+		statusFlagIcons[1] = Constants.ICON_CHECKED;
+		statusFlagIcons[2] = Constants.ICON_URGENT;
+		statusFlagIcons[3] = Constants.ICON_ISSUE;
 		
 		
 		this.iconExpand = new ImageIcon(
@@ -106,7 +105,7 @@ public class ItemPanel extends JPanel {
 	
 	private void initComponents () {
 		setPreferredSize(new Dimension(
-				JLConstants.ITEMPANEL_WIDTH, JLConstants.ITEMPANEL_HEIGHT_EXPANDED));
+				Constants.ITEMPANEL_WIDTH, Constants.ITEMPANEL_HEIGHT_EXPANDED));
 		
 		setLayout(new BorderLayout(0, 0));
 		this.panel = new JPanel();
@@ -114,16 +113,16 @@ public class ItemPanel extends JPanel {
 		add(this.panel, BorderLayout.NORTH);
 		this.panel.setLayout(new BorderLayout(0, 0));
 		this.buttonStatus = new JButton("");
-		this.buttonStatus.setBackground(JLConstants.COLOR_ITEM);
+		this.buttonStatus.setBackground(Constants.COLOR_ITEM);
 		this.buttonStatus.addActionListener(new ButtonStatusActionListener());
 		this.buttonStatus.setPreferredSize(new Dimension(
-			JLConstants.ITEMPANEL_HEIGHT + 6, JLConstants.ITEMPANEL_HEIGHT));
+			Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
 		this.buttonStatus.setBorderPainted(false);
 		this.buttonStatus.setFocusPainted(false);
 		this.panel.add(this.buttonStatus, BorderLayout.WEST);
 		this.textField = new JTextField();
 		this.textField.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.textField.setPreferredSize(new Dimension(6, JLConstants.ITEMPANEL_HEIGHT));
+		this.textField.setPreferredSize(new Dimension(6, Constants.ITEMPANEL_HEIGHT));
 		this.panel.add(this.textField, BorderLayout.CENTER);
 		this.textField.setColumns(10);
 		this.textField.addActionListener(new ActionListener() {
@@ -141,12 +140,12 @@ public class ItemPanel extends JPanel {
 		
 		
 		this.panelDrop = new JPanel();
-		this.panelDrop.setBackground(JLConstants.COLOR_ITEM);
+		this.panelDrop.setBackground(Constants.COLOR_ITEM);
 		this.panelDrop.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.panelDrop.setSize(new Dimension(JLConstants.ITEMPANEL_HEIGHT, JLConstants.ITEMPANEL_HEIGHT));
-		this.panelDrop.setMaximumSize(new Dimension(JLConstants.ITEMPANEL_HEIGHT, JLConstants.ITEMPANEL_HEIGHT));
-		this.panelDrop.setMinimumSize(new Dimension(JLConstants.ITEMPANEL_HEIGHT, JLConstants.ITEMPANEL_HEIGHT));
-		this.panelDrop.setPreferredSize(new Dimension(JLConstants.ITEMPANEL_HEIGHT, JLConstants.ITEMPANEL_HEIGHT));
+		this.panelDrop.setSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
+		this.panelDrop.setMaximumSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
+		this.panelDrop.setMinimumSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
+		this.panelDrop.setPreferredSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
 		this.panel.add(this.panelDrop, BorderLayout.EAST);
 		this.panelDrop.setLayout(new BorderLayout(0, 0));
 		
@@ -157,7 +156,7 @@ public class ItemPanel extends JPanel {
 		this.buttonDrop.setMargin(new Insets(0, 0, 0, 0));
 		this.panelDrop.add(this.buttonDrop);
 		this.buttonDrop.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.buttonDrop.setBackground(JLConstants.COLOR_ITEM);
+		this.buttonDrop.setBackground(Constants.COLOR_ITEM);
 		this.buttonDrop.setPreferredSize(new Dimension(40, 40));
 		this.buttonDrop.setBorderPainted(false);
 		this.buttonDrop.setFocusPainted(false);
@@ -170,35 +169,31 @@ public class ItemPanel extends JPanel {
 		this.textArea.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.textArea.setWrapStyleWord(true);
 		this.textArea.setLineWrap(true);
-		this.textArea.setBackground(JLConstants.COLOR_ITEM);
+		this.textArea.setBackground(Constants.COLOR_ITEM);
 		this.scrollPane.setViewportView(this.textArea);
-		this.labelSpacer = new JLabel("");
-		this.labelSpacer.setBackground(JLConstants.COLOR_ITEM);
-		this.labelSpacer.setOpaque(true);
-		this.labelSpacer.setPreferredSize(new Dimension(JLConstants.ITEMPANEL_HEIGHT, 0));
-		add(this.labelSpacer, BorderLayout.WEST);
+		this.labelSpacerRight = new JLabel("");
+		this.labelSpacerRight.setBackground(Constants.COLOR_ITEM);
+		this.labelSpacerRight.setOpaque(true);
+		this.labelSpacerRight.setPreferredSize(new Dimension(Constants.ITEMPANEL_HEIGHT, 0));
+		add(this.labelSpacerRight, BorderLayout.WEST);
 		
 
 		
-		this.textField.setFont(JLConstants.FONT_ITEM_TITLE);
-		this.textField.setBackground(JLConstants.COLOR_ITEM);
-		this.textArea.setFont(JLConstants.FONT_ITEM_DESCRIPTIOn);
-		this.label = new JLabel("");
-		this.label.setPreferredSize(new Dimension(24, 0));
-		this.label.setOpaque(true);
-		this.label.setBackground(JLConstants.COLOR_ITEM);
-		add(this.label, BorderLayout.EAST);
+		this.textField.setFont(Constants.FONT_ITEM_TITLE);
+		this.textField.setBackground(Constants.COLOR_ITEM);
+		this.textArea.setFont(Constants.FONT_ITEM_DESCRIPTIOn);
 		
 		/*
 		 * should be highlighted?						
 		 */
 		if (isSelected) {
-			this.buttonStatus.setBackground(JLConstants.COLOR_HIGHLIGHT2);
-			this.textField.setBackground(JLConstants.COLOR_HIGHLIGHT);
-			this.buttonDrop.setBackground(JLConstants.COLOR_HIGHLIGHT2);
-			this.textArea.setBackground(JLConstants.COLOR_HIGHLIGHT);
-			this.labelSpacer.setBackground(JLConstants.COLOR_HIGHLIGHT);
-			this.panelDrop.setBackground(JLConstants.COLOR_HIGHLIGHT2);
+			this.buttonStatus.setBackground(Constants.COLOR_HIGHLIGHT2);
+			this.textField.setBackground(Constants.COLOR_HIGHLIGHT);
+			this.buttonDrop.setBackground(Constants.COLOR_HIGHLIGHT2);
+			this.textArea.setBackground(Constants.COLOR_HIGHLIGHT);
+			this.labelSpacerRight.setBackground(Constants.COLOR_HIGHLIGHT);
+			//this.labelSpacerLeft.setBackground(Constants.COLOR_HIGHLIGHT);
+			this.panelDrop.setBackground(Constants.COLOR_HIGHLIGHT2);
 		}
 		
 //		this.setComponentPopupMenu(parentTable.uiPopupMenu);
@@ -228,12 +223,12 @@ public class ItemPanel extends JPanel {
 	
 	void requestRowResize () {
 		
-		if (expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != JLConstants.ITEMPANEL_HEIGHT_EXPANDED)) {
-			parentTable.uiTable.setRowHeight(rowIndex, JLConstants.ITEMPANEL_HEIGHT_EXPANDED);
+		if (expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT_EXPANDED)) {
+			parentTable.uiTable.setRowHeight(rowIndex, Constants.ITEMPANEL_HEIGHT_EXPANDED);
 		}
 		
-		if (!expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != JLConstants.ITEMPANEL_HEIGHT)) {
-			parentTable.uiTable.setRowHeight(rowIndex, JLConstants.ITEMPANEL_HEIGHT);
+		if (!expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT)) {
+			parentTable.uiTable.setRowHeight(rowIndex, Constants.ITEMPANEL_HEIGHT);
 		}
 				
 		
@@ -256,7 +251,7 @@ public class ItemPanel extends JPanel {
 	private class ButtonStatusActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
 			ItemPanel.this.statusFlag =
-					(ItemPanel.this.statusFlag + 1) % JLConstants.ICON_FLAG_COUNT;
+					(ItemPanel.this.statusFlag + 1) % Constants.ICON_FLAG_COUNT;
 			setStatusButtonIcon();
 
 		}

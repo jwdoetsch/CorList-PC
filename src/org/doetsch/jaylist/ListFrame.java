@@ -270,11 +270,11 @@ public class ListFrame extends JFrame {
 		//set up the JFrame
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100,
-				JLConstants.FRAME_DEFAULT_WIDTH, JLConstants.FRAME_DEFAULT_HEIGHT);
+				Constants.FRAME_DEFAULT_WIDTH, Constants.FRAME_DEFAULT_HEIGHT);
 		
 		
-		this.setIconImage(JLConstants.ICON_APP.getImage());
-		this.setMinimumSize(new Dimension(JLConstants.FRAME_DEFAULT_WIDTH, 192));
+		this.setIconImage(Constants.ICON_APP.getImage());
+		this.setMinimumSize(new Dimension(Constants.FRAME_DEFAULT_WIDTH, 192));
 		
 		//set up content pane
 		this.contentPane = new JPanel();
@@ -318,21 +318,21 @@ public class ListFrame extends JFrame {
 			}
 			
 		});
-		this.uiTextPane.setFont(JLConstants.FONT_HEADER);
-		this.uiTextPane.setBackground(JLConstants.COLOR_HEADER_BG);
-		this.uiTextPane.setMinimumSize(new Dimension(6, JLConstants.HEADER_HEIGHT));
+		this.uiTextPane.setFont(Constants.FONT_HEADER);
+		this.uiTextPane.setBackground(Constants.COLOR_HEADER_BG);
+		this.uiTextPane.setMinimumSize(new Dimension(6, Constants.HEADER_HEIGHT));
 		
 		//set up table scroll pane
 		this.uiScrollPane = new JScrollPane();
 		this.uiScrollPane.setBorder(new EmptyBorder(5, 0, 0, 0));
-		this.uiScrollPane.setBackground(JLConstants.COLOR_GRID);
+		this.uiScrollPane.setBackground(Constants.COLOR_GRID);
 		this.contentPane.add(this.uiScrollPane, BorderLayout.CENTER);
 		
 		//set up the table
 		this.uiTable = new JTable();
 		this.uiTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.uiTable.setFillsViewportHeight(true);
-		this.uiTable.setGridColor(JLConstants.COLOR_GRID);
+		this.uiTable.setGridColor(Constants.COLOR_GRID);
 		this.uiTable.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.uiTable.setTableHeader(null);
 		//give the table a single row/column so the renderer and editor can
@@ -359,16 +359,16 @@ public class ListFrame extends JFrame {
 		
 		this.uiMenuItemAdd = new JMenuItem("Add Item");
 		this.uiMenuItemAdd.addActionListener(new UIBtnNewActionListener());
-		this.uiMenuItemAdd.setIcon(JLConstants.ICON_EXPAND);
+		this.uiMenuItemAdd.setIcon(Constants.ICON_ADD);
 		
 		
 		this.uiMenuItemRemove = new JMenuItem("Remove Item");
-		this.uiMenuItemRemove.setIcon(JLConstants.ICON_COLLAPSE);
+		this.uiMenuItemRemove.setIcon(Constants.ICON_REMOVE);
 		this.uiMenuItemRemove.addActionListener(new UIBtnRemoveActionListener());
 		
 		this.uiMenuItemSaveAs = new JMenuItem("Save As...");
 		this.uiMenuItemSaveAs.addActionListener(new UiMenuItemSaveAsActionListener());
-		this.uiMenuItemSaveAs.setIcon(JLConstants.ICON_SAVEAS);
+		this.uiMenuItemSaveAs.setIcon(Constants.ICON_SAVEAS);
 		//this.uiMenuItemSaveAs.addActionListener(new UIBtnRemoveActionListener()); 
 		
 		//set up the popup menu

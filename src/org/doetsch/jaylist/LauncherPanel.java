@@ -38,9 +38,9 @@ public class LauncherPanel extends JPanel {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.btnNewButton = new JButton("<html><p>" + model.title + "</p></html>");
 		this.btnNewButton.setBorder(new EmptyBorder(4, 4, 4, 4));
-		this.btnNewButton.setBackground(JLConstants.LAUNCHER_COLOR_BUTTON);
+		this.btnNewButton.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
 		this.btnNewButton.setForeground(Color.WHITE);
-		this.btnNewButton.setFont(JLConstants.LAUNCHER_FONT);
+		this.btnNewButton.setFont(Constants.LAUNCHER_FONT);
 		
 		this.btnNewButton.setMaximumSize(new Dimension(96, 96));
 		this.btnNewButton.setMinimumSize(new Dimension(96, 96));

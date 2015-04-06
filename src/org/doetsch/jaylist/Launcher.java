@@ -131,7 +131,7 @@ public class Launcher extends JFrame {
 		//setBounds(100, 100, 358, 368);
 		setBounds(368, 128, 64, 64);
 		this.contentPane = new JPanel();
-		this.contentPane.setBackground(JLConstants.LAUNCHER_COLOR_BG);
+		this.contentPane.setBackground(Constants.LAUNCHER_COLOR_BG);
 		this.contentPane.setPreferredSize(new Dimension(336, 320));
 		this.contentPane.setBorder(new EmptyBorder(4, 4, 4, 4));
 		this.contentPane.setLayout(new BorderLayout(0, 0));
@@ -153,9 +153,9 @@ public class Launcher extends JFrame {
 		this.btnNew.setMnemonic('N');
 		this.btnNew.setBorder(new EmptyBorder(4, 4, 4, 4));
 		this.btnNew.setVerticalTextPosition(SwingConstants.TOP);
-		this.btnNew.setBackground(JLConstants.LAUNCHER_COLOR_BUTTON);
+		this.btnNew.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
 		this.btnNew.setForeground(Color.WHITE);
-		this.btnNew.setFont(JLConstants.LAUNCHER_FONT);
+		this.btnNew.setFont(Constants.LAUNCHER_FONT);
 		this.btnNew.setMargin(new Insets(4, 4, 4, 4));
 		this.btnNew.setHorizontalAlignment(SwingConstants.LEFT);
 		this.btnNew.setVerticalAlignment(SwingConstants.TOP);
@@ -175,7 +175,7 @@ public class Launcher extends JFrame {
 		this.panel_2.setLayout(new BorderLayout(0, 0));
 		this.btnOpen = new JButton("Open");
 		this.btnOpen.setMnemonic('O');
-		this.btnOpen.setBackground(JLConstants.LAUNCHER_COLOR_BUTTON);
+		this.btnOpen.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
 		this.btnOpen.setForeground(Color.WHITE);		
 		this.btnOpen.setBorder(new EmptyBorder(4, 4, 4, 4));
 		this.btnOpen.setVerticalAlignment(SwingConstants.TOP);
@@ -197,13 +197,13 @@ public class Launcher extends JFrame {
 		this.panel.add(this.panel_3);
 		this.panel_3.setLayout(new BorderLayout(0, 0));
 		this.scrollPane = new JScrollPane();
-		this.scrollPane.setBackground(JLConstants.LAUNCHER_COLOR_BG);
+		this.scrollPane.setBackground(Constants.LAUNCHER_COLOR_BG);
 		this.scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.contentPane.add(this.scrollPane, BorderLayout.CENTER);
 		this.table = new JTable();
-		this.table.setBackground(JLConstants.LAUNCHER_COLOR_BG);
+		this.table.setBackground(Constants.LAUNCHER_COLOR_BG);
 		this.table.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.table.setShowVerticalLines(false);
 		this.table.setShowHorizontalLines(false);
