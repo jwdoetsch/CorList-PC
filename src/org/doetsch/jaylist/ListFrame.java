@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.swing.AbstractCellEditor;
@@ -86,7 +87,7 @@ public class ListFrame extends JFrame {
 	 * Launch a ListFrame instance that opens a new list.
 	 * Uses the Metal look and feel.
 	 */
-	public static void main(String[] args) {
+	public static void main (String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				
@@ -159,9 +160,12 @@ public class ListFrame extends JFrame {
 		//inject the new TableModel
 		this.uiTable.setModel(tableModel);
 		
+		this.setBounds(this.getBounds().x, this.getBounds().y, 
+				listModel.getFrameSize().width, listModel.getFrameSize().height);
+		
 	}
 	
-	private void setTitle() {
+	private void setTitle () {
 		//set title bar
 		if (hasPath) {
 			File f = new File(path.getFile());
@@ -173,7 +177,19 @@ public class ListFrame extends JFrame {
 		}		
 	}
 	
-	private void saveAs() {
+	private void newList () {
+		DefaultTableModel tableModel =
+				(DefaultTableModel)ListFrame.this.uiTable.getModel();
+		tableModel.addRow(new ItemModel[] {new ItemModel("<add a title>", "<add a description>", 0, false)});
+		
+		if (uiTable.isEditing()) {
+			uiTable.getCellEditor().stopCellEditing();
+		}
+		uiTable.getSelectionModel().clearSelection();
+		uiTable.changeSelection(uiTable.getRowCount() - 1, 0, true, false);
+	}
+	
+	private void saveAs () {
 		JFileChooser fc = new JFileChooser();
 		
 		int state = fc.showSaveDialog(ListFrame.this);
@@ -190,6 +206,39 @@ public class ListFrame extends JFrame {
 			}
 		}			
 	}
+	
+	private void open () {
+		JFileChooser fc = new JFileChooser();
+//		try {
+//			fc.setCurrentDirectory(new File(ClassLoader.getSystemClassLoader().getResource("/lists").toURI()));
+//		} catch (URISyntaxException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		if (uiTable.isEditing()) {
+			ListFrame.this.uiTable.getCellEditor().stopCellEditing();
+		}
+		ListFrame.this.uiTable.getSelectionModel().clearSelection();
+		
+		int state = fc.showOpenDialog(ListFrame.this);
+		if (state == JFileChooser.APPROVE_OPTION) {
+			ListMarshall marshall = new ListMarshall();
+			try {
+				ListFrame newList;
+				newList = new ListFrame(marshall.unmarshall(fc.getSelectedFile().toURI().toURL()), true);
+				newList.setVisible(true);
+				
+			/*
+			 * catch XML decode and file IO exceptions and notify the
+			 * user via dialog
+			 */
+			} catch (IOException | SAXException
+					| ParserConfigurationException e1) {
+				JOptionPane.showMessageDialog(ListFrame.this, "Can't open the selected file.");
+			}
+		}
+	}
 
 	/**
 	 * Creates and returns a  ListModel instance that models the
@@ -200,12 +249,15 @@ public class ListFrame extends JFrame {
 	private ListModel extractListModel () {
 		ListModel listModel = new ListModel();
 		listModel.setHeader(this.uiTextPane.getText());
-		
+		listModel.setFrameSize(new Dimension(
+				this.getBounds().width, this.getBounds().height));
 		
 		for (int i = 0; i < uiTable.getRowCount(); i++) {
 			ItemModel itemModel = (ItemModel)uiTable.getValueAt(i, 0);
 			listModel.addItemModels(itemModel);
 		}
+		
+		
 		
 		return listModel;
 	}
@@ -219,6 +271,8 @@ public class ListFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100,
 				JLConstants.FRAME_DEFAULT_WIDTH, JLConstants.FRAME_DEFAULT_HEIGHT);
+		
+		
 		this.setIconImage(JLConstants.ICON_APP.getImage());
 		this.setMinimumSize(new Dimension(JLConstants.FRAME_DEFAULT_WIDTH, 192));
 		
@@ -407,15 +461,7 @@ public class ListFrame extends JFrame {
 		 * item for editing
 		 */
 		public void actionPerformed(ActionEvent arg0) {
-			DefaultTableModel tableModel =
-					(DefaultTableModel)ListFrame.this.uiTable.getModel();
-			tableModel.addRow(new ItemModel[] {new ItemModel("<add a title>", "<add a description>", 0, false)});
-			
-			if (uiTable.isEditing()) {
-				uiTable.getCellEditor().stopCellEditing();
-			}
-			uiTable.getSelectionModel().clearSelection();
-			uiTable.changeSelection(uiTable.getRowCount() - 1, 0, true, false);
+			newList();
 		}
 	}
 	
@@ -478,30 +524,7 @@ public class ListFrame extends JFrame {
 	 */
 	private class UIMenuItemOpenActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			JFileChooser fc = new JFileChooser();
-			
-			if (uiTable.isEditing()) {
-				ListFrame.this.uiTable.getCellEditor().stopCellEditing();
-			}
-			ListFrame.this.uiTable.getSelectionModel().clearSelection();
-			
-			int state = fc.showOpenDialog(ListFrame.this);
-			if (state == JFileChooser.APPROVE_OPTION) {
-				ListMarshall marshall = new ListMarshall();
-				try {
-					ListFrame newList;
-					newList = new ListFrame(marshall.unmarshall(fc.getSelectedFile().toURI().toURL()), true);
-					newList.setVisible(true);
-					
-				/*
-				 * catch XML decode and file IO exceptions and notify the
-				 * user via dialog
-				 */
-				} catch (IOException | SAXException
-						| ParserConfigurationException e1) {
-					JOptionPane.showMessageDialog(ListFrame.this, "Can't open the selected file.");
-				}
-			}
+			open();
 			
 		}
 	}

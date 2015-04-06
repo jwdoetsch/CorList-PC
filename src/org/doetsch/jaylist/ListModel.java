@@ -1,5 +1,6 @@
 package org.doetsch.jaylist;
 
+import java.awt.Dimension;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ class ListModel {
 	private URL path;
 	private String header;
 	private ArrayList<ItemModel> itemModels;
+	private Dimension frameSize;
 	
 	ListModel (String header) {
 		this.header = header;
@@ -41,6 +43,14 @@ class ListModel {
 	
 	ArrayList<ItemModel> getItemModels () {
 		return this.itemModels;
+	}
+	
+	void setFrameSize (Dimension frameSize) {
+		this.frameSize = frameSize;
+	}
+	
+	Dimension getFrameSize () {
+		return this.frameSize;
 	}
 
 }

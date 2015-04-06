@@ -5,7 +5,19 @@
 	<xs:complexType name="listType">
 		<xs:sequence>
 			<xs:element name="header" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="config" type="configType" minOccurs="0" maxOccurs="1" />
 			<xs:element name="item" type="itemType" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="configType">
+		<xs:sequence>
+			<xs:element name="frame" minOccurs="0" maxOccurs="1">
+				<xs:complexType>
+					<xs:attribute name="width" type="xs:integer" />
+					<xs:attribute name="height" type="xs:integer" />
+				</xs:complexType>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	

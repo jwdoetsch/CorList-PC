@@ -1,5 +1,6 @@
 package org.doetsch.jaylist;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -83,8 +84,10 @@ class ListMarshall {
 		ListModel list = new ListModel();
 		Node child;
 		NodeList grandchildren;
+		NamedNodeMap attributes;
 		String title = "";
 		String desc = "";
+		Dimension frameSize = new Dimension(200, 400); //default dimensions if frame config unspecified
 		int flag = 0;
 		boolean expanded = false;
 		
@@ -102,6 +105,23 @@ class ListMarshall {
 				//System.out.println("header found");
 				list.setHeader(children.item(i).getTextContent());
 			}
+			
+			if (children.item(i).getNodeName().equals("config")) {
+				child = children.item(i);
+				grandchildren = child.getChildNodes();
+				
+				for (int j = 0; j < grandchildren.getLength(); j++) {
+					if (grandchildren.item(j).getNodeName().equals("frame")) {
+						attributes = grandchildren.item(j).getAttributes();
+						int width = Integer.valueOf(
+								attributes.getNamedItem("width").getNodeValue());
+						int height = Integer.valueOf(
+								attributes.getNamedItem("height").getNodeValue());
+						frameSize = new Dimension(width, height);
+					}
+				}
+			}
+				
 			
 			if (children.item(i).getNodeName().equals("item")) {
 				child = children.item(i);
@@ -124,10 +144,15 @@ class ListMarshall {
 					
 				}
 
+				
+				
+				
 				list.addItemModels(new ItemModel(title, desc, flag, expanded));
 				
 			}
 		}
+		
+		list.setFrameSize(frameSize);
 		
 		return list;
 	}
@@ -138,8 +163,8 @@ class ListMarshall {
 		Document document;
 		Element rootElement;
 		Transformer transformer;
-		Element groupsElement;
-		Element groupElement;
+		Element configElement;
+		Element frameElement;
 		
 		docBuilderFactory = DocumentBuilderFactory.newInstance();
 		
@@ -152,10 +177,22 @@ class ListMarshall {
 		document = docBuilder.newDocument();
 		rootElement = document.createElement("list");
 		
-		//rootElement.appendChild(new Node())
+		//set the header
 		Element headerElement = document.createElement("header");
 		headerElement.setTextContent(listModel.getHeader());
 		rootElement.appendChild(headerElement);
+		
+		//add config details
+		configElement = document.createElement("config");
+		frameElement = document.createElement("frame");
+		frameElement.setAttribute("width", String.valueOf(
+				listModel.getFrameSize().width));
+		frameElement.setAttribute("height", String.valueOf(
+				listModel.getFrameSize().height));
+		configElement.appendChild(frameElement);
+		rootElement.appendChild(configElement);
+		
+		
 		
 		for (ItemModel itemModel : listModel.getItemModels()) {
 			Element itemElement = document.createElement("item");
@@ -176,6 +213,10 @@ class ListMarshall {
 			
 			rootElement.appendChild(itemElement);		
 		}
+		
+		
+		
+		
 		
 		document.appendChild(rootElement);
 		

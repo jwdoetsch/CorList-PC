@@ -2,6 +2,9 @@
 <list>
 
 	<header>&lt;describe your list here&gt;</header>
+	<config>
+		<frame width="256" height="512" />
+	</config>
 	
 	<item>
     	<title>&lt;add an item title&gt;</title>
