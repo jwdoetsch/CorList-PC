@@ -16,10 +16,19 @@ import javax.swing.JTextField;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -177,11 +186,30 @@ public class ItemPanel extends JPanel {
 		this.labelSpacerRight.setPreferredSize(new Dimension(Constants.ITEMPANEL_HEIGHT, 0));
 		add(this.labelSpacerRight, BorderLayout.WEST);
 		
+		this.addFocusListener(new FocusListener() {
 
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				requestRowResize();
+			}
+			
+		});
 		
 		this.textField.setFont(Constants.FONT_ITEM_TITLE);
 		this.textField.setBackground(Constants.COLOR_ITEM);
 		this.textArea.setFont(Constants.FONT_ITEM_DESCRIPTIOn);
+		this.textArea.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				requestRowResize();				
+			}
+		});
 		
 		/*
 		 * should be highlighted?						
@@ -223,8 +251,12 @@ public class ItemPanel extends JPanel {
 	
 	void requestRowResize () {
 		
-		if (expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT_EXPANDED)) {
-			parentTable.uiTable.setRowHeight(rowIndex, Constants.ITEMPANEL_HEIGHT_EXPANDED);
+		int textAreaHeight = textArea.getPreferredSize().getSize().height;
+		int rowHeight = 34 + textAreaHeight;
+		//System.out.println("syncing row height to: " + rowHeight);
+		
+		if (expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != rowHeight)) {
+			parentTable.uiTable.setRowHeight(rowIndex, rowHeight);
 		}
 		
 		if (!expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT)) {
