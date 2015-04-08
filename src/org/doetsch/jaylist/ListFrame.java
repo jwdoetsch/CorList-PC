@@ -20,6 +20,7 @@ import java.net.URL;
 import javax.swing.AbstractCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -77,6 +78,8 @@ public class ListFrame extends JFrame {
 	JMenuItem uiMenuItemNew;
 	JButton uiBtnMenu;
 	JPopupMenu uiPopupMenu;
+	
+	JEditorPane dummyPane = new JEditorPane();
 	
 	//determines save behavior according to whether the list 
 	//is a new list or an opened list 

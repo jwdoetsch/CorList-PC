@@ -6,6 +6,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -50,7 +51,7 @@ public class ItemPanel extends JPanel {
 	private ImageIcon iconExpand;
 	private ImageIcon iconCollapse;
 	private boolean expanded;
-	private ListFrame parentTable;
+	private ListFrame parentFrame;
 	private int rowIndex;
 	private boolean isSelected;
 	private JPanel panelDrop;
@@ -60,7 +61,7 @@ public class ItemPanel extends JPanel {
 	 */
 	ItemPanel (ItemModel itemModel, ListFrame parentTable,
 			int rowIndex, boolean isSelected) {
-		this.parentTable = parentTable;
+		this.parentFrame = parentTable;
 		this.rowIndex = rowIndex;
 		this.isSelected = isSelected;
 		
@@ -233,11 +234,11 @@ public class ItemPanel extends JPanel {
 //		this.panelDrop.setComponentPopupMenu(parentTable.uiPopupMenu);
 	
 		
-		this.textField.addMouseListener(new PopupListener(parentTable.uiPopupMenu));
-		this.buttonStatus.addMouseListener(new PopupListener(parentTable.uiPopupMenu));
-		this.textField.addMouseListener(new PopupListener(parentTable.uiPopupMenu));
-		this.buttonDrop.addMouseListener(new PopupListener(parentTable.uiPopupMenu));
-		this.textArea.addMouseListener(new PopupListener(parentTable.uiPopupMenu));
+		this.textField.addMouseListener(new PopupListener(parentFrame.uiPopupMenu));
+		this.buttonStatus.addMouseListener(new PopupListener(parentFrame.uiPopupMenu));
+		this.textField.addMouseListener(new PopupListener(parentFrame.uiPopupMenu));
+		this.buttonDrop.addMouseListener(new PopupListener(parentFrame.uiPopupMenu));
+		this.textArea.addMouseListener(new PopupListener(parentFrame.uiPopupMenu));
 	}
 	
 	private void setDropButtonIcon () {
@@ -249,18 +250,38 @@ public class ItemPanel extends JPanel {
 		}
 	}
 	
+	/**
+	 * Determines and returns the table row height necessary
+	 * to include all lines (wrapped and breaked) within the
+	 * text area.
+	 * 
+	 * @return
+	 */
+	int getTextAreaHeight () {
+		
+		int height;
+		JEditorPane dummyPane = new JEditorPane();
+		dummyPane.setSize(parentFrame.uiTable.getSize().width - Constants.ITEMPANEL_HEIGHT, 32);
+		dummyPane.setText(textArea.getText());
+		dummyPane.setFont(textArea.getFont());
+		height = dummyPane.getPreferredSize().height;
+		return height;
+	}
+	
 	void requestRowResize () {
 		
-		int textAreaHeight = textArea.getPreferredSize().getSize().height;
+		int textAreaHeight = getTextAreaHeight();
+		textAreaHeight = getTextAreaHeight();
+		
 		int rowHeight = 34 + textAreaHeight;
 		//System.out.println("syncing row height to: " + rowHeight);
 		
-		if (expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != rowHeight)) {
-			parentTable.uiTable.setRowHeight(rowIndex, rowHeight);
+		if (expanded && (parentFrame.uiTable.getRowHeight(this.rowIndex) != rowHeight)) {
+			parentFrame.uiTable.setRowHeight(rowIndex, rowHeight);
 		}
 		
-		if (!expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT)) {
-			parentTable.uiTable.setRowHeight(rowIndex, Constants.ITEMPANEL_HEIGHT);
+		if (!expanded && (parentFrame.uiTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT)) {
+			parentFrame.uiTable.setRowHeight(rowIndex, Constants.ITEMPANEL_HEIGHT);
 		}
 				
 		
