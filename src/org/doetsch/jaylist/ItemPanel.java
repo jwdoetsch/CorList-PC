@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JEditorPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -37,6 +38,7 @@ import java.awt.Insets;
 
 import javax.swing.ScrollPaneConstants;
 
+@SuppressWarnings("serial")
 public class ItemPanel extends JPanel {
 	private JPanel panel;
 	private JScrollPane scrollPane;
@@ -51,24 +53,37 @@ public class ItemPanel extends JPanel {
 	private ImageIcon iconExpand;
 	private ImageIcon iconCollapse;
 	private boolean expanded;
-	private ListFrame parentFrame;
+	//private ListFrame parentFrame;
+	private JTable parentTable;
+	private JPopupMenu popupMenu;
 	private int rowIndex;
 	private boolean isSelected;
 	private JPanel panelDrop;
 
 	/**
-	 * Create the panel.
+	 * Creates a new ItemPanel instance modeled after the given
+	 * ItemModel.
+	 * 
+	 * @param itemModel
+	 * @param isSelected determines if this ItemPanel's UI components
+	 * should be highlighted
+	 * @param parentTable the table within which the ItemPanel will be
+	 * used
+	 * @param rowIndex the row at quich this ItemPanel will be used
+	 * in the parent table
+	 * @param popupMenu the JPopupMenu to be displayed on right-clicking
+	 * the ItemPanel
 	 */
-	ItemPanel (ItemModel itemModel, ListFrame parentTable,
-			int rowIndex, boolean isSelected) {
-		this.parentFrame = parentTable;
+	ItemPanel (ItemModel itemModel, boolean isSelected, JTable parentTable,
+			int rowIndex, JPopupMenu popupMenu) {
+		this.parentTable = parentTable;
 		this.rowIndex = rowIndex;
 		this.isSelected = isSelected;
+		this.popupMenu = popupMenu;
 		
 		loadIcons();
 		initComponents();
 		injectItemModelValues(itemModel);
-
 	}
 	
 
@@ -234,11 +249,11 @@ public class ItemPanel extends JPanel {
 //		this.panelDrop.setComponentPopupMenu(parentTable.uiPopupMenu);
 	
 		
-		this.textField.addMouseListener(new PopupListener(parentFrame.uiPopupMenu));
-		this.buttonStatus.addMouseListener(new PopupListener(parentFrame.uiPopupMenu));
-		this.textField.addMouseListener(new PopupListener(parentFrame.uiPopupMenu));
-		this.buttonDrop.addMouseListener(new PopupListener(parentFrame.uiPopupMenu));
-		this.textArea.addMouseListener(new PopupListener(parentFrame.uiPopupMenu));
+		this.textField.addMouseListener(new PopupListener(popupMenu));
+		this.buttonStatus.addMouseListener(new PopupListener(popupMenu));
+		this.textField.addMouseListener(new PopupListener(popupMenu));
+		this.buttonDrop.addMouseListener(new PopupListener(popupMenu));
+		this.textArea.addMouseListener(new PopupListener(popupMenu));
 	}
 	
 	private void setDropButtonIcon () {
@@ -258,14 +273,11 @@ public class ItemPanel extends JPanel {
 	 * @return
 	 */
 	int getTextAreaHeight () {
-		
-		int height;
 		JEditorPane dummyPane = new JEditorPane();
-		dummyPane.setSize(parentFrame.uiTable.getSize().width - Constants.ITEMPANEL_HEIGHT, 32);
+		dummyPane.setSize(parentTable.getSize().width - Constants.ITEMPANEL_HEIGHT, 32);
 		dummyPane.setText(textArea.getText());
 		dummyPane.setFont(textArea.getFont());
-		height = dummyPane.getPreferredSize().height;
-		return height;
+		return dummyPane.getPreferredSize().height;
 	}
 	
 	void requestRowResize () {
@@ -274,14 +286,13 @@ public class ItemPanel extends JPanel {
 		textAreaHeight = getTextAreaHeight();
 		
 		int rowHeight = 34 + textAreaHeight;
-		//System.out.println("syncing row height to: " + rowHeight);
-		
-		if (expanded && (parentFrame.uiTable.getRowHeight(this.rowIndex) != rowHeight)) {
-			parentFrame.uiTable.setRowHeight(rowIndex, rowHeight);
+	
+		if (expanded && (parentTable.getRowHeight(this.rowIndex) != rowHeight)) {
+			parentTable.setRowHeight(rowIndex, rowHeight);
 		}
 		
-		if (!expanded && (parentFrame.uiTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT)) {
-			parentFrame.uiTable.setRowHeight(rowIndex, Constants.ITEMPANEL_HEIGHT);
+		if (!expanded && (parentTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT)) {
+			parentTable.setRowHeight(rowIndex, Constants.ITEMPANEL_HEIGHT);
 		}
 				
 		

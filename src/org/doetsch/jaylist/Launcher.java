@@ -13,11 +13,15 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Component;
 
 import javax.swing.SwingConstants;
 
 import java.awt.AWTException;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Font;
 import java.awt.Color;
@@ -33,9 +37,13 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.ImageIcon;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.plaf.ScrollBarUI;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import javax.swing.plaf.metal.MetalScrollBarUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -59,7 +67,12 @@ import org.xml.sax.AttributeList;
 import org.xml.sax.SAXException;
 
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.awt.Window.Type;
+
+import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 
 public class Launcher extends JFrame {
 
@@ -71,7 +84,6 @@ public class Launcher extends JFrame {
 	private JButton btnOpen;
 	private JScrollPane scrollPane;
 	private JTable table;
-	private JPanel panel_3;
 	private ArrayList<LauncherModel> models;
 	private TrayIcon trayIcon;
 	private SystemTray systemTray;
@@ -123,8 +135,6 @@ public class Launcher extends JFrame {
 	private void initComponents() {
 		
 		models = new ArrayList<LauncherModel>();
-		
-		setResizable(false);
 		setTitle("Launcher - JayList");
 		//setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		//setDefaultCloseOperation()
@@ -132,7 +142,7 @@ public class Launcher extends JFrame {
 		setBounds(368, 128, 64, 64);
 		this.contentPane = new JPanel();
 		this.contentPane.setBackground(Constants.LAUNCHER_COLOR_BG);
-		this.contentPane.setPreferredSize(new Dimension(336, 320));
+		this.contentPane.setPreferredSize(new Dimension(440, 320));
 		this.contentPane.setBorder(new EmptyBorder(4, 4, 4, 4));
 		this.contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(this.contentPane);
@@ -141,14 +151,16 @@ public class Launcher extends JFrame {
 		this.contentPane.add(this.panel, BorderLayout.NORTH);
 		this.panel.setLayout(new BoxLayout(this.panel, BoxLayout.X_AXIS));
 		this.panel_1 = new JPanel();
+		this.panel_1.setBorder(new EmptyBorder(2, 2, 2, 2));
 		this.panel_1.setOpaque(false);
-		this.panel_1.setBorder(new EmptyBorder(4, 4, 4, 4));
+		//this.panel_1.setBorder(new EmptyBorder(4, 4, 4, 4));
 		this.panel_1.setMaximumSize(new Dimension(104, 104));
 		this.panel_1.setMinimumSize(new Dimension(104, 104));
 		this.panel_1.setPreferredSize(new Dimension(104, 104));
 		this.panel_1.setSize(new Dimension(104, 104));
 		this.panel.add(this.panel_1);
 		this.panel_1.setLayout(new BorderLayout(0, 0));
+		
 		this.btnNew = new JButton("New");
 		this.btnNew.setMnemonic('N');
 		this.btnNew.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -161,45 +173,39 @@ public class Launcher extends JFrame {
 		this.btnNew.setVerticalAlignment(SwingConstants.TOP);
 		this.btnNew.setHorizontalTextPosition(SwingConstants.LEADING);
 		this.panel_1.add(this.btnNew);
-		this.btnNew.setMinimumSize(new Dimension(128, 128));
-		this.btnNew.setMaximumSize(new Dimension(128, 128));
+		this.btnNew.setMinimumSize(new Dimension(104, 104));
+		this.btnNew.setMaximumSize(new Dimension(104, 104));
 		this.btnNew.setPreferredSize(new Dimension(104, 104));
+		
+		
 		this.panel_2 = new JPanel();
 		this.panel_2.setOpaque(false);
 		this.panel_2.setSize(new Dimension(104, 104));
 		this.panel_2.setPreferredSize(new Dimension(104, 104));
 		this.panel_2.setMinimumSize(new Dimension(104, 104));
 		this.panel_2.setMaximumSize(new Dimension(104, 104));
-		this.panel_2.setBorder(new EmptyBorder(4, 4, 4, 4));
+		this.panel_2.setBorder(new EmptyBorder(2, 2, 2, 2));
 		this.panel.add(this.panel_2);
 		this.panel_2.setLayout(new BorderLayout(0, 0));
+		
 		this.btnOpen = new JButton("Open");
+		this.btnOpen.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.btnOpen.setMnemonic('O');
 		this.btnOpen.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
-		this.btnOpen.setForeground(Color.WHITE);		
-		this.btnOpen.setBorder(new EmptyBorder(4, 4, 4, 4));
+		this.btnOpen.setForeground(Color.WHITE);
 		this.btnOpen.setVerticalAlignment(SwingConstants.TOP);
 		this.btnOpen.setPreferredSize(new Dimension(104, 104));
-		this.btnOpen.setMinimumSize(new Dimension(128, 128));
-		this.btnOpen.setMaximumSize(new Dimension(128, 128));
+		this.btnOpen.setMinimumSize(new Dimension(104, 104));
+		this.btnOpen.setMaximumSize(new Dimension(104, 104));
 		this.btnOpen.setMargin(new Insets(4, 4, 4, 4));
 		this.btnOpen.setHorizontalTextPosition(SwingConstants.CENTER);
 		this.btnOpen.setHorizontalAlignment(SwingConstants.LEFT);
 		this.btnOpen.setFont(new Font("Arial", Font.PLAIN, 16));
 		this.panel_2.add(this.btnOpen, BorderLayout.CENTER);
-		this.panel_3 = new JPanel();
-		this.panel_3.setSize(new Dimension(104, 104));
-		this.panel_3.setPreferredSize(new Dimension(104, 104));
-		this.panel_3.setOpaque(false);
-		this.panel_3.setMinimumSize(new Dimension(104, 104));
-		this.panel_3.setMaximumSize(new Dimension(104, 104));
-		this.panel_3.setBorder(new EmptyBorder(24, 24, 24, 24));
-		this.panel.add(this.panel_3);
-		this.panel_3.setLayout(new BorderLayout(0, 0));
 		this.scrollPane = new JScrollPane();
+		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		this.scrollPane.setBackground(Constants.LAUNCHER_COLOR_BG);
 		this.scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.contentPane.add(this.scrollPane, BorderLayout.CENTER);
 		this.table = new JTable();
@@ -207,6 +213,7 @@ public class Launcher extends JFrame {
 		this.table.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.table.setShowVerticalLines(false);
 		this.table.setShowHorizontalLines(false);
+		this.table.setShowGrid(false);
 		this.table.setRowSelectionAllowed(false);
 		this.table.setColumnSelectionAllowed(false);
 
@@ -227,6 +234,7 @@ public class Launcher extends JFrame {
 		this.table.setDefaultRenderer(Object.class, new MagicRenderer());
 		this.table.setDefaultEditor(Object.class, new MagicEditor());
 		this.table.setIntercellSpacing(new Dimension(0, 0));
+
 		
 		pack();
 
@@ -236,7 +244,7 @@ public class Launcher extends JFrame {
 		
 	}
 
-	
+   
 	private ArrayList<LauncherModel> syncHistory() {
 		XMLResourceAdapter xmlRsrc = new XMLResourceAdapter();
 		ArrayList<LauncherModel> resources = new ArrayList<LauncherModel>();
@@ -307,18 +315,19 @@ public class Launcher extends JFrame {
 	void syncTableModel () {
 		
 		int col, row;
+		int cols = 4;
 		
-		int rows = (models.size() / 3)
+		int rows = (models.size() / cols)
 				//if there are only 1 or 2 cells in the row then count the 
 				//row as a whole row
-				+ (models.size() % 3 > 0 ? 1 : 0) ;
+				+ (models.size() % cols > 0 ? 1 : 0) ;
 		
-		DefaultTableModel model = new DefaultTableModel(new LauncherPanel[rows][3], new Object[3]);
+		DefaultTableModel model = new DefaultTableModel(new LauncherPanel[rows][cols], new Object[cols]);
 		
 		
 		for (int i = 0; i < models.size(); i++) {
-			col = i % 3;
-			row = i / 3;
+			col = i % cols;
+			row = i / cols;
 			model.setValueAt(models.get(i), row, col);
 		}
 		

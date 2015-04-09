@@ -289,12 +289,12 @@ public class ListFrame extends JFrame {
 
 		//set up the menu items
 		this.uiMenuItemSave = new JMenuItem("Save");
-		this.uiMenuItemSave.addActionListener(new UIMenuItemSaveActionListener());
+		this.uiMenuItemSave.addActionListener(new UIMenuItemSaveAction());
 		this.uiMenuItemNew = new JMenuItem("New");
-		this.uiMenuItemNew.addActionListener(new UIMenuItemNewActionListener());
+		this.uiMenuItemNew.addActionListener(new UIMenuItemNewAction());
 		this.uiMenuItemNew.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/new_20x20.png")));
 		this.uiMenuItemOpen = new JMenuItem("Open");
-		this.uiMenuItemOpen.addActionListener(new UIMenuItemOpenActionListener());
+		this.uiMenuItemOpen.addActionListener(new UIMenuItemOpenAction());
 		this.uiMenuItemOpen.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/open_20x20.png")));
 		this.uiMenuItemSave.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/save_20x20.png")));
 		
@@ -361,13 +361,13 @@ public class ListFrame extends JFrame {
 		}
 		
 		this.uiMenuItemAdd = new JMenuItem("Add Item");
-		this.uiMenuItemAdd.addActionListener(new UIBtnNewActionListener());
+		this.uiMenuItemAdd.addActionListener(new UIBtnAction());
 		this.uiMenuItemAdd.setIcon(Constants.ICON_ADD);
 		
 		
 		this.uiMenuItemRemove = new JMenuItem("Remove Item");
 		this.uiMenuItemRemove.setIcon(Constants.ICON_REMOVE);
-		this.uiMenuItemRemove.addActionListener(new UIBtnRemoveActionListener());
+		this.uiMenuItemRemove.addActionListener(new UIBtnRemoveAction());
 		
 		this.uiMenuItemSaveAs = new JMenuItem("Save As...");
 		this.uiMenuItemSaveAs.addActionListener(new UiMenuItemSaveAsActionListener());
@@ -399,7 +399,8 @@ public class ListFrame extends JFrame {
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 
-			ItemPanel itemPanel = new ItemPanel((ItemModel)value, ListFrame.this, row, isSelected);
+			ItemPanel itemPanel = new ItemPanel((ItemModel)value, isSelected,
+					uiTable, row, uiPopupMenu);
 			return itemPanel;
 		}
 		
@@ -451,13 +452,14 @@ public class ListFrame extends JFrame {
 		public Component getTableCellEditorComponent (JTable table, Object value,
 				boolean isSelected, int row, int column) {
 
-			itemPanel = new ItemPanel((ItemModel)value, ListFrame.this, row, true);
+			itemPanel = new ItemPanel((ItemModel)value, true, uiTable,
+					row, uiPopupMenu);
 			return itemPanel;
 		}
 		
 	}
 
-	private class UIBtnNewActionListener implements ActionListener {
+	private class UIBtnAction implements ActionListener {
 
 		/*
 		 * add a new ItemModel to the list and select the new
@@ -482,7 +484,7 @@ public class ListFrame extends JFrame {
 	}
 	
 	
-	private class UIMenuItemSaveActionListener implements ActionListener {
+	private class UIMenuItemSaveAction implements ActionListener {
 		
 		/*
 		 * instantiates a JFileChooser, builds a ListModel from the
@@ -525,7 +527,7 @@ public class ListFrame extends JFrame {
 	/*
 	 * 
 	 */
-	private class UIMenuItemOpenActionListener implements ActionListener {
+	private class UIMenuItemOpenAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			open();
 			
@@ -533,7 +535,7 @@ public class ListFrame extends JFrame {
 	}
 	
 	
-	private class UIMenuItemNewActionListener implements ActionListener {
+	private class UIMenuItemNewAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			
 			if (uiTable.isEditing()) {
@@ -560,7 +562,7 @@ public class ListFrame extends JFrame {
 	/*
 	 * 
 	 */
-	private class UIBtnRemoveActionListener implements ActionListener {
+	private class UIBtnRemoveAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			
 			DefaultTableModel tableModel = (DefaultTableModel)uiTable.getModel();
