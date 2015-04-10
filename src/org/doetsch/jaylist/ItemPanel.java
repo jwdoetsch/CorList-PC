@@ -21,7 +21,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
-public class ItemPanel extends JPanel {
+class ItemPanel extends JPanel {
 
 	//UI components
 	private JPanel uiPanelHeader;
@@ -58,7 +58,7 @@ public class ItemPanel extends JPanel {
 	 * @param popupMenu the JPopupMenu to be displayed on right-clicking
 	 * the ItemPanel
 	 */
-	ItemPanel (ItemModel itemModel, boolean isSelected,
+	ItemPanel (ItemPanelModel itemModel, boolean isSelected,
 			JTable parentTable, int rowIndex, JPopupMenu popupMenu) {
 		this.parentTable = parentTable;
 		this.rowIndex = rowIndex;
@@ -81,8 +81,8 @@ public class ItemPanel extends JPanel {
 	 * the UI field values of the ItemPanel. 
 	 * @return
 	 */
-	ItemModel toItemModel () {
-		return new ItemModel(
+	ItemPanelModel toItemModel () {
+		return new ItemPanelModel(
 				this.uiTextField.getText(),
 				this.uiTextArea.getText(),
 				this.flagStatus,
@@ -94,7 +94,7 @@ public class ItemPanel extends JPanel {
 	 * to the field values in the given ItemModel.
 	 * @param itemModel
 	 */
-	private void injectItemModelValues (ItemModel itemModel) {
+	private void injectItemModelValues (ItemPanelModel itemModel) {
 		this.uiTextField.setText(itemModel.title);
 		this.uiTextArea.setText(itemModel.desc);
 		this.flagStatus = itemModel.flagStatus;
@@ -220,7 +220,7 @@ public class ItemPanel extends JPanel {
 	 * 
 	 * @return
 	 */
-	int getTextAreaHeight () {
+	private int getTextAreaHeight () {
 		JTextArea dummyPane = new JTextArea();
 		
 		//make sure the dummy pane area is identical to
@@ -242,7 +242,7 @@ public class ItemPanel extends JPanel {
 	 * matches the height required to display all this item's
 	 * UI components (including wrapped description text).
 	 */
-	void requestRowResize () {
+	private void requestRowResize () {
 		int textAreaHeight = getTextAreaHeight();
 		int rowHeight = 34 + textAreaHeight;
 	
@@ -259,7 +259,7 @@ public class ItemPanel extends JPanel {
 	 * Sets the status button icon according to the status
 	 * flag.
 	 */
-	void setStatusButtonIcon () {
+	private void setStatusButtonIcon () {
 		ItemPanel.this.uiBtnStatus.setIcon(
 				iconFlagStatus[ItemPanel.this.flagStatus]);
 	}

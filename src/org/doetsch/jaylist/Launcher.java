@@ -29,6 +29,8 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -162,13 +164,13 @@ public class Launcher extends JFrame {
 		this.panel_1.setLayout(new BorderLayout(0, 0));
 		
 		this.btnNew = new JButton("New");
+		this.btnNew.setContentAreaFilled(false);
 		this.btnNew.setMnemonic('N');
-		this.btnNew.setBorder(new EmptyBorder(4, 4, 4, 4));
+		this.btnNew.setBorder(new EmptyBorder(8, 8, 8, 8));
 		this.btnNew.setVerticalTextPosition(SwingConstants.TOP);
 		this.btnNew.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
 		this.btnNew.setForeground(Color.WHITE);
 		this.btnNew.setFont(Constants.LAUNCHER_FONT);
-		this.btnNew.setMargin(new Insets(4, 4, 4, 4));
 		this.btnNew.setHorizontalAlignment(SwingConstants.LEFT);
 		this.btnNew.setVerticalAlignment(SwingConstants.TOP);
 		this.btnNew.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -176,7 +178,7 @@ public class Launcher extends JFrame {
 		this.btnNew.setMinimumSize(new Dimension(104, 104));
 		this.btnNew.setMaximumSize(new Dimension(104, 104));
 		this.btnNew.setPreferredSize(new Dimension(104, 104));
-		
+		//this.btnNew.setBorderPainted(false);		
 		
 		this.panel_2 = new JPanel();
 		this.panel_2.setOpaque(false);
@@ -189,7 +191,7 @@ public class Launcher extends JFrame {
 		this.panel_2.setLayout(new BorderLayout(0, 0));
 		
 		this.btnOpen = new JButton("Open");
-		this.btnOpen.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.btnOpen.setBorder(new EmptyBorder(8, 8, 8, 8));
 		this.btnOpen.setMnemonic('O');
 		this.btnOpen.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
 		this.btnOpen.setForeground(Color.WHITE);

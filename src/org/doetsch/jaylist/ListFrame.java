@@ -55,7 +55,7 @@ import org.xml.sax.SAXException;
  *  
  * @author Jacob Wesley Doetsch
  */
-public class ListFrame extends JFrame {
+class ListFrame extends JFrame {
 
 	/**
 	 * 
@@ -79,8 +79,8 @@ public class ListFrame extends JFrame {
 
 	//determines save behavior according to whether the list 
 	//is a new list or an opened list 
-	boolean hasPath;
-	URL path; 
+	private boolean hasPath;
+	private URL path; 
 
 	/**
 	 * Launch a ListFrame instance that opens a new list.
@@ -103,7 +103,7 @@ public class ListFrame extends JFrame {
 					//pass the new list template to the new frame
 					ListMarshall marshall = new ListMarshall();
 					ListFrame frame = new ListFrame(marshall.unmarshall(
-							ListFrame.class.getResource("xml/new.xml")), false);
+							Constants.XMl_NEW_LIST), false);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -117,7 +117,7 @@ public class ListFrame extends JFrame {
 	 * given ListModel.
 	 * @param listModel the ListModel to pattern
 	 */
-	public ListFrame (ListModel listModel, boolean hasPath) {
+	public ListFrame (ListFrameModel listModel, boolean hasPath) {
 		this.hasPath = hasPath;
 		
 		initComponents();
@@ -129,7 +129,7 @@ public class ListFrame extends JFrame {
 	 *  
 	 * @param listModel
 	 */
-	private void injectListModel (ListModel listModel) {
+	private void injectListModel (ListFrameModel listModel) {
 		
 		path = listModel.getPath();
 		
@@ -140,14 +140,14 @@ public class ListFrame extends JFrame {
 		
 		//build the table model
 		DefaultTableModel tableModel = new DefaultTableModel(
-				new ItemModel[][] {
+				new ItemPanelModel[][] {
 				},
 				new String[] {
 					"Items"
 				}
 			);
-		for (ItemModel itemModel : listModel.getItemModels()) {
-			tableModel.addRow(new ItemModel[] {itemModel});
+		for (ItemPanelModel itemModel : listModel.getItemModels()) {
+			tableModel.addRow(new ItemPanelModel[] {itemModel});
 		}
 
 		//select the header text of new lists
@@ -179,7 +179,7 @@ public class ListFrame extends JFrame {
 	private void newList () {
 		DefaultTableModel tableModel =
 				(DefaultTableModel)ListFrame.this.uiTable.getModel();
-		tableModel.addRow(new ItemModel[] {new ItemModel("<add a title>", "<add a description>", 0, false)});
+		tableModel.addRow(new ItemPanelModel[] {new ItemPanelModel("<add a title>", "<add a description>", 0, false)});
 		
 		if (uiTable.isEditing()) {
 			uiTable.getCellEditor().stopCellEditing();
@@ -245,14 +245,14 @@ public class ListFrame extends JFrame {
 	 * 
 	 * @return the ListModel
 	 */
-	private ListModel extractListModel () {
-		ListModel listModel = new ListModel();
+	private ListFrameModel extractListModel () {
+		ListFrameModel listModel = new ListFrameModel();
 		listModel.setHeader(this.uiTextPane.getText());
 		listModel.setFrameSize(new Dimension(
 				this.getBounds().width, this.getBounds().height));
 		
 		for (int i = 0; i < uiTable.getRowCount(); i++) {
-			ItemModel itemModel = (ItemModel)uiTable.getValueAt(i, 0);
+			ItemPanelModel itemModel = (ItemPanelModel)uiTable.getValueAt(i, 0);
 			listModel.addItemModels(itemModel);
 		}
 		
@@ -269,7 +269,7 @@ public class ListFrame extends JFrame {
 		//set up the JFrame
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100,
-				Constants.FRAME_DEFAULT_WIDTH, Constants.FRAME_DEFAULT_HEIGHT);
+				Constants.FRAME_WIDTH, Constants.FRAME_HEIGHT);
 		this.addComponentListener(new ComponentListener() {
 
 			@Override
@@ -300,7 +300,7 @@ public class ListFrame extends JFrame {
 		
 		
 		this.setIconImage(Constants.ICON_APP.getImage());
-		this.setMinimumSize(new Dimension(Constants.FRAME_DEFAULT_WIDTH, 192));
+		this.setMinimumSize(new Dimension(Constants.FRAME_WIDTH, 192));
 		
 		//set up content pane
 		this.contentPane = new JPanel();
@@ -315,11 +315,11 @@ public class ListFrame extends JFrame {
 		this.uiMenuItemSave.addActionListener(new UIMenuItemSaveAction());
 		this.uiMenuItemNew = new JMenuItem("New");
 		this.uiMenuItemNew.addActionListener(new UIMenuItemNewAction());
-		this.uiMenuItemNew.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/new_20x20.png")));
+		this.uiMenuItemNew.setIcon(new ImageIcon(Constants.ICON_MENU_NEW));
 		this.uiMenuItemOpen = new JMenuItem("Open");
 		this.uiMenuItemOpen.addActionListener(new UIMenuItemOpenAction());
-		this.uiMenuItemOpen.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/open_20x20.png")));
-		this.uiMenuItemSave.setIcon(new ImageIcon(ListFrame.class.getResource("/org/doetsch/jaylist/resources/set2/save_20x20.png")));
+		this.uiMenuItemOpen.setIcon(new ImageIcon(Constants.ICON_MENU_OPEN));
+		this.uiMenuItemSave.setIcon(new ImageIcon(Constants.ICON_MENU_SAVE));
 		
 		//set up the header text pane
 		this.uiTextPane = new JTextPane();
@@ -365,7 +365,7 @@ public class ListFrame extends JFrame {
 		//give the table a single row/column so the renderer and editor can
 		//be added
 		this.uiTable.setModel(new DefaultTableModel(
-			new ItemModel[][] {
+			new ItemPanelModel[][] {
 				{null},
 				{},
 			},
@@ -423,7 +423,7 @@ public class ListFrame extends JFrame {
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 
-			ItemPanel itemPanel = new ItemPanel((ItemModel)value, isSelected,
+			ItemPanel itemPanel = new ItemPanel((ItemPanelModel)value, isSelected,
 					uiTable, row, uiPopupMenu);
 			return itemPanel;
 		}
@@ -476,7 +476,7 @@ public class ListFrame extends JFrame {
 		public Component getTableCellEditorComponent (JTable table, Object value,
 				boolean isSelected, int row, int column) {
 
-			itemPanel = new ItemPanel((ItemModel)value, true, uiTable,
+			itemPanel = new ItemPanel((ItemPanelModel)value, true, uiTable,
 					row, uiPopupMenu);
 			return itemPanel;
 		}
@@ -570,7 +570,7 @@ public class ListFrame extends JFrame {
 			ListMarshall marshall = new ListMarshall();
  			ListFrame newFrame;
 			try {
-				newFrame = new ListFrame(marshall.unmarshall(ListFrame.class.getResource("xml/new.xml")), false);
+				newFrame = new ListFrame(marshall.unmarshall(Constants.XMl_NEW_LIST), false);
 				newFrame.setVisible(true);
 				newFrame.setLocation(ListFrame.this.getLocation().x + 64,
 						ListFrame.this.getLocation().y + 64);

@@ -56,7 +56,7 @@ class ListMarshall {
 	
 	
 	
-	ListModel unmarshall  (URL src) throws IOException, SAXException, ParserConfigurationException  {
+	ListFrameModel unmarshall  (URL src) throws IOException, SAXException, ParserConfigurationException  {
 		Document doc;
 		DocumentBuilder docBuilder;
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -68,20 +68,19 @@ class ListMarshall {
                 "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
                 "http://www.w3.org/2001/XMLSchema");
 		docBuilderFactory.setAttribute(
-				"http://java.sun.com/xml/jaxp/properties/schemaSource",
-				ListMarshall.class.getResource("xml/list.xsd").openStream());
+				"http://java.sun.com/xml/jaxp/properties/schemaSource", Constants.XML_LIST_SCHEMA.openStream());
 		
 		docBuilder = docBuilderFactory.newDocumentBuilder();
 		docBuilder.setErrorHandler(new ErrorHandlerAdapter());
 		doc = docBuilder.parse(src.openStream());
 		doc.normalize();
-		ListModel newListModel = parse(doc);
+		ListFrameModel newListModel = parse(doc);
 		newListModel.setPath(src);
 		return newListModel;
 	}
 	
-	private ListModel parse (Node node) {
-		ListModel list = new ListModel();
+	private ListFrameModel parse (Node node) {
+		ListFrameModel list = new ListFrameModel();
 		Node child;
 		NodeList grandchildren;
 		NamedNodeMap attributes;
@@ -147,7 +146,7 @@ class ListMarshall {
 				
 				
 				
-				list.addItemModels(new ItemModel(title, desc, flag, expanded));
+				list.addItemModels(new ItemPanelModel(title, desc, flag, expanded));
 				
 			}
 		}
@@ -157,7 +156,7 @@ class ListMarshall {
 		return list;
 	}
 	
-	void marshall (ListModel listModel, URL dest) {
+	void marshall (ListFrameModel listModel, URL dest) {
 		DocumentBuilderFactory docBuilderFactory;
 		DocumentBuilder docBuilder;
 		Document document;
@@ -194,7 +193,7 @@ class ListMarshall {
 		
 		
 		
-		for (ItemModel itemModel : listModel.getItemModels()) {
+		for (ItemPanelModel itemModel : listModel.getItemModels()) {
 			Element itemElement = document.createElement("item");
 			Element titleElement = document.createElement("title");
 			Element descElement = document.createElement("desc");

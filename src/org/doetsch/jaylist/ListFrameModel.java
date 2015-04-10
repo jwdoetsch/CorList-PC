@@ -1,27 +1,33 @@
 package org.doetsch.jaylist;
 
 import java.awt.Dimension;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 
-class ListModel {
+/**
+ * ListFrameModel models the UI component field values
+ * of ListFrame to facilitate list marshalling and
+ * unmarshalling. ListFrameModel is mutable.
+ * 
+ * @author Jacob Wesley Doetsch
+ */
+class ListFrameModel {
 	
 	private URL path;
 	private String header;
-	private ArrayList<ItemModel> itemModels;
+	private ArrayList<ItemPanelModel> itemModels;
 	private Dimension frameSize;
 	
-	ListModel (String header) {
+	ListFrameModel (String header) {
 		this.header = header;
-		this.itemModels = new ArrayList<ItemModel>();
+		this.itemModels = new ArrayList<ItemPanelModel>();
 	}
 	
-	ListModel () {
-		this.itemModels = new ArrayList<ItemModel>();
+	ListFrameModel () {
+		this.itemModels = new ArrayList<ItemPanelModel>();
 	}
 	
-	void addItemModels (ItemModel model) {
+	void addItemModels (ItemPanelModel model) {
 		itemModels.add(model);
 	}
 	
@@ -41,7 +47,7 @@ class ListModel {
 		this.header = header;
 	}
 	
-	ArrayList<ItemModel> getItemModels () {
+	ArrayList<ItemPanelModel> getItemModels () {
 		return this.itemModels;
 	}
 	
