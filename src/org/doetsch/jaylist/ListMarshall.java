@@ -203,8 +203,8 @@ class ListMarshall {
 			
 			titleElement.setTextContent(itemModel.title);
 			descElement.setTextContent(itemModel.desc);
-			flagElement.setTextContent(String.valueOf(itemModel.flag));
-			expandedElement.setTextContent(String.valueOf(itemModel.expanded));
+			flagElement.setTextContent(String.valueOf(itemModel.flagStatus));
+			expandedElement.setTextContent(String.valueOf(itemModel.flagExpand));
 			
 			itemElement.appendChild(titleElement);
 			itemElement.appendChild(descElement);

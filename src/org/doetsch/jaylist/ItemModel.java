@@ -4,14 +4,14 @@ public class ItemModel {
 	
 	final String title;
 	final String desc;
-	final int flag;
-	final boolean expanded;
+	final int flagStatus;
+	final boolean flagExpand;
 	
 	ItemModel (String title, String desc, int flag, boolean expanded) {
 		this.title = title;
 		this.desc = desc;
-		this.flag = flag;
-		this.expanded = expanded;
+		this.flagStatus = flag;
+		this.flagExpand = expanded;
 	}
 
 }

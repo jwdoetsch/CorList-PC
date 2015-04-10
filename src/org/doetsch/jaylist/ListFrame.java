@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
@@ -63,24 +65,18 @@ public class ListFrame extends JFrame {
 	private JPanel contentPane;
 	
 	//UI components
-	JScrollPane uiScrollPane;
-	JTable uiTable;
-	JPanel uiPanelControls;
-	JButton uiBtnAdd;
-	JTextPane uiTextPane;
-	JMenuItem uiMenuItemSave;
-	JMenuItem uiMenuItemSaveAs;
-	JMenuItem uiMenuItemOpen;
-	JMenuItem uiMenuItemAdd;
-	JMenuItem uiMenuItemRemove;
-	JButton uiBtnRemove;
-	Component uiHorStrut;
-	JMenuItem uiMenuItemNew;
-	JButton uiBtnMenu;
-	JPopupMenu uiPopupMenu;
-	
-	JEditorPane dummyPane = new JEditorPane();
-	
+	private JScrollPane uiScrollPane;
+	private JTable uiTable;
+	private JTextPane uiTextPane;
+	private JPopupMenu uiPopupMenu;
+	private JMenuItem uiMenuItemSave;
+	private JMenuItem uiMenuItemSaveAs;
+	private JMenuItem uiMenuItemOpen;
+	private JMenuItem uiMenuItemAdd;
+	private JMenuItem uiMenuItemRemove;
+	private JMenuItem uiMenuItemNew;
+
+
 	//determines save behavior according to whether the list 
 	//is a new list or an opened list 
 	boolean hasPath;
@@ -274,6 +270,33 @@ public class ListFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100,
 				Constants.FRAME_DEFAULT_WIDTH, Constants.FRAME_DEFAULT_HEIGHT);
+		this.addComponentListener(new ComponentListener() {
+
+			@Override
+			public void componentHidden(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void componentResized(ComponentEvent arg0) {
+				uiTable.repaint();
+			}
+
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		
 		
 		
 		this.setIconImage(Constants.ICON_APP.getImage());
@@ -336,6 +359,7 @@ public class ListFrame extends JFrame {
 		this.uiTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.uiTable.setFillsViewportHeight(true);
 		this.uiTable.setGridColor(Constants.COLOR_GRID);
+		this.uiTable.setShowVerticalLines(false);
 		this.uiTable.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.uiTable.setTableHeader(null);
 		//give the table a single row/column so the renderer and editor can
