@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -408,7 +409,7 @@ class ListFrame extends JFrame {
 		this.uiPopupMenu.add(uiMenuItemSave);
 		this.uiPopupMenu.add(uiMenuItemSaveAs);
 
-		this.uiTable.addMouseListener(new PopupListener(uiPopupMenu));
+		this.uiTable.addMouseListener(new PopupListener(uiPopupMenu, new Point(-56, -12)));
 		this.uiTable.setModel(new DefaultTableModel( ));
 	}
 	

@@ -54,7 +54,7 @@ class Constants {
 	static final Font FONT_HEADER = new Font("Arial", Font.PLAIN, 16);
 	static final Font FONT_ITEM_DESCRIPTIOn = new Font("Arial", Font.PLAIN, 12);
 	static final Font LAUNCHER_FONT = new Font("Arial", Font.PLAIN, 16);
-	static final Color LAUNCHER_COLOR_BUTTON = new Color(69, 153, 235);
+	static final Color LAUNCHER_COLOR_BUTTON = new Color(54, 138, 230);
 	static final Color LAUNCHER_COLOR_BG = new Color(246, 251, 255);
 	static final URL XMl_NEW_LIST =
 			ListFrame.class.getResource("xml/new.xml");

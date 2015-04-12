@@ -3,14 +3,19 @@ package org.doetsch.jaylist;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -23,6 +28,22 @@ import javax.swing.border.EmptyBorder;
 @SuppressWarnings("serial")
 class ItemPanel extends JPanel {
 
+	enum StatusFlagIcon {
+		
+		FLAG (0, Constants.ICON_UNCHECKED),
+		CHECK (1, Constants.ICON_CHECKED),
+		ALERT (3, Constants.ICON_URGENT),
+		QUESTION (4, Constants.ICON_ISSUE);
+		
+		int flag;
+		ImageIcon icon;
+		
+		StatusFlagIcon (int flag, ImageIcon icon) {
+			this.flag = flag;
+			this.icon = icon;
+		}		
+	}
+	
 	//UI components
 	private JPanel uiPanelHeader;
 	private JScrollPane uiScrollPane;
@@ -34,7 +55,7 @@ class ItemPanel extends JPanel {
 	private JPanel uiPanelDrop;
 
 	//UI constants
-	private final ImageIcon[] iconFlagStatus;
+	private final ImageIcon[] statusIcons;
 	
 	//model fields from source ItemModel
 	private int flagStatus;
@@ -43,6 +64,7 @@ class ItemPanel extends JPanel {
 	private boolean isSelected;
 	private JTable parentTable;
 	private JPopupMenu popupMenu;
+	private JPopupMenu statusMenu;
 
 	/**
 	 * Creates a new ItemPanel instance modeled after the given
@@ -66,11 +88,11 @@ class ItemPanel extends JPanel {
 		this.popupMenu = popupMenu;
 		
 		//load icon constants
-		iconFlagStatus = new ImageIcon[4];
-		iconFlagStatus[0] = Constants.ICON_UNCHECKED;
-		iconFlagStatus[1] = Constants.ICON_CHECKED;
-		iconFlagStatus[2] = Constants.ICON_URGENT;
-		iconFlagStatus[3] = Constants.ICON_ISSUE;
+		statusIcons = new ImageIcon[4];
+		statusIcons[0] = Constants.ICON_UNCHECKED;
+		statusIcons[1] = Constants.ICON_CHECKED;
+		statusIcons[2] = Constants.ICON_URGENT;
+		statusIcons[3] = Constants.ICON_ISSUE;
 		
 		initComponents();
 		injectItemModelValues(itemModel);
@@ -135,8 +157,10 @@ class ItemPanel extends JPanel {
 		this.uiTextField = new JTextField();
 		this.uiTextField.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.uiTextField.setPreferredSize(new Dimension(6, Constants.ITEMPANEL_HEIGHT));
-		this.uiPanelHeader.add(this.uiTextField, BorderLayout.CENTER);
 		this.uiTextField.setColumns(10);
+		this.uiTextField.setFont(Constants.FONT_ITEM_TITLE);
+		this.uiTextField.setBackground(Constants.COLOR_ITEM);
+		this.uiPanelHeader.add(this.uiTextField, BorderLayout.CENTER);
 		
 		this.uiPanelDrop = new JPanel();
 		this.uiPanelDrop.setBackground(Constants.COLOR_ITEM);
@@ -175,6 +199,7 @@ class ItemPanel extends JPanel {
 			}
 		});
 		
+		//set up the spacer
 		this.uiScrollPane.setViewportView(this.uiTextArea);
 		this.uiLabelLeftSpacer = new JLabel("");
 		this.uiLabelLeftSpacer.setBackground(Constants.COLOR_ITEM);
@@ -182,9 +207,27 @@ class ItemPanel extends JPanel {
 		this.uiLabelLeftSpacer.setPreferredSize(new Dimension(Constants.ITEMPANEL_HEIGHT, 0));
 		add(this.uiLabelLeftSpacer, BorderLayout.WEST);
 		
-		this.uiTextField.setFont(Constants.FONT_ITEM_TITLE);
-		this.uiTextField.setBackground(Constants.COLOR_ITEM);
+		//set up the status button icon popup menu
+		this.statusMenu = new JPopupMenu();
+		JMenuItem item1 = new JMenuItem("Incomplete");
+		JMenuItem item2 = new JMenuItem("Complete");
+		JMenuItem item3 = new JMenuItem("Alert");
+		JMenuItem item4 = new JMenuItem("Question");
+		item1.setIcon(statusIcons[0]);
+		item1.addActionListener(new UIActionStatusPopup(0));
+		item2.setIcon(statusIcons[1]);
+		item2.addActionListener(new UIActionStatusPopup(1));
+		item3.setIcon(statusIcons[2]);
+		item3.addActionListener(new UIActionStatusPopup(2));
+		item4.setIcon(statusIcons[3]);
+		item4.addActionListener(new UIActionStatusPopup(3));
+		this.statusMenu.add(item1);
+		this.statusMenu.add(item2);
+		this.statusMenu.add(item3);
+		this.statusMenu.add(item4);
+		//this.uiBtnStatus.addMouseListener(new PopupListener(statusMenu, new Point(-8, -8)));
 	
+		
 		//if the item is selected in the table then highlight
 		//necessary UI components
 		if (isSelected) {
@@ -197,11 +240,11 @@ class ItemPanel extends JPanel {
 		}
 		
 		//add the control popup menu to panel components
-		this.uiTextField.addMouseListener(new PopupListener(popupMenu));
-		this.uiBtnStatus.addMouseListener(new PopupListener(popupMenu));
-		this.uiTextField.addMouseListener(new PopupListener(popupMenu));
-		this.uiBtnExpand.addMouseListener(new PopupListener(popupMenu));
-		this.uiTextArea.addMouseListener(new PopupListener(popupMenu));
+		this.uiTextField.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
+		this.uiBtnStatus.addMouseListener(new PopupListener(statusMenu, new Point(-8, -8)));
+		this.uiTextField.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
+		this.uiBtnExpand.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
+		this.uiTextArea.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
 	}
 	
 	/**
@@ -261,7 +304,7 @@ class ItemPanel extends JPanel {
 	 */
 	private void setStatusButtonIcon () {
 		ItemPanel.this.uiBtnStatus.setIcon(
-				iconFlagStatus[ItemPanel.this.flagStatus]);
+				statusIcons[ItemPanel.this.flagStatus]);
 	}
 	
 	/**
@@ -284,11 +327,30 @@ class ItemPanel extends JPanel {
 	 * the status flag and sets its icon.
 	 */
 	private class UIActionStatus implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
+		public void actionPerformed (ActionEvent arg0) {
 			ItemPanel.this.flagStatus =
 					(ItemPanel.this.flagStatus + 1) % Constants.ICON_FLAG_COUNT;
 			setStatusButtonIcon();
 
 		}
+	}
+	
+	/**
+	 * Defines the action for each of the status menu item popups
+	 */
+	private class UIActionStatusPopup implements ActionListener {
+
+		private int flag;
+		
+		UIActionStatusPopup (int flag) {
+			this.flag = flag;
+		}
+		
+		@Override
+		public void actionPerformed (ActionEvent e) {
+			ItemPanel.this.flagStatus = flag;
+			setStatusButtonIcon();
+		}
+		
 	}
 }

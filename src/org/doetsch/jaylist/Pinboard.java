@@ -75,8 +75,10 @@ import java.awt.Window.Type;
 import javax.swing.JPopupMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
+import javax.swing.JLabel;
+import java.awt.ComponentOrientation;
 
-public class Launcher extends JFrame {
+public class Pinboard extends JFrame {
 
 	private JPanel contentPane;
 	private JPanel panel;
@@ -89,6 +91,8 @@ public class Launcher extends JFrame {
 	private ArrayList<LauncherModel> models;
 	private TrayIcon trayIcon;
 	private SystemTray systemTray;
+	private JPanel panel_3;
+	private JPanel panel_4;
 
 	/**
 	 * Launch the application.
@@ -97,7 +101,7 @@ public class Launcher extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Launcher frame = new Launcher();
+					Pinboard frame = new Pinboard();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -109,7 +113,7 @@ public class Launcher extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Launcher() {
+	public Pinboard() {
 		initComponents();
 		initSystemTray();
 	}
@@ -121,7 +125,7 @@ public class Launcher extends JFrame {
 		}
 		
 		trayIcon = new TrayIcon(
-				new ImageIcon(Launcher.class.
+				new ImageIcon(Pinboard.class.
 						getResource("resources/tray.png")).getImage(), 
 				"JayList");
 		
@@ -164,16 +168,16 @@ public class Launcher extends JFrame {
 		this.panel_1.setLayout(new BorderLayout(0, 0));
 		
 		this.btnNew = new JButton("New");
-		this.btnNew.setContentAreaFilled(false);
+		this.btnNew.setIcon(new ImageIcon(Pinboard.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
+		//this.btnNew.setContentAreaFilled(false);
 		this.btnNew.setMnemonic('N');
 		this.btnNew.setBorder(new EmptyBorder(8, 8, 8, 8));
 		this.btnNew.setVerticalTextPosition(SwingConstants.TOP);
 		this.btnNew.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
 		this.btnNew.setForeground(Color.WHITE);
 		this.btnNew.setFont(Constants.LAUNCHER_FONT);
-		this.btnNew.setHorizontalAlignment(SwingConstants.LEFT);
+		this.btnNew.setHorizontalAlignment(SwingConstants.LEADING);
 		this.btnNew.setVerticalAlignment(SwingConstants.TOP);
-		this.btnNew.setHorizontalTextPosition(SwingConstants.LEADING);
 		this.panel_1.add(this.btnNew);
 		this.btnNew.setMinimumSize(new Dimension(104, 104));
 		this.btnNew.setMaximumSize(new Dimension(104, 104));
@@ -190,20 +194,39 @@ public class Launcher extends JFrame {
 		this.panel.add(this.panel_2);
 		this.panel_2.setLayout(new BorderLayout(0, 0));
 		
-		this.btnOpen = new JButton("Open");
+		this.btnOpen = new JButton("Open heres a big title");
+		this.btnOpen.setVerticalAlignment(SwingConstants.TOP);
+		this.btnOpen.setVerticalTextPosition(SwingConstants.BOTTOM);
+		this.btnOpen.setIcon(new ImageIcon(Pinboard.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
 		this.btnOpen.setBorder(new EmptyBorder(8, 8, 8, 8));
 		this.btnOpen.setMnemonic('O');
 		this.btnOpen.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
 		this.btnOpen.setForeground(Color.WHITE);
-		this.btnOpen.setVerticalAlignment(SwingConstants.TOP);
 		this.btnOpen.setPreferredSize(new Dimension(104, 104));
 		this.btnOpen.setMinimumSize(new Dimension(104, 104));
 		this.btnOpen.setMaximumSize(new Dimension(104, 104));
-		this.btnOpen.setMargin(new Insets(4, 4, 4, 4));
-		this.btnOpen.setHorizontalTextPosition(SwingConstants.CENTER);
-		this.btnOpen.setHorizontalAlignment(SwingConstants.LEFT);
+		this.btnOpen.setMargin(new Insets(0, 0, 0, 0));
+		this.btnOpen.setHorizontalAlignment(SwingConstants.LEADING);
 		this.btnOpen.setFont(new Font("Arial", Font.PLAIN, 16));
 		this.panel_2.add(this.btnOpen, BorderLayout.CENTER);
+		this.panel_3 = new JPanel();
+		this.panel_3.setSize(new Dimension(104, 104));
+		this.panel_3.setPreferredSize(new Dimension(104, 104));
+		this.panel_3.setOpaque(false);
+		this.panel_3.setMinimumSize(new Dimension(104, 104));
+		this.panel_3.setMaximumSize(new Dimension(104, 104));
+		this.panel_3.setBorder(new EmptyBorder(2, 2, 2, 2));
+		this.panel.add(this.panel_3);
+		this.panel_3.setLayout(null);
+		this.panel_4 = new JPanel();
+		this.panel_4.setSize(new Dimension(104, 104));
+		this.panel_4.setPreferredSize(new Dimension(104, 104));
+		this.panel_4.setOpaque(false);
+		this.panel_4.setMinimumSize(new Dimension(104, 104));
+		this.panel_4.setMaximumSize(new Dimension(104, 104));
+		this.panel_4.setBorder(new EmptyBorder(2, 2, 2, 2));
+		this.panel.add(this.panel_4);
+		this.panel_4.setLayout(null);
 		this.scrollPane = new JScrollPane();
 		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		this.scrollPane.setBackground(Constants.LAUNCHER_COLOR_BG);
@@ -255,8 +278,8 @@ public class Launcher extends JFrame {
 		NamedNodeMap atts;
 		
 		try {
-			n = xmlRsrc.getRootNode(Launcher.class.getResource("xml/history.xml"), 
-					Launcher.class.getResource("xml/history.xsd"));
+			n = xmlRsrc.getRootNode(Pinboard.class.getResource("xml/history.xml"), 
+					Pinboard.class.getResource("xml/history.xsd"));
 		} catch (IOException | SAXException | ParserConfigurationException e) {
 			e.printStackTrace();
 			return resources;
