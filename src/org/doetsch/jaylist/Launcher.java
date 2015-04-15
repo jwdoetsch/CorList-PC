@@ -25,8 +25,12 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Font;
 import java.awt.Color;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
@@ -39,6 +43,8 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -76,10 +82,48 @@ import javax.swing.JPopupMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JLabel;
+
 import java.awt.ComponentOrientation;
 
-public class Pinboard extends JFrame {
+public class Launcher extends JFrame {
 
+	class MagicRenderer implements TableCellRenderer {
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+			
+			if (value != null)
+				return new LauncherPanel((LauncherModel)value, false);
+			else
+				return new LauncherPanel(new LauncherModel("", null), true);
+		}
+		
+	}
+	
+	class MagicEditor extends AbstractCellEditor implements TableCellEditor {
+
+		LauncherModel model;
+		
+		@Override
+		public Object getCellEditorValue() {
+			return model;
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable arg0, Object arg1,
+				boolean arg2, int arg3, int arg4) {
+			
+			model = (LauncherModel)arg1;
+			if (arg1 != null)
+				return new LauncherPanel(model, false);
+			else
+				return new LauncherPanel(new LauncherModel("", null), true);
+		}
+		
+	}
+	
 	private JPanel contentPane;
 	private JPanel panel;
 	private JButton btnNew;
@@ -101,7 +145,7 @@ public class Pinboard extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Pinboard frame = new Pinboard();
+					Launcher frame = new Launcher();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -113,7 +157,7 @@ public class Pinboard extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Pinboard() {
+	public Launcher() {
 		initComponents();
 		initSystemTray();
 	}
@@ -125,9 +169,34 @@ public class Pinboard extends JFrame {
 		}
 		
 		trayIcon = new TrayIcon(
-				new ImageIcon(Pinboard.class.
+				new ImageIcon(Launcher.class.
 						getResource("resources/tray.png")).getImage(), 
+					
 				"JayList");
+		
+		PopupMenu menu = new PopupMenu();
+		trayIcon.setPopupMenu(menu);
+		MenuItem itemNew = new MenuItem("New");
+		MenuItem itemOpen = new MenuItem("Open");
+		MenuItem itemExit = new MenuItem("Exit");
+		menu.add(itemNew);
+		menu.add(itemOpen);
+		menu.add(itemExit);
+		itemNew.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				newList();
+			}
+		});
+		itemOpen.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openList();
+			}
+			
+		});
+		
 		
 		try {
 			systemTray.add(trayIcon);
@@ -136,12 +205,24 @@ public class Pinboard extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		trayIcon.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!Launcher.this.isActive()) {
+					Launcher.this.setVisible(true);
+					Launcher.this.requestFocus();
+				}
+			}
+		});
+		
+		
 	}
 
 	private void initComponents() {
 		
 		models = new ArrayList<LauncherModel>();
-		setTitle("Launcher - JayList");
+		setTitle("Pinboard - JayList");
 		//setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		//setDefaultCloseOperation()
 		//setBounds(100, 100, 358, 368);
@@ -168,7 +249,7 @@ public class Pinboard extends JFrame {
 		this.panel_1.setLayout(new BorderLayout(0, 0));
 		
 		this.btnNew = new JButton("New");
-		this.btnNew.setIcon(new ImageIcon(Pinboard.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
+		this.btnNew.setIcon(new ImageIcon(Launcher.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
 		//this.btnNew.setContentAreaFilled(false);
 		this.btnNew.setMnemonic('N');
 		this.btnNew.setBorder(new EmptyBorder(8, 8, 8, 8));
@@ -182,7 +263,12 @@ public class Pinboard extends JFrame {
 		this.btnNew.setMinimumSize(new Dimension(104, 104));
 		this.btnNew.setMaximumSize(new Dimension(104, 104));
 		this.btnNew.setPreferredSize(new Dimension(104, 104));
-		//this.btnNew.setBorderPainted(false);		
+		this.btnNew.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				newList();
+			}
+		});
 		
 		this.panel_2 = new JPanel();
 		this.panel_2.setOpaque(false);
@@ -194,10 +280,10 @@ public class Pinboard extends JFrame {
 		this.panel.add(this.panel_2);
 		this.panel_2.setLayout(new BorderLayout(0, 0));
 		
-		this.btnOpen = new JButton("Open heres a big title");
+		this.btnOpen = new JButton("Open");
 		this.btnOpen.setVerticalAlignment(SwingConstants.TOP);
 		this.btnOpen.setVerticalTextPosition(SwingConstants.BOTTOM);
-		this.btnOpen.setIcon(new ImageIcon(Pinboard.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
+		this.btnOpen.setIcon(new ImageIcon(Launcher.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
 		this.btnOpen.setBorder(new EmptyBorder(8, 8, 8, 8));
 		this.btnOpen.setMnemonic('O');
 		this.btnOpen.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
@@ -208,6 +294,13 @@ public class Pinboard extends JFrame {
 		this.btnOpen.setMargin(new Insets(0, 0, 0, 0));
 		this.btnOpen.setHorizontalAlignment(SwingConstants.LEADING);
 		this.btnOpen.setFont(new Font("Arial", Font.PLAIN, 16));
+		this.btnOpen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openList();
+			}
+		});
+		
 		this.panel_2.add(this.btnOpen, BorderLayout.CENTER);
 		this.panel_3 = new JPanel();
 		this.panel_3.setSize(new Dimension(104, 104));
@@ -278,8 +371,8 @@ public class Pinboard extends JFrame {
 		NamedNodeMap atts;
 		
 		try {
-			n = xmlRsrc.getRootNode(Pinboard.class.getResource("xml/history.xml"), 
-					Pinboard.class.getResource("xml/history.xsd"));
+			n = xmlRsrc.getRootNode(Launcher.class.getResource("xml/history.xml"), 
+					Launcher.class.getResource("xml/history.xsd"));
 		} catch (IOException | SAXException | ParserConfigurationException e) {
 			e.printStackTrace();
 			return resources;
@@ -314,21 +407,11 @@ public class Pinboard extends JFrame {
 		return resources;		
 	}
 
+	
+	
+	
 
-	class MagicRenderer implements TableCellRenderer {
 
-		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-			
-			if (value != null)
-				return new LauncherPanel((LauncherModel)value, false);
-			else
-				return new LauncherPanel(new LauncherModel("", null), true);
-		}
-		
-	}
 	
 	/*
 	 * Patterns the table's model after the contents of
@@ -360,25 +443,42 @@ public class Pinboard extends JFrame {
 				
 	}
 	
-	class MagicEditor extends AbstractCellEditor implements TableCellEditor {
 
-		LauncherModel model;
-		
-		@Override
-		public Object getCellEditorValue() {
-			return model;
-		}
 
-		@Override
-		public Component getTableCellEditorComponent(JTable arg0, Object arg1,
-				boolean arg2, int arg3, int arg4) {
-			
-			model = (LauncherModel)arg1;
-			if (arg1 != null)
-				return new LauncherPanel(model, false);
-			else
-				return new LauncherPanel(new LauncherModel("", null), true);
+	public void newList() {
+		ListMarshall marshall = new ListMarshall();
+			ListFrame newFrame;
+		try {
+			newFrame = new ListFrame(this, marshall.unmarshall(Constants.XMl_NEW_LIST), false);
+			newFrame.setVisible(true);
+			newFrame.setLocation(this.getLocation().x + 64,
+					this.getLocation().y + 64);
+		} catch (IOException | SAXException | ParserConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-		
+				
+	}
+	
+	void openList () {
+		JFileChooser fc = new JFileChooser();
+
+		int state = fc.showOpenDialog(this);
+		if (state == JFileChooser.APPROVE_OPTION) {
+			ListMarshall marshall = new ListMarshall();
+			try {
+				ListFrame newList;
+				newList = new ListFrame(this, marshall.unmarshall(fc.getSelectedFile().toURI().toURL()), true);
+				newList.setVisible(true);
+				
+			/*
+			 * catch XML decode and file IO exceptions and notify the
+			 * user via dialog
+			 */
+			} catch (IOException | SAXException
+					| ParserConfigurationException e1) {
+				JOptionPane.showMessageDialog(this, "Can't open the selected file.");
+			}
+		}
 	}
 }

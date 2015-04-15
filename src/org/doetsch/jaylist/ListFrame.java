@@ -11,6 +11,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -21,8 +22,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -48,6 +53,8 @@ import javax.swing.text.StyledDocument;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
+
+import javax.swing.DropMode;
 
 
 /**
@@ -79,46 +86,49 @@ class ListFrame extends JFrame {
 
 
 	//determines save behavior according to whether the list 
-	//is a new list or an opened list 
+	//is a new list or an opened list
+	private Launcher launcher; 
 	private boolean hasPath;
-	private URL path; 
+	private URL path;
 
-	/**
-	 * Launch a ListFrame instance that opens a new list.
-	 * Uses the Metal look and feel.
-	 */
-	public static void main (String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				
-				try {
-					UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-				} catch (ClassNotFoundException | InstantiationException
-						| IllegalAccessException
-						| UnsupportedLookAndFeelException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-				try {
-					//pass the new list template to the new frame
-					ListMarshall marshall = new ListMarshall();
-					ListFrame frame = new ListFrame(marshall.unmarshall(
-							Constants.XMl_NEW_LIST), false);
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+
+//	/**
+//	 * Launch a ListFrame instance that opens a new list.
+//	 * Uses the Metal look and feel.
+//	 */
+//	public static void main (String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				
+//				try {
+//					UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+//				} catch (ClassNotFoundException | InstantiationException
+//						| IllegalAccessException
+//						| UnsupportedLookAndFeelException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
+//				
+//				try {
+//					//pass the new list template to the new frame
+//					ListMarshall marshall = new ListMarshall();
+//					ListFrame frame = new ListFrame(marshall.unmarshall(
+//							Constants.XMl_NEW_LIST), false);
+//					frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 
 	/**
 	 * Instantiates a ListFrame that patterns itself after the
 	 * given ListModel.
 	 * @param listModel the ListModel to pattern
 	 */
-	public ListFrame (ListFrameModel listModel, boolean hasPath) {
+	public ListFrame (Launcher launcher, ListFrameModel listModel, boolean hasPath) {
+		this.launcher = launcher;
 		this.hasPath = hasPath;
 		
 		initComponents();
@@ -177,7 +187,7 @@ class ListFrame extends JFrame {
 		}		
 	}
 	
-	private void newList () {
+	private void newItem () {
 		DefaultTableModel tableModel =
 				(DefaultTableModel)ListFrame.this.uiTable.getModel();
 		tableModel.addRow(new ItemPanelModel[] {new ItemPanelModel("<add a title>", "<add a description>", 0, false)});
@@ -207,38 +217,38 @@ class ListFrame extends JFrame {
 		}			
 	}
 	
-	private void open () {
-		JFileChooser fc = new JFileChooser();
-//		try {
-//			fc.setCurrentDirectory(new File(ClassLoader.getSystemClassLoader().getResource("/lists").toURI()));
-//		} catch (URISyntaxException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-		if (uiTable.isEditing()) {
-			ListFrame.this.uiTable.getCellEditor().stopCellEditing();
-		}
-		ListFrame.this.uiTable.getSelectionModel().clearSelection();
-		
-		int state = fc.showOpenDialog(ListFrame.this);
-		if (state == JFileChooser.APPROVE_OPTION) {
-			ListMarshall marshall = new ListMarshall();
-			try {
-				ListFrame newList;
-				newList = new ListFrame(marshall.unmarshall(fc.getSelectedFile().toURI().toURL()), true);
-				newList.setVisible(true);
-				
-			/*
-			 * catch XML decode and file IO exceptions and notify the
-			 * user via dialog
-			 */
-			} catch (IOException | SAXException
-					| ParserConfigurationException e1) {
-				JOptionPane.showMessageDialog(ListFrame.this, "Can't open the selected file.");
-			}
-		}
-	}
+//	private void open () {
+////		JFileChooser fc = new JFileChooser();
+//////		try {
+//////			fc.setCurrentDirectory(new File(ClassLoader.getSystemClassLoader().getResource("/lists").toURI()));
+//////		} catch (URISyntaxException e) {
+//////			// TODO Auto-generated catch block
+//////			e.printStackTrace();
+//////		}
+////		
+////		if (uiTable.isEditing()) {
+////			ListFrame.this.uiTable.getCellEditor().stopCellEditing();
+////		}
+////		ListFrame.this.uiTable.getSelectionModel().clearSelection();
+////		
+////		int state = fc.showOpenDialog(ListFrame.this);
+////		if (state == JFileChooser.APPROVE_OPTION) {
+////			ListMarshall marshall = new ListMarshall();
+////			try {
+////				ListFrame newList;
+////				newList = new ListFrame(marshall.unmarshall(fc.getSelectedFile().toURI().toURL()), true);
+////				newList.setVisible(true);
+////				
+////			/*
+////			 * catch XML decode and file IO exceptions and notify the
+////			 * user via dialog
+////			 */
+////			} catch (IOException | SAXException
+////					| ParserConfigurationException e1) {
+////				JOptionPane.showMessageDialog(ListFrame.this, "Can't open the selected file.");
+////			}
+////		}
+//	}
 
 	/**
 	 * Creates and returns a  ListModel instance that models the
@@ -271,32 +281,32 @@ class ListFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100,
 				Constants.FRAME_WIDTH, Constants.FRAME_HEIGHT);
-		this.addComponentListener(new ComponentListener() {
-
-			@Override
-			public void componentHidden(ComponentEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void componentMoved(ComponentEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void componentResized(ComponentEvent arg0) {
-				uiTable.repaint();
-			}
-
-			@Override
-			public void componentShown(ComponentEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
+//		this.addComponentListener(new ComponentListener() {
+//
+//			@Override
+//			public void componentHidden(ComponentEvent arg0) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//
+//			@Override
+//			public void componentMoved(ComponentEvent arg0) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//
+//			@Override
+//			public void componentResized(ComponentEvent arg0) {
+//				uiTable.repaint();
+//			}
+//
+//			@Override
+//			public void componentShown(ComponentEvent arg0) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//			
+//		});
 		
 		
 		
@@ -313,12 +323,12 @@ class ListFrame extends JFrame {
 
 		//set up the menu items
 		this.uiMenuItemSave = new JMenuItem("Save");
-		this.uiMenuItemSave.addActionListener(new UIMenuItemSaveAction());
+		this.uiMenuItemSave.addActionListener(new UIMenuSaveAction());
 		this.uiMenuItemNew = new JMenuItem("New");
-		this.uiMenuItemNew.addActionListener(new UIMenuItemNewAction());
+		this.uiMenuItemNew.addActionListener(new UIMenuNewAction());
 		this.uiMenuItemNew.setIcon(new ImageIcon(Constants.ICON_MENU_NEW));
 		this.uiMenuItemOpen = new JMenuItem("Open");
-		this.uiMenuItemOpen.addActionListener(new UIMenuItemOpenAction());
+		this.uiMenuItemOpen.addActionListener(new UIMenuOpenAction());
 		this.uiMenuItemOpen.setIcon(new ImageIcon(Constants.ICON_MENU_OPEN));
 		this.uiMenuItemSave.setIcon(new ImageIcon(Constants.ICON_MENU_SAVE));
 		
@@ -386,16 +396,16 @@ class ListFrame extends JFrame {
 		}
 		
 		this.uiMenuItemAdd = new JMenuItem("Add Item");
-		this.uiMenuItemAdd.addActionListener(new UIBtnAction());
+		this.uiMenuItemAdd.addActionListener(new UIItemAddAction());
 		this.uiMenuItemAdd.setIcon(Constants.ICON_ADD);
 		
 		
 		this.uiMenuItemRemove = new JMenuItem("Remove Item");
 		this.uiMenuItemRemove.setIcon(Constants.ICON_REMOVE);
-		this.uiMenuItemRemove.addActionListener(new UIBtnRemoveAction());
+		this.uiMenuItemRemove.addActionListener(new UIBItemRemoveAction());
 		
 		this.uiMenuItemSaveAs = new JMenuItem("Save As...");
-		this.uiMenuItemSaveAs.addActionListener(new UiMenuItemSaveAsActionListener());
+		this.uiMenuItemSaveAs.addActionListener(new UIMenuSaveAsAction());
 		this.uiMenuItemSaveAs.setIcon(Constants.ICON_SAVEAS);
 		//this.uiMenuItemSaveAs.addActionListener(new UIBtnRemoveActionListener()); 
 		
@@ -410,7 +420,83 @@ class ListFrame extends JFrame {
 		this.uiPopupMenu.add(uiMenuItemSaveAs);
 
 		this.uiTable.addMouseListener(new PopupListener(uiPopupMenu, new Point(-56, -12)));
+		
 		this.uiTable.setModel(new DefaultTableModel( ));
+		
+		initUIKeyBindings();
+		
+	}
+	
+	void initUIKeyBindings () {
+		
+		InputMap tableInputMap = this.uiTable.getInputMap(
+				JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		ActionMap actionMap = this.uiTable.getActionMap();
+		
+		tableInputMap.put(KeyStroke.getKeyStroke(
+				KeyEvent.VK_UP, InputEvent.SHIFT_DOWN_MASK), "UP_ARROW");
+		actionMap.put("UP_ARROW", new UIRowShiftUpAction());
+
+		tableInputMap.put(KeyStroke.getKeyStroke(
+				KeyEvent.VK_DOWN, InputEvent.SHIFT_DOWN_MASK), "DOWN_ARROW");
+		actionMap.put("DOWN_ARROW", new UIRowShiftDownAction());
+
+		
+	}
+	
+	void swapListItems (int index1, int index2) {
+		DefaultTableModel tableModel = 
+				(DefaultTableModel) this.uiTable.getModel();
+		
+		ItemPanelModel item1 =
+				(ItemPanelModel) tableModel.getValueAt(index1, 0);
+
+		ItemPanelModel item2 =
+				(ItemPanelModel) tableModel.getValueAt(index2, 0);
+
+		tableModel.setValueAt(item1, index2, 0);
+		tableModel.setValueAt(item2, index1, 0);
+		
+		
+		
+	}
+
+	@SuppressWarnings("serial")
+	class UIRowShiftUpAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println(uiTable.getSelectedRow() + ": UP");
+			int rowIndex = uiTable.getSelectedRow();
+			if ((rowIndex < 1) || (uiTable.getRowCount() < 2)) {
+				return;
+			}
+			
+			uiTable.getSelectionModel().clearSelection();
+			
+			//swap the selected item with the one above it
+			stopEditingClearSelection();
+			swapListItems (rowIndex, rowIndex - 1);
+			uiTable.getSelectionModel().setSelectionInterval(rowIndex - 1, rowIndex - 1);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	class UIRowShiftDownAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println(uiTable.getSelectedRow() + ": DOWN");
+			int rowIndex = uiTable.getSelectedRow();
+			if ((rowIndex == -1)
+					|| (rowIndex == uiTable.getRowCount() - 1)
+					|| (uiTable.getRowCount() < 2)) {
+				return;
+			}
+			
+			//swap the selected row with the one below
+			stopEditingClearSelection();
+			swapListItems (rowIndex, rowIndex + 1);	
+			uiTable.getSelectionModel().setSelectionInterval(rowIndex + 1, rowIndex + 1);
+		}
 	}
 	
 	/*
@@ -484,14 +570,14 @@ class ListFrame extends JFrame {
 		
 	}
 
-	private class UIBtnAction implements ActionListener {
+	private class UIItemAddAction implements ActionListener {
 
 		/*
 		 * add a new ItemModel to the list and select the new
 		 * item for editing
 		 */
 		public void actionPerformed(ActionEvent arg0) {
-			newList();
+			newItem();
 		}
 	}
 	
@@ -501,15 +587,19 @@ class ListFrame extends JFrame {
 	private class ContentPaneMouseListener extends MouseAdapter {
 		@Override
 		public void mousePressed(MouseEvent arg0) {
-			if (uiTable.isEditing()) {
-				ListFrame.this.uiTable.getCellEditor().stopCellEditing();
-			}
-			ListFrame.this.uiTable.getSelectionModel().clearSelection();
+			stopEditingClearSelection();
 		}
 	}
 	
 	
-	private class UIMenuItemSaveAction implements ActionListener {
+	void stopEditingClearSelection () {
+		if (uiTable.isEditing()) {
+			ListFrame.this.uiTable.getCellEditor().stopCellEditing();
+		}
+		ListFrame.this.uiTable.getSelectionModel().clearSelection();
+	}
+	
+	private class UIMenuSaveAction implements ActionListener {
 		
 		/*
 		 * instantiates a JFileChooser, builds a ListModel from the
@@ -520,10 +610,7 @@ class ListFrame extends JFrame {
 			
 			URL savePath;
 			
-			if (uiTable.isEditing()) {
-				ListFrame.this.uiTable.getCellEditor().stopCellEditing();
-			}
-			ListFrame.this.uiTable.getSelectionModel().clearSelection();
+			stopEditingClearSelection();
 			
 			/*
 			 * if the list is new then trigger the Save As save action 
@@ -552,42 +639,37 @@ class ListFrame extends JFrame {
 	/*
 	 * 
 	 */
-	private class UIMenuItemOpenAction implements ActionListener {
+	private class UIMenuOpenAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			open();
+			
+			stopEditingClearSelection();
+			
+			launcher.openList();
 			
 		}
 	}
 	
 	
-	private class UIMenuItemNewAction implements ActionListener {
+	private class UIMenuNewAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			
-			if (uiTable.isEditing()) {
-				ListFrame.this.uiTable.getCellEditor().stopCellEditing();
-			}
-			ListFrame.this.uiTable.getSelectionModel().clearSelection();
+			stopEditingClearSelection();
 			
-			ListMarshall marshall = new ListMarshall();
- 			ListFrame newFrame;
-			try {
-				newFrame = new ListFrame(marshall.unmarshall(Constants.XMl_NEW_LIST), false);
-				newFrame.setVisible(true);
-				newFrame.setLocation(ListFrame.this.getLocation().x + 64,
-						ListFrame.this.getLocation().y + 64);
-			} catch (IOException | SAXException | ParserConfigurationException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			launcher.newList();
 			
-			
+		}
+	}
+	
+	private class UIMenuSaveAsAction implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			saveAs();
 		}
 	}
 	
 	/*
 	 * 
 	 */
-	private class UIBtnRemoveAction implements ActionListener {
+	private class UIBItemRemoveAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			
 			DefaultTableModel tableModel = (DefaultTableModel)uiTable.getModel();
@@ -604,20 +686,12 @@ class ListFrame extends JFrame {
 				
 				if (choice == JOptionPane.OK_OPTION) {
 				
-					if (uiTable.isEditing()) {
-						ListFrame.this.uiTable.getCellEditor().stopCellEditing();
-					}
-					ListFrame.this.uiTable.getSelectionModel().clearSelection();
+					stopEditingClearSelection();
 					
 					tableModel.removeRow(row);
 					
 				}
 			}
 		}
-	}
-	private class UiMenuItemSaveAsActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
-			saveAs();
-		}
-	}
+	}	
 }
