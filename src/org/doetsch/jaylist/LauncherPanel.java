@@ -17,9 +17,10 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.net.URL;
 import javax.swing.border.EtchedBorder;
+import javax.swing.ImageIcon;
 
 public class LauncherPanel extends JPanel {
-	private JButton btnNewButton;
+	private JButton btn;
 	private URL path;
 
 	/**
@@ -29,29 +30,31 @@ public class LauncherPanel extends JPanel {
 		initComponents(model, isBlank);
 	}
 	private void initComponents (LauncherModel model, boolean isBlank) {
+		int b = 2;
 		setOpaque(false);
-		setBorder(new EmptyBorder(4, 4, 4, 4));
-		setSize(new Dimension(104, 104));
-		setMaximumSize(new Dimension(104, 104));
-		setMinimumSize(new Dimension(104, 104));
+		setBorder(new EmptyBorder(b, b, b, b));
+
 		setPreferredSize(new Dimension(104, 104));
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		this.btnNewButton = new JButton("<html><p>" + model.title + "</p></html>");
-		this.btnNewButton.setBorder(new EmptyBorder(4, 4, 4, 4));
-		this.btnNewButton.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
-		this.btnNewButton.setForeground(Color.WHITE);
-		this.btnNewButton.setFont(Constants.LAUNCHER_FONT);
 		
-		this.btnNewButton.setMaximumSize(new Dimension(96, 96));
-		this.btnNewButton.setMinimumSize(new Dimension(96, 96));
-		this.btnNewButton.setPreferredSize(new Dimension(96, 96));
-		this.btnNewButton.setMargin(new Insets(6, 6, 6, 6));
-		this.btnNewButton.setFont(new Font("Arial", Font.PLAIN, 16));
-		this.btnNewButton.setHorizontalAlignment(SwingConstants.LEFT);
-		this.btnNewButton.setVerticalAlignment(SwingConstants.TOP);
-		add(this.btnNewButton);
+		this.btn = new JButton("<html><p><dynamic></p></html>");
+		this.btn.setVerticalTextPosition(SwingConstants.TOP);
+		this.btn.setIcon(new ImageIcon(LauncherPanel.class.getResource("/org/doetsch/jaylist/resources/pin_16x16.png")));
+		this.btn.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
+		this.btn.setForeground(Color.WHITE);
+		this.btn.setFont(Constants.LAUNCHER_FONT);
+		this.btn.setBorder(new EmptyBorder(6, 6, 6, 6));
+		this.btn.setMinimumSize(new Dimension(104 - b * 2, 104 - b * 2));
+		this.btn.setMaximumSize(new Dimension(104 - b * 2, 104 - b * 2));
 		
-		this.btnNewButton.setVisible(!isBlank);
+		this.btn.setPreferredSize(new Dimension(104 - b * 2, 104 - b * 2));
+		this.btn.setMargin(new Insets(0, 0, 0, 0));
+		this.btn.setFont(new Font("Arial", Font.PLAIN, 16));
+		this.btn.setHorizontalAlignment(SwingConstants.LEADING);
+		this.btn.setVerticalAlignment(SwingConstants.TOP);
+		add(this.btn);
+		
+		this.btn.setVisible(!isBlank);
 		this.path = model.path;
 	}
 

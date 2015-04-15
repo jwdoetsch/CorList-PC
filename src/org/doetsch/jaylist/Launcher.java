@@ -13,18 +13,28 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Component;
 
 import javax.swing.SwingConstants;
 
 import java.awt.AWTException;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Font;
 import java.awt.Color;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -33,9 +43,15 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.plaf.ScrollBarUI;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import javax.swing.plaf.metal.MetalScrollBarUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -59,10 +75,55 @@ import org.xml.sax.AttributeList;
 import org.xml.sax.SAXException;
 
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.awt.Window.Type;
+
+import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
+import javax.swing.JLabel;
+
+import java.awt.ComponentOrientation;
 
 public class Launcher extends JFrame {
 
+	class MagicRenderer implements TableCellRenderer {
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+			
+			if (value != null)
+				return new LauncherPanel((LauncherModel)value, false);
+			else
+				return new LauncherPanel(new LauncherModel("", null), true);
+		}
+		
+	}
+	
+	class MagicEditor extends AbstractCellEditor implements TableCellEditor {
+
+		LauncherModel model;
+		
+		@Override
+		public Object getCellEditorValue() {
+			return model;
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable arg0, Object arg1,
+				boolean arg2, int arg3, int arg4) {
+			
+			model = (LauncherModel)arg1;
+			if (arg1 != null)
+				return new LauncherPanel(model, false);
+			else
+				return new LauncherPanel(new LauncherModel("", null), true);
+		}
+		
+	}
+	
 	private JPanel contentPane;
 	private JPanel panel;
 	private JButton btnNew;
@@ -71,10 +132,11 @@ public class Launcher extends JFrame {
 	private JButton btnOpen;
 	private JScrollPane scrollPane;
 	private JTable table;
-	private JPanel panel_3;
 	private ArrayList<LauncherModel> models;
 	private TrayIcon trayIcon;
 	private SystemTray systemTray;
+	private JPanel panel_3;
+	private JPanel panel_4;
 
 	/**
 	 * Launch the application.
@@ -109,7 +171,32 @@ public class Launcher extends JFrame {
 		trayIcon = new TrayIcon(
 				new ImageIcon(Launcher.class.
 						getResource("resources/tray.png")).getImage(), 
+					
 				"JayList");
+		
+		PopupMenu menu = new PopupMenu();
+		trayIcon.setPopupMenu(menu);
+		MenuItem itemNew = new MenuItem("New");
+		MenuItem itemOpen = new MenuItem("Open");
+		MenuItem itemExit = new MenuItem("Exit");
+		menu.add(itemNew);
+		menu.add(itemOpen);
+		menu.add(itemExit);
+		itemNew.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				newList();
+			}
+		});
+		itemOpen.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openList();
+			}
+			
+		});
+		
 		
 		try {
 			systemTray.add(trayIcon);
@@ -118,21 +205,31 @@ public class Launcher extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		trayIcon.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!Launcher.this.isActive()) {
+					Launcher.this.setVisible(true);
+					Launcher.this.requestFocus();
+				}
+			}
+		});
+		
+		
 	}
 
 	private void initComponents() {
 		
 		models = new ArrayList<LauncherModel>();
-		
-		setResizable(false);
-		setTitle("Launcher - JayList");
+		setTitle("Pinboard - JayList");
 		//setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		//setDefaultCloseOperation()
 		//setBounds(100, 100, 358, 368);
 		setBounds(368, 128, 64, 64);
 		this.contentPane = new JPanel();
 		this.contentPane.setBackground(Constants.LAUNCHER_COLOR_BG);
-		this.contentPane.setPreferredSize(new Dimension(336, 320));
+		this.contentPane.setPreferredSize(new Dimension(440, 320));
 		this.contentPane.setBorder(new EmptyBorder(4, 4, 4, 4));
 		this.contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(this.contentPane);
@@ -141,51 +238,69 @@ public class Launcher extends JFrame {
 		this.contentPane.add(this.panel, BorderLayout.NORTH);
 		this.panel.setLayout(new BoxLayout(this.panel, BoxLayout.X_AXIS));
 		this.panel_1 = new JPanel();
+		this.panel_1.setBorder(new EmptyBorder(2, 2, 2, 2));
 		this.panel_1.setOpaque(false);
-		this.panel_1.setBorder(new EmptyBorder(4, 4, 4, 4));
+		//this.panel_1.setBorder(new EmptyBorder(4, 4, 4, 4));
 		this.panel_1.setMaximumSize(new Dimension(104, 104));
 		this.panel_1.setMinimumSize(new Dimension(104, 104));
 		this.panel_1.setPreferredSize(new Dimension(104, 104));
 		this.panel_1.setSize(new Dimension(104, 104));
 		this.panel.add(this.panel_1);
 		this.panel_1.setLayout(new BorderLayout(0, 0));
+		
 		this.btnNew = new JButton("New");
+		this.btnNew.setIcon(new ImageIcon(Launcher.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
+		//this.btnNew.setContentAreaFilled(false);
 		this.btnNew.setMnemonic('N');
-		this.btnNew.setBorder(new EmptyBorder(4, 4, 4, 4));
+		this.btnNew.setBorder(new EmptyBorder(8, 8, 8, 8));
 		this.btnNew.setVerticalTextPosition(SwingConstants.TOP);
 		this.btnNew.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
 		this.btnNew.setForeground(Color.WHITE);
 		this.btnNew.setFont(Constants.LAUNCHER_FONT);
-		this.btnNew.setMargin(new Insets(4, 4, 4, 4));
-		this.btnNew.setHorizontalAlignment(SwingConstants.LEFT);
+		this.btnNew.setHorizontalAlignment(SwingConstants.LEADING);
 		this.btnNew.setVerticalAlignment(SwingConstants.TOP);
-		this.btnNew.setHorizontalTextPosition(SwingConstants.LEADING);
 		this.panel_1.add(this.btnNew);
-		this.btnNew.setMinimumSize(new Dimension(128, 128));
-		this.btnNew.setMaximumSize(new Dimension(128, 128));
+		this.btnNew.setMinimumSize(new Dimension(104, 104));
+		this.btnNew.setMaximumSize(new Dimension(104, 104));
 		this.btnNew.setPreferredSize(new Dimension(104, 104));
+		this.btnNew.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				newList();
+			}
+		});
+		
 		this.panel_2 = new JPanel();
 		this.panel_2.setOpaque(false);
 		this.panel_2.setSize(new Dimension(104, 104));
 		this.panel_2.setPreferredSize(new Dimension(104, 104));
 		this.panel_2.setMinimumSize(new Dimension(104, 104));
 		this.panel_2.setMaximumSize(new Dimension(104, 104));
-		this.panel_2.setBorder(new EmptyBorder(4, 4, 4, 4));
+		this.panel_2.setBorder(new EmptyBorder(2, 2, 2, 2));
 		this.panel.add(this.panel_2);
 		this.panel_2.setLayout(new BorderLayout(0, 0));
+		
 		this.btnOpen = new JButton("Open");
+		this.btnOpen.setVerticalAlignment(SwingConstants.TOP);
+		this.btnOpen.setVerticalTextPosition(SwingConstants.BOTTOM);
+		this.btnOpen.setIcon(new ImageIcon(Launcher.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
+		this.btnOpen.setBorder(new EmptyBorder(8, 8, 8, 8));
 		this.btnOpen.setMnemonic('O');
 		this.btnOpen.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
-		this.btnOpen.setForeground(Color.WHITE);		
-		this.btnOpen.setBorder(new EmptyBorder(4, 4, 4, 4));
-		this.btnOpen.setVerticalAlignment(SwingConstants.TOP);
+		this.btnOpen.setForeground(Color.WHITE);
 		this.btnOpen.setPreferredSize(new Dimension(104, 104));
-		this.btnOpen.setMinimumSize(new Dimension(128, 128));
-		this.btnOpen.setMaximumSize(new Dimension(128, 128));
-		this.btnOpen.setMargin(new Insets(4, 4, 4, 4));
-		this.btnOpen.setHorizontalTextPosition(SwingConstants.CENTER);
-		this.btnOpen.setHorizontalAlignment(SwingConstants.LEFT);
+		this.btnOpen.setMinimumSize(new Dimension(104, 104));
+		this.btnOpen.setMaximumSize(new Dimension(104, 104));
+		this.btnOpen.setMargin(new Insets(0, 0, 0, 0));
+		this.btnOpen.setHorizontalAlignment(SwingConstants.LEADING);
 		this.btnOpen.setFont(new Font("Arial", Font.PLAIN, 16));
+		this.btnOpen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openList();
+			}
+		});
+		
 		this.panel_2.add(this.btnOpen, BorderLayout.CENTER);
 		this.panel_3 = new JPanel();
 		this.panel_3.setSize(new Dimension(104, 104));
@@ -193,13 +308,22 @@ public class Launcher extends JFrame {
 		this.panel_3.setOpaque(false);
 		this.panel_3.setMinimumSize(new Dimension(104, 104));
 		this.panel_3.setMaximumSize(new Dimension(104, 104));
-		this.panel_3.setBorder(new EmptyBorder(24, 24, 24, 24));
+		this.panel_3.setBorder(new EmptyBorder(2, 2, 2, 2));
 		this.panel.add(this.panel_3);
-		this.panel_3.setLayout(new BorderLayout(0, 0));
+		this.panel_3.setLayout(null);
+		this.panel_4 = new JPanel();
+		this.panel_4.setSize(new Dimension(104, 104));
+		this.panel_4.setPreferredSize(new Dimension(104, 104));
+		this.panel_4.setOpaque(false);
+		this.panel_4.setMinimumSize(new Dimension(104, 104));
+		this.panel_4.setMaximumSize(new Dimension(104, 104));
+		this.panel_4.setBorder(new EmptyBorder(2, 2, 2, 2));
+		this.panel.add(this.panel_4);
+		this.panel_4.setLayout(null);
 		this.scrollPane = new JScrollPane();
+		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		this.scrollPane.setBackground(Constants.LAUNCHER_COLOR_BG);
 		this.scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.contentPane.add(this.scrollPane, BorderLayout.CENTER);
 		this.table = new JTable();
@@ -207,6 +331,7 @@ public class Launcher extends JFrame {
 		this.table.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.table.setShowVerticalLines(false);
 		this.table.setShowHorizontalLines(false);
+		this.table.setShowGrid(false);
 		this.table.setRowSelectionAllowed(false);
 		this.table.setColumnSelectionAllowed(false);
 
@@ -227,6 +352,7 @@ public class Launcher extends JFrame {
 		this.table.setDefaultRenderer(Object.class, new MagicRenderer());
 		this.table.setDefaultEditor(Object.class, new MagicEditor());
 		this.table.setIntercellSpacing(new Dimension(0, 0));
+
 		
 		pack();
 
@@ -236,7 +362,7 @@ public class Launcher extends JFrame {
 		
 	}
 
-	
+   
 	private ArrayList<LauncherModel> syncHistory() {
 		XMLResourceAdapter xmlRsrc = new XMLResourceAdapter();
 		ArrayList<LauncherModel> resources = new ArrayList<LauncherModel>();
@@ -281,21 +407,11 @@ public class Launcher extends JFrame {
 		return resources;		
 	}
 
+	
+	
+	
 
-	class MagicRenderer implements TableCellRenderer {
 
-		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-			
-			if (value != null)
-				return new LauncherPanel((LauncherModel)value, false);
-			else
-				return new LauncherPanel(new LauncherModel("", null), true);
-		}
-		
-	}
 	
 	/*
 	 * Patterns the table's model after the contents of
@@ -307,18 +423,19 @@ public class Launcher extends JFrame {
 	void syncTableModel () {
 		
 		int col, row;
+		int cols = 4;
 		
-		int rows = (models.size() / 3)
+		int rows = (models.size() / cols)
 				//if there are only 1 or 2 cells in the row then count the 
 				//row as a whole row
-				+ (models.size() % 3 > 0 ? 1 : 0) ;
+				+ (models.size() % cols > 0 ? 1 : 0) ;
 		
-		DefaultTableModel model = new DefaultTableModel(new LauncherPanel[rows][3], new Object[3]);
+		DefaultTableModel model = new DefaultTableModel(new LauncherPanel[rows][cols], new Object[cols]);
 		
 		
 		for (int i = 0; i < models.size(); i++) {
-			col = i % 3;
-			row = i / 3;
+			col = i % cols;
+			row = i / cols;
 			model.setValueAt(models.get(i), row, col);
 		}
 		
@@ -326,25 +443,42 @@ public class Launcher extends JFrame {
 				
 	}
 	
-	class MagicEditor extends AbstractCellEditor implements TableCellEditor {
 
-		LauncherModel model;
-		
-		@Override
-		public Object getCellEditorValue() {
-			return model;
-		}
 
-		@Override
-		public Component getTableCellEditorComponent(JTable arg0, Object arg1,
-				boolean arg2, int arg3, int arg4) {
-			
-			model = (LauncherModel)arg1;
-			if (arg1 != null)
-				return new LauncherPanel(model, false);
-			else
-				return new LauncherPanel(new LauncherModel("", null), true);
+	public void newList() {
+		ListMarshall marshall = new ListMarshall();
+			ListFrame newFrame;
+		try {
+			newFrame = new ListFrame(this, marshall.unmarshall(Constants.XMl_NEW_LIST), false);
+			newFrame.setVisible(true);
+			newFrame.setLocation(this.getLocation().x + 64,
+					this.getLocation().y + 64);
+		} catch (IOException | SAXException | ParserConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-		
+				
+	}
+	
+	void openList () {
+		JFileChooser fc = new JFileChooser();
+
+		int state = fc.showOpenDialog(this);
+		if (state == JFileChooser.APPROVE_OPTION) {
+			ListMarshall marshall = new ListMarshall();
+			try {
+				ListFrame newList;
+				newList = new ListFrame(this, marshall.unmarshall(fc.getSelectedFile().toURI().toURL()), true);
+				newList.setVisible(true);
+				
+			/*
+			 * catch XML decode and file IO exceptions and notify the
+			 * user via dialog
+			 */
+			} catch (IOException | SAXException
+					| ParserConfigurationException e1) {
+				JOptionPane.showMessageDialog(this, "Can't open the selected file.");
+			}
+		}
 	}
 }

@@ -1,259 +1,349 @@
 package org.doetsch.jaylist;
 
-import javax.swing.JPanel;
-
 import java.awt.BorderLayout;
-
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JTextField;
-
 import java.awt.Dimension;
-import java.awt.event.ActionListener;
+import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.border.EmptyBorder;
-
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.Insets;
-
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.BoxLayout;
+import java.awt.FlowLayout;
 
-public class ItemPanel extends JPanel {
-	private JPanel panel;
-	private JScrollPane scrollPane;
-	private JTextArea textArea;
-	private JLabel labelSpacerRight;
-	private JButton buttonStatus;
-	private JTextField textField;
-	private JButton buttonDrop;
+@SuppressWarnings("serial")
+class ItemPanel extends JPanel {
+
+	//UI components
+	private JPanel uiPanelHeader;
+	private JScrollPane uiScrollPane;
+	private JTextArea uiTextArea;
+	private JLabel uiLabelLeftSpacer;
+	private JButton uiBtnStatus;
+	private JTextField uiTextField;
+	private JButton uiBtnExpand;
+	private JPanel uiPanelDrop;
+
+	//UI constants
+	private final ImageIcon[] statusIcons;
 	
-	private int statusFlag;
-	private ImageIcon[] statusFlagIcons;
-	private ImageIcon iconExpand;
-	private ImageIcon iconCollapse;
-	private boolean expanded;
-	private ListFrame parentTable;
+	//model fields from source ItemModel
+	private int flagStatus;
+	private boolean flagExpand;
 	private int rowIndex;
 	private boolean isSelected;
-	private JPanel panelDrop;
+	private JTable parentTable;
+	private JPopupMenu popupMenu;
+	private JPopupMenu statusMenu;
 
 	/**
-	 * Create the panel.
+	 * Creates a new ItemPanel instance modeled after the given
+	 * ItemModel.
+	 * 
+	 * @param itemModel
+	 * @param isSelected determines if this ItemPanel's UI components
+	 * should be highlighted
+	 * @param parentTable the table within which the ItemPanel will be
+	 * used
+	 * @param rowIndex the row at which this ItemPanel will be used
+	 * in the parent table
+	 * @param popupMenu the JPopupMenu to be displayed on right-clicking
+	 * the ItemPanel
 	 */
-	ItemPanel (ItemModel itemModel, ListFrame parentTable,
-			int rowIndex, boolean isSelected) {
+	ItemPanel (ItemPanelModel itemModel, boolean isSelected,
+			JTable parentTable, int rowIndex, JPopupMenu popupMenu) {
 		this.parentTable = parentTable;
 		this.rowIndex = rowIndex;
 		this.isSelected = isSelected;
+		this.popupMenu = popupMenu;
 		
-		loadIcons();
+		//load icon constants
+		statusIcons = new ImageIcon[4];
+		statusIcons[0] = Constants.ICON_UNCHECKED;
+		statusIcons[1] = Constants.ICON_CHECKED;
+		statusIcons[2] = Constants.ICON_URGENT;
+		statusIcons[3] = Constants.ICON_ISSUE;
+		
 		initComponents();
 		injectItemModelValues(itemModel);
-
 	}
 	
-
-
-	ItemModel toItemModel () {
-		ItemModel model = new ItemModel(
-				this.textField.getText(),
-				this.textArea.getText(),
-				this.statusFlag,
-				this.expanded);
-		return model;
+	/**
+	 * Instantiates and returns an ItemModel encapsulating
+	 * the UI field values of the ItemPanel. 
+	 * @return
+	 */
+	ItemPanelModel toItemModel () {
+		return new ItemPanelModel(
+				this.uiTextField.getText(),
+				this.uiTextArea.getText(),
+				this.flagStatus,
+				this.flagExpand);
 	}
 	
-	private void injectItemModelValues (ItemModel itemModel) {
-		this.textField.setText(itemModel.title);
-		this.textArea.setText(itemModel.desc);
-		this.statusFlag = itemModel.flag;
-		this.expanded = itemModel.expanded;
+	/**
+	 * Sets the ItemPanel's UI field values according
+	 * to the field values in the given ItemModel.
+	 * @param itemModel
+	 */
+	private void injectItemModelValues (ItemPanelModel itemModel) {
+		this.uiTextField.setText(itemModel.title);
+		this.uiTextArea.setText(itemModel.desc);
+		this.flagStatus = itemModel.flagStatus;
+		this.flagExpand = itemModel.flagExpand;
 		
-		//this.buttonStatus.setIcon(statusFlagIcons[this.statusFlag]);
+		//refresh UI components that are flag dependent
 		setStatusButtonIcon();
 		setDropButtonIcon();
-		requestRowResize();
 		
+		//adjust parent table row height to fit wrapped
+		//description text
+		requestRowResize();		
 	}
 	
-	private void loadIcons () {
-		
-		
-		statusFlagIcons = new ImageIcon[4];
-//		statusFlagIcons[0] = new ImageIcon(
-//				ItemPanel2.class.getResource("resources/unchecked.png"));
-		statusFlagIcons[0] = Constants.ICON_UNCHECKED;
-		statusFlagIcons[1] = Constants.ICON_CHECKED;
-		statusFlagIcons[2] = Constants.ICON_URGENT;
-		statusFlagIcons[3] = Constants.ICON_ISSUE;
-		
-		
-		this.iconExpand = new ImageIcon(
-				ItemPanel.class.getResource("resources/set2/expand.png"));
-		this.iconCollapse = new ImageIcon(
-				ItemPanel.class.getResource("resources/set2/collapse.png"));
-	}
-	
+	/**
+	 * Instantiates and constructs UI components.
+	 */
 	private void initComponents () {
+		
+		//set up the source panel
 		setPreferredSize(new Dimension(
 				Constants.ITEMPANEL_WIDTH, Constants.ITEMPANEL_HEIGHT_EXPANDED));
-		
 		setLayout(new BorderLayout(0, 0));
-		this.panel = new JPanel();
-		
-		add(this.panel, BorderLayout.NORTH);
-		this.panel.setLayout(new BorderLayout(0, 0));
-		this.buttonStatus = new JButton("");
-		this.buttonStatus.setBackground(Constants.COLOR_ITEM);
-		this.buttonStatus.addActionListener(new ButtonStatusActionListener());
-		this.buttonStatus.setPreferredSize(new Dimension(
-			Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
-		this.buttonStatus.setBorderPainted(false);
-		this.buttonStatus.setFocusPainted(false);
-		this.panel.add(this.buttonStatus, BorderLayout.WEST);
-		this.textField = new JTextField();
-		this.textField.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.textField.setPreferredSize(new Dimension(6, Constants.ITEMPANEL_HEIGHT));
-		this.panel.add(this.textField, BorderLayout.CENTER);
-		this.textField.setColumns(10);
-		this.textField.addActionListener(new ActionListener() {
 
+		//instantiate and construct the header panel and
+		//header components
+		this.uiPanelHeader = new JPanel();
+		add(this.uiPanelHeader, BorderLayout.NORTH);
+		this.uiPanelHeader.setLayout(new BorderLayout(0, 0));
+		this.uiBtnStatus = new JButton("");
+		this.uiBtnStatus.setBackground(Constants.COLOR_ITEM);
+		this.uiBtnStatus.addActionListener(new UIActionStatus());
+		this.uiBtnStatus.setPreferredSize(new Dimension(
+			Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
+		this.uiBtnStatus.setBorderPainted(false);
+		this.uiBtnStatus.setFocusPainted(false);
+		this.uiPanelHeader.add(this.uiBtnStatus, BorderLayout.WEST);
+		this.uiTextField = new JTextField();
+		this.uiTextField.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.uiTextField.setPreferredSize(new Dimension(6, Constants.ITEMPANEL_HEIGHT));
+		this.uiTextField.setColumns(10);
+		this.uiTextField.setFont(Constants.FONT_ITEM_TITLE);
+		this.uiTextField.setBackground(Constants.COLOR_ITEM);
+		this.uiPanelHeader.add(this.uiTextField, BorderLayout.CENTER);
+		
+		this.uiPanelDrop = new JPanel();
+		this.uiPanelDrop.setBackground(Constants.COLOR_ITEM);
+		this.uiPanelDrop.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.uiPanelDrop.setSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
+		this.uiPanelDrop.setMaximumSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
+		this.uiPanelDrop.setMinimumSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
+		this.uiPanelDrop.setPreferredSize(new Dimension(32, 32));
+		this.uiPanelHeader.add(this.uiPanelDrop, BorderLayout.EAST);
+		this.uiPanelDrop.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		this.uiBtnExpand = new JButton("");
+		this.uiBtnExpand.setSize(new Dimension(24, 24));
+		this.uiBtnExpand.setMinimumSize(new Dimension(24, 24));
+		this.uiBtnExpand.setMaximumSize(new Dimension(24, 24));
+		this.uiBtnExpand.setMargin(new Insets(0, 0, 0, 0));
+		this.uiPanelDrop.add(this.uiBtnExpand);
+		this.uiBtnExpand.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.uiBtnExpand.setBackground(Constants.COLOR_ITEM);
+		this.uiBtnExpand.setPreferredSize(new Dimension(20, 20));
+		this.uiBtnExpand.setBorderPainted(false);
+		this.uiBtnExpand.setFocusPainted(false);
+		this.uiBtnExpand.addActionListener(new UIActionExpand());
+		this.uiBtnExpand.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
+		
+		//construct description components
+		this.uiScrollPane = new JScrollPane();
+		this.uiScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		this.uiScrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		add(this.uiScrollPane, BorderLayout.CENTER);
+		this.uiTextArea = new JTextArea();
+		this.uiTextArea.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.uiTextArea.setWrapStyleWord(true);
+		this.uiTextArea.setLineWrap(true);
+		this.uiTextArea.setBackground(Constants.COLOR_ITEM);
+		this.uiTextArea.setFont(Constants.FONT_ITEM_DESCRIPTIOn);
+		this.uiTextArea.addKeyListener(new KeyAdapter() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if (ItemPanel.this.expanded) {
-					ItemPanel.this.textArea.requestFocus();
-				}
+			public void keyTyped(KeyEvent arg0) {
+				requestRowResize();				
 			}
-			
 		});
 		
+		//set up the spacer
+		this.uiScrollPane.setViewportView(this.uiTextArea);
+		this.uiLabelLeftSpacer = new JLabel("");
+		this.uiLabelLeftSpacer.setBackground(Constants.COLOR_ITEM);
+		this.uiLabelLeftSpacer.setOpaque(true);
+		this.uiLabelLeftSpacer.setPreferredSize(new Dimension(Constants.ITEMPANEL_HEIGHT, 0));
+		add(this.uiLabelLeftSpacer, BorderLayout.WEST);
 		
+		//set up the status button icon popup menu
+		this.statusMenu = new JPopupMenu();
+		JMenuItem item1 = new JMenuItem("Incomplete");
+		JMenuItem item2 = new JMenuItem("Complete");
+		JMenuItem item3 = new JMenuItem("Alert");
+		JMenuItem item4 = new JMenuItem("Question");
+		item1.setIcon(statusIcons[0]);
+		item1.addActionListener(new UIActionStatusPopup(0));
+		item2.setIcon(statusIcons[1]);
+		item2.addActionListener(new UIActionStatusPopup(1));
+		item3.setIcon(statusIcons[2]);
+		item3.addActionListener(new UIActionStatusPopup(2));
+		item4.setIcon(statusIcons[3]);
+		item4.addActionListener(new UIActionStatusPopup(3));
+		this.statusMenu.add(item1);
+		this.statusMenu.add(item2);
+		this.statusMenu.add(item3);
+		this.statusMenu.add(item4);
+		//this.uiBtnStatus.addMouseListener(new PopupListener(statusMenu, new Point(-8, -8)));
+	
 		
-		
-		this.panelDrop = new JPanel();
-		this.panelDrop.setBackground(Constants.COLOR_ITEM);
-		this.panelDrop.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.panelDrop.setSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
-		this.panelDrop.setMaximumSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
-		this.panelDrop.setMinimumSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
-		this.panelDrop.setPreferredSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
-		this.panel.add(this.panelDrop, BorderLayout.EAST);
-		this.panelDrop.setLayout(new BorderLayout(0, 0));
-		
-		
-		
-		
-		this.buttonDrop = new JButton("");
-		this.buttonDrop.setMargin(new Insets(0, 0, 0, 0));
-		this.panelDrop.add(this.buttonDrop);
-		this.buttonDrop.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.buttonDrop.setBackground(Constants.COLOR_ITEM);
-		this.buttonDrop.setPreferredSize(new Dimension(40, 40));
-		this.buttonDrop.setBorderPainted(false);
-		this.buttonDrop.setFocusPainted(false);
-		this.buttonDrop.addActionListener(new BtnNewButton_1ActionListener());
-		this.scrollPane = new JScrollPane();
-		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
-		add(this.scrollPane, BorderLayout.CENTER);
-		this.textArea = new JTextArea();
-		this.textArea.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.textArea.setWrapStyleWord(true);
-		this.textArea.setLineWrap(true);
-		this.textArea.setBackground(Constants.COLOR_ITEM);
-		this.scrollPane.setViewportView(this.textArea);
-		this.labelSpacerRight = new JLabel("");
-		this.labelSpacerRight.setBackground(Constants.COLOR_ITEM);
-		this.labelSpacerRight.setOpaque(true);
-		this.labelSpacerRight.setPreferredSize(new Dimension(Constants.ITEMPANEL_HEIGHT, 0));
-		add(this.labelSpacerRight, BorderLayout.WEST);
-		
-
-		
-		this.textField.setFont(Constants.FONT_ITEM_TITLE);
-		this.textField.setBackground(Constants.COLOR_ITEM);
-		this.textArea.setFont(Constants.FONT_ITEM_DESCRIPTIOn);
-		
-		/*
-		 * should be highlighted?						
-		 */
+		//if the item is selected in the table then highlight
+		//necessary UI components
 		if (isSelected) {
-			this.buttonStatus.setBackground(Constants.COLOR_HIGHLIGHT2);
-			this.textField.setBackground(Constants.COLOR_HIGHLIGHT);
-			this.buttonDrop.setBackground(Constants.COLOR_HIGHLIGHT2);
-			this.textArea.setBackground(Constants.COLOR_HIGHLIGHT);
-			this.labelSpacerRight.setBackground(Constants.COLOR_HIGHLIGHT);
-			//this.labelSpacerLeft.setBackground(Constants.COLOR_HIGHLIGHT);
-			this.panelDrop.setBackground(Constants.COLOR_HIGHLIGHT2);
+			this.uiBtnStatus.setBackground(Constants.COLOR_HIGHLIGHT2);
+			this.uiTextField.setBackground(Constants.COLOR_HIGHLIGHT);
+			this.uiBtnExpand.setBackground(Constants.COLOR_HIGHLIGHT2);
+			this.uiTextArea.setBackground(Constants.COLOR_HIGHLIGHT);
+			this.uiLabelLeftSpacer.setBackground(Constants.COLOR_HIGHLIGHT);
+			this.uiPanelDrop.setBackground(Constants.COLOR_HIGHLIGHT2);
 		}
 		
-//		this.setComponentPopupMenu(parentTable.uiPopupMenu);
-//		this.buttonStatus.setComponentPopupMenu(parentTable.uiPopupMenu);
-//		this.textField.setComponentPopupMenu(parentTable.uiPopupMenu);
-//		this.buttonDrop.setComponentPopupMenu(parentTable.uiPopupMenu);
-//		this.textArea.setComponentPopupMenu(parentTable.uiPopupMenu);
-//		this.labelSpacer.setComponentPopupMenu(parentTable.uiPopupMenu);
-//		this.panelDrop.setComponentPopupMenu(parentTable.uiPopupMenu);
-	
-		
-		this.textField.addMouseListener(new PopupListener(parentTable.uiPopupMenu));
-		this.buttonStatus.addMouseListener(new PopupListener(parentTable.uiPopupMenu));
-		this.textField.addMouseListener(new PopupListener(parentTable.uiPopupMenu));
-		this.buttonDrop.addMouseListener(new PopupListener(parentTable.uiPopupMenu));
-		this.textArea.addMouseListener(new PopupListener(parentTable.uiPopupMenu));
+		//add the control popup menu to panel components
+		this.uiTextField.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
+		this.uiBtnStatus.addMouseListener(new PopupListener(statusMenu, new Point(-8, -8)));
+		this.uiTextField.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
+		this.uiTextArea.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
 	}
 	
+	/**
+	 * Sets the drop icon according to the expand/collapse
+	 * flag.	
+	 */
 	private void setDropButtonIcon () {
+		uiBtnExpand.setIcon(this.flagExpand ?
+				Constants.ICON_COLLAPSE : Constants.ICON_EXPAND);
+	}
+	
+	/**
+	 * Determines and returns the table row height necessary
+	 * to include all lines (wrapped and breaked) within the
+	 * text area.
+	 * 
+	 * @return
+	 */
+	private int getPanelHeight () {
+		JTextArea dummyPane = new JTextArea();
 		
-		if (ItemPanel.this.expanded) {
-			buttonDrop.setIcon(iconCollapse);
+		//if this item is expanded then calculate the row height necessary
+		//to display all description text, if collapsed then return the
+		//default row height
+		if (flagExpand) {
+			//make sure the dummy pane area is identical to
+			//the description text area
+			dummyPane.setLineWrap(true);
+			dummyPane.setWrapStyleWord(true);
+			dummyPane.setBorder(uiTextArea.getBorder());
+			
+			//width = parent table width - spacer width - 1
+			dummyPane.setSize(parentTable.getSize().width
+					- Constants.ITEMPANEL_HEIGHT - 1, 32);
+			dummyPane.setText(uiTextArea.getText());
+			dummyPane.setFont(uiTextArea.getFont());
+			return dummyPane.getPreferredSize().height + 34;
+
 		} else {
-			buttonDrop.setIcon(iconExpand);
-		}
+			return Constants.ITEMPANEL_HEIGHT;
+		}		
 	}
 	
-	void requestRowResize () {
-		
-		if (expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT_EXPANDED)) {
-			parentTable.uiTable.setRowHeight(rowIndex, Constants.ITEMPANEL_HEIGHT_EXPANDED);
+	/**
+	 * Determines if this item's row height in the parent table
+	 * matches the height required to display all this item's
+	 * UI components (including wrapped description text).
+	 */
+	private void requestRowResize () {
+		int rowHeight = getPanelHeight();
+	
+		if (parentTable.getRowHeight(this.rowIndex) != rowHeight) {
+			parentTable.setRowHeight(rowIndex, rowHeight);
 		}
 		
-		if (!expanded && (parentTable.uiTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT)) {
-			parentTable.uiTable.setRowHeight(rowIndex, Constants.ITEMPANEL_HEIGHT);
-		}
-				
-		
+	}
+
+	/**
+	 * Sets the status button icon according to the status
+	 * flag.
+	 */
+	private void setStatusButtonIcon () {
+		ItemPanel.this.uiBtnStatus.setIcon(
+				statusIcons[ItemPanel.this.flagStatus]);
 	}
 	
-	void setStatusButtonIcon () {
-		ItemPanel.this.buttonStatus.setIcon(
-				statusFlagIcons[ItemPanel.this.statusFlag]);
-	}
-	
-	private class BtnNewButton_1ActionListener implements ActionListener {
+	/**
+	 * Defines the action for the expand button; toggles
+	 * the flag, sets the icon accordingly, and resizes the
+	 * parent table row. 
+	 */
+	private class UIActionExpand implements ActionListener {
 		public void actionPerformed (ActionEvent arg0) {
-			ItemPanel.this.expanded = !ItemPanel.this.expanded;
+			ItemPanel.this.flagExpand = !ItemPanel.this.flagExpand;
 			
 			setDropButtonIcon();
 			
 			requestRowResize();
 		}
 	}
-	private class ButtonStatusActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
-			ItemPanel.this.statusFlag =
-					(ItemPanel.this.statusFlag + 1) % Constants.ICON_FLAG_COUNT;
+	
+	/**
+	 * Defines the action for the status button; toggles
+	 * the status flag and sets its icon.
+	 */
+	private class UIActionStatus implements ActionListener {
+		public void actionPerformed (ActionEvent arg0) {
+			ItemPanel.this.flagStatus =
+					(ItemPanel.this.flagStatus + 1) % Constants.ICON_FLAG_COUNT;
 			setStatusButtonIcon();
 
 		}
+	}
+	
+	/**
+	 * Defines the action for each of the status menu item popups
+	 */
+	private class UIActionStatusPopup implements ActionListener {
+
+		private int flag;
+		
+		UIActionStatusPopup (int flag) {
+			this.flag = flag;
+		}
+		
+		@Override
+		public void actionPerformed (ActionEvent e) {
+			ItemPanel.this.flagStatus = flag;
+			setStatusButtonIcon();
+		}
+		
 	}
 }
