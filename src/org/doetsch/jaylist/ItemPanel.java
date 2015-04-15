@@ -24,26 +24,12 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.BoxLayout;
+import java.awt.FlowLayout;
 
 @SuppressWarnings("serial")
 class ItemPanel extends JPanel {
 
-	enum StatusFlagIcon {
-		
-		FLAG (0, Constants.ICON_UNCHECKED),
-		CHECK (1, Constants.ICON_CHECKED),
-		ALERT (3, Constants.ICON_URGENT),
-		QUESTION (4, Constants.ICON_ISSUE);
-		
-		int flag;
-		ImageIcon icon;
-		
-		StatusFlagIcon (int flag, ImageIcon icon) {
-			this.flag = flag;
-			this.icon = icon;
-		}		
-	}
-	
 	//UI components
 	private JPanel uiPanelHeader;
 	private JScrollPane uiScrollPane;
@@ -168,18 +154,22 @@ class ItemPanel extends JPanel {
 		this.uiPanelDrop.setSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
 		this.uiPanelDrop.setMaximumSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
 		this.uiPanelDrop.setMinimumSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
-		this.uiPanelDrop.setPreferredSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
+		this.uiPanelDrop.setPreferredSize(new Dimension(32, 32));
 		this.uiPanelHeader.add(this.uiPanelDrop, BorderLayout.EAST);
-		this.uiPanelDrop.setLayout(new BorderLayout(0, 0));
+		this.uiPanelDrop.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		this.uiBtnExpand = new JButton("");
+		this.uiBtnExpand.setSize(new Dimension(24, 24));
+		this.uiBtnExpand.setMinimumSize(new Dimension(24, 24));
+		this.uiBtnExpand.setMaximumSize(new Dimension(24, 24));
 		this.uiBtnExpand.setMargin(new Insets(0, 0, 0, 0));
 		this.uiPanelDrop.add(this.uiBtnExpand);
 		this.uiBtnExpand.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.uiBtnExpand.setBackground(Constants.COLOR_ITEM);
-		this.uiBtnExpand.setPreferredSize(new Dimension(40, 40));
+		this.uiBtnExpand.setPreferredSize(new Dimension(20, 20));
 		this.uiBtnExpand.setBorderPainted(false);
 		this.uiBtnExpand.setFocusPainted(false);
 		this.uiBtnExpand.addActionListener(new UIActionExpand());
+		this.uiBtnExpand.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
 		
 		//construct description components
 		this.uiScrollPane = new JScrollPane();
@@ -243,7 +233,6 @@ class ItemPanel extends JPanel {
 		this.uiTextField.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
 		this.uiBtnStatus.addMouseListener(new PopupListener(statusMenu, new Point(-8, -8)));
 		this.uiTextField.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
-		this.uiBtnExpand.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
 		this.uiTextArea.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
 	}
 	
@@ -263,21 +252,29 @@ class ItemPanel extends JPanel {
 	 * 
 	 * @return
 	 */
-	private int getTextAreaHeight () {
+	private int getPanelHeight () {
 		JTextArea dummyPane = new JTextArea();
 		
-		//make sure the dummy pane area is identical to
-		//the description text area
-		dummyPane.setLineWrap(true);
-		dummyPane.setWrapStyleWord(true);
-		dummyPane.setBorder(uiTextArea.getBorder());
-		
-		//width = parent table width - spacer width - 1
-		dummyPane.setSize(parentTable.getSize().width
-				- Constants.ITEMPANEL_HEIGHT - 1, 32);
-		dummyPane.setText(uiTextArea.getText());
-		dummyPane.setFont(uiTextArea.getFont());
-		return dummyPane.getPreferredSize().height;
+		//if this item is expanded then calculate the row height necessary
+		//to display all description text, if collapsed then return the
+		//default row height
+		if (flagExpand) {
+			//make sure the dummy pane area is identical to
+			//the description text area
+			dummyPane.setLineWrap(true);
+			dummyPane.setWrapStyleWord(true);
+			dummyPane.setBorder(uiTextArea.getBorder());
+			
+			//width = parent table width - spacer width - 1
+			dummyPane.setSize(parentTable.getSize().width
+					- Constants.ITEMPANEL_HEIGHT - 1, 32);
+			dummyPane.setText(uiTextArea.getText());
+			dummyPane.setFont(uiTextArea.getFont());
+			return dummyPane.getPreferredSize().height + 34;
+
+		} else {
+			return Constants.ITEMPANEL_HEIGHT;
+		}		
 	}
 	
 	/**
@@ -286,16 +283,12 @@ class ItemPanel extends JPanel {
 	 * UI components (including wrapped description text).
 	 */
 	private void requestRowResize () {
-		int textAreaHeight = getTextAreaHeight();
-		int rowHeight = 34 + textAreaHeight;
+		int rowHeight = getPanelHeight();
 	
-		if (flagExpand && (parentTable.getRowHeight(this.rowIndex) != rowHeight)) {
+		if (parentTable.getRowHeight(this.rowIndex) != rowHeight) {
 			parentTable.setRowHeight(rowIndex, rowHeight);
 		}
 		
-		if (!flagExpand && (parentTable.getRowHeight(this.rowIndex) != Constants.ITEMPANEL_HEIGHT)) {
-			parentTable.setRowHeight(rowIndex, Constants.ITEMPANEL_HEIGHT);
-		}
 	}
 
 	/**
