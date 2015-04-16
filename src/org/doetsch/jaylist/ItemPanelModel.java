@@ -6,18 +6,23 @@ package org.doetsch.jaylist;
  * 
  * @author Jacob Wesley Doetsch
  */
-class ItemPanelModel {
+final class ItemPanelModel {
 	
+	//content
 	final String title;
 	final String desc;
-	final int flagStatus;
-	final boolean flagExpand;
+	final int statusFlag;
 	
-	ItemPanelModel (String title, String desc, int flag, boolean expanded) {
+	//ui behavior
+	final boolean isExpanded;
+	final boolean isHidden;
+	
+	ItemPanelModel (String title, String desc, int flag, boolean isExpanded, boolean isHidden) {
 		this.title = title;
 		this.desc = desc;
-		this.flagStatus = flag;
-		this.flagExpand = expanded;
+		this.statusFlag = flag;
+		this.isExpanded = isExpanded;
+		this.isHidden = isHidden;
 	}
 
 }

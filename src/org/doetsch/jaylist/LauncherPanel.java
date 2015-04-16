@@ -40,9 +40,9 @@ public class LauncherPanel extends JPanel {
 		this.btn = new JButton("<html><p><dynamic></p></html>");
 		this.btn.setVerticalTextPosition(SwingConstants.TOP);
 		this.btn.setIcon(new ImageIcon(LauncherPanel.class.getResource("/org/doetsch/jaylist/resources/pin_16x16.png")));
-		this.btn.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
+		this.btn.setBackground(UI.LAUNCHER_COLOR_BUTTON);
 		this.btn.setForeground(Color.WHITE);
-		this.btn.setFont(Constants.LAUNCHER_FONT);
+		this.btn.setFont(UI.LAUNCHER_FONT);
 		this.btn.setBorder(new EmptyBorder(6, 6, 6, 6));
 		this.btn.setMinimumSize(new Dimension(104 - b * 2, 104 - b * 2));
 		this.btn.setMaximumSize(new Dimension(104 - b * 2, 104 - b * 2));

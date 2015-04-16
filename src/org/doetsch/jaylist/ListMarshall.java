@@ -68,7 +68,7 @@ class ListMarshall {
                 "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
                 "http://www.w3.org/2001/XMLSchema");
 		docBuilderFactory.setAttribute(
-				"http://java.sun.com/xml/jaxp/properties/schemaSource", Constants.XML_LIST_SCHEMA.openStream());
+				"http://java.sun.com/xml/jaxp/properties/schemaSource", UI.XML_LIST_SCHEMA.openStream());
 		
 		docBuilder = docBuilderFactory.newDocumentBuilder();
 		docBuilder.setErrorHandler(new ErrorHandlerAdapter());
@@ -146,7 +146,7 @@ class ListMarshall {
 				
 				
 				
-				list.addItemModels(new ItemPanelModel(title, desc, flag, expanded));
+				list.addItemModels(new ItemPanelModel(title, desc, flag, expanded, false));
 				
 			}
 		}
@@ -202,8 +202,8 @@ class ListMarshall {
 			
 			titleElement.setTextContent(itemModel.title);
 			descElement.setTextContent(itemModel.desc);
-			flagElement.setTextContent(String.valueOf(itemModel.flagStatus));
-			expandedElement.setTextContent(String.valueOf(itemModel.flagExpand));
+			flagElement.setTextContent(String.valueOf(itemModel.statusFlag));
+			expandedElement.setTextContent(String.valueOf(itemModel.isExpanded));
 			
 			itemElement.appendChild(titleElement);
 			itemElement.appendChild(descElement);

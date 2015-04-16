@@ -4,15 +4,16 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 
 import javax.swing.JPopupMenu;
 
-class PopupListener extends MouseAdapter {
+class PopupAction extends MouseAdapter {
 
 	private JPopupMenu popup;
 	private Point offset;
 	
-	PopupListener (JPopupMenu popup, Point offset) {
+	PopupAction (JPopupMenu popup, Point offset) {
 		this.popup = popup;
 		this.offset = offset;
 	}
@@ -21,7 +22,7 @@ class PopupListener extends MouseAdapter {
 	public void mouseClicked (MouseEvent e) {
 		tryPopup(e);
 	}
-
+	
 	private void tryPopup (MouseEvent e) {
 		if ((e.getButton() == 2) || (e.getButton() == 3)) {
 			//popup.show(e.getComponent(), e.getX() - 56, e.getY() - 12);

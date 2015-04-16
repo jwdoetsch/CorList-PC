@@ -7,7 +7,7 @@ import java.net.URL;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-class Constants {
+class UI {
 
 	static final int FRAME_WIDTH = 266;
 	static final int FRAME_HEIGHT = 500;
@@ -32,23 +32,25 @@ class Constants {
 	static final ImageIcon ICON_CHECKED = new ImageIcon(
 			ItemPanel.class.getResource("resources/set3/checked.png"));
 	static final ImageIcon ICON_UNCHECKED = new ImageIcon(
-			Constants.class.getResource("resources/set3/unchecked.png"));
+			UI.class.getResource("resources/set3/unchecked.png"));
 	static final ImageIcon ICON_URGENT = new ImageIcon(
-			Constants.class.getResource("resources/set2/urgent_32x32.png"));
+			UI.class.getResource("resources/set2/urgent_32x32.png"));
 	static final ImageIcon ICON_ISSUE = new ImageIcon(
-			Constants.class.getResource("resources/set2/question_32x32.png"));
+			UI.class.getResource("resources/set2/question_32x32.png"));
 	static final ImageIcon ICON_EXPAND = new ImageIcon(
-			Constants.class.getResource("resources/set2/expand.png"));
+			UI.class.getResource("resources/set2/expand.png"));
 	static final ImageIcon ICON_COLLAPSE = new ImageIcon(
-			Constants.class.getResource("resources/set2/collapse.png"));
+			UI.class.getResource("resources/set2/collapse.png"));
 	static final Icon ICON_BIRD = new ImageIcon(
-			Constants.class.getResource("resources/set3/bird.png"));
+			UI.class.getResource("resources/set3/bird.png"));
 	static final Icon ICON_SAVEAS = new ImageIcon(
-			Constants.class.getResource("resources/set2/saveas.png"));
+			UI.class.getResource("resources/set2/saveas.png"));
 	static final Icon ICON_ADD = new ImageIcon(
-			Constants.class.getResource("resources/set3/menu-add.png"));
+			UI.class.getResource("resources/set3/menu-add.png"));
 	static final Icon ICON_REMOVE = new ImageIcon(
-			Constants.class.getResource("resources/set3/menu-remove.png"));
+			UI.class.getResource("resources/set3/menu-remove.png"));
+	static final Icon ICON_HIDDEN = new ImageIcon(
+			UI.class.getResource("resources/set3/hidden.png"));
 	
 	static final Font FONT_ITEM_TITLE = new Font("Arial", Font.PLAIN, 14);
 	static final Font FONT_HEADER = new Font("Arial", Font.PLAIN, 16);

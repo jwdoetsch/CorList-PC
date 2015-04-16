@@ -228,7 +228,7 @@ public class Launcher extends JFrame {
 		//setBounds(100, 100, 358, 368);
 		setBounds(368, 128, 64, 64);
 		this.contentPane = new JPanel();
-		this.contentPane.setBackground(Constants.LAUNCHER_COLOR_BG);
+		this.contentPane.setBackground(UI.LAUNCHER_COLOR_BG);
 		this.contentPane.setPreferredSize(new Dimension(440, 320));
 		this.contentPane.setBorder(new EmptyBorder(4, 4, 4, 4));
 		this.contentPane.setLayout(new BorderLayout(0, 0));
@@ -254,9 +254,9 @@ public class Launcher extends JFrame {
 		this.btnNew.setMnemonic('N');
 		this.btnNew.setBorder(new EmptyBorder(8, 8, 8, 8));
 		this.btnNew.setVerticalTextPosition(SwingConstants.TOP);
-		this.btnNew.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
+		this.btnNew.setBackground(UI.LAUNCHER_COLOR_BUTTON);
 		this.btnNew.setForeground(Color.WHITE);
-		this.btnNew.setFont(Constants.LAUNCHER_FONT);
+		this.btnNew.setFont(UI.LAUNCHER_FONT);
 		this.btnNew.setHorizontalAlignment(SwingConstants.LEADING);
 		this.btnNew.setVerticalAlignment(SwingConstants.TOP);
 		this.panel_1.add(this.btnNew);
@@ -286,7 +286,7 @@ public class Launcher extends JFrame {
 		this.btnOpen.setIcon(new ImageIcon(Launcher.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
 		this.btnOpen.setBorder(new EmptyBorder(8, 8, 8, 8));
 		this.btnOpen.setMnemonic('O');
-		this.btnOpen.setBackground(Constants.LAUNCHER_COLOR_BUTTON);
+		this.btnOpen.setBackground(UI.LAUNCHER_COLOR_BUTTON);
 		this.btnOpen.setForeground(Color.WHITE);
 		this.btnOpen.setPreferredSize(new Dimension(104, 104));
 		this.btnOpen.setMinimumSize(new Dimension(104, 104));
@@ -322,12 +322,12 @@ public class Launcher extends JFrame {
 		this.panel_4.setLayout(null);
 		this.scrollPane = new JScrollPane();
 		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		this.scrollPane.setBackground(Constants.LAUNCHER_COLOR_BG);
+		this.scrollPane.setBackground(UI.LAUNCHER_COLOR_BG);
 		this.scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.contentPane.add(this.scrollPane, BorderLayout.CENTER);
 		this.table = new JTable();
-		this.table.setBackground(Constants.LAUNCHER_COLOR_BG);
+		this.table.setBackground(UI.LAUNCHER_COLOR_BG);
 		this.table.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.table.setShowVerticalLines(false);
 		this.table.setShowHorizontalLines(false);
@@ -449,7 +449,7 @@ public class Launcher extends JFrame {
 		ListMarshall marshall = new ListMarshall();
 			ListFrame newFrame;
 		try {
-			newFrame = new ListFrame(this, marshall.unmarshall(Constants.XMl_NEW_LIST), false);
+			newFrame = new ListFrame(this, marshall.unmarshall(UI.XMl_NEW_LIST), false);
 			newFrame.setVisible(true);
 			newFrame.setLocation(this.getLocation().x + 64,
 					this.getLocation().y + 64);
