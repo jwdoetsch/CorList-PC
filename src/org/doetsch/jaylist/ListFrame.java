@@ -184,7 +184,7 @@ class ListFrame extends JFrame {
 	private void newItem () {
 		DefaultTableModel tableModel =
 				(DefaultTableModel)ListFrame.this.uiTable.getModel();
-		tableModel.addRow(new ItemPanelModel[] {new ItemPanelModel("<add a title>", "<add a description>", 0, false, false)});
+		tableModel.addRow(new ItemPanelModel[] {new ItemPanelModel("<add a title>", "<add a description>", StatusFlag.INCOMPLETE, false, false)});
 		
 		if (uiTable.isEditing()) {
 			uiTable.getCellEditor().stopCellEditing();
@@ -534,7 +534,7 @@ class ListFrame extends JFrame {
 			//if the ui view mode is set to hide completed items
 			//and this rendering item is completed then return a blank
 			if ((viewMode == ListViewMode.HIDE_COMPLETED)
-					&& (sourceModel.statusFlag == 1)) {
+					&& (sourceModel.status == StatusFlag.COMPLETE)) {
 				return new HiddenPanel(uiTable, row);
 				
 			} else {

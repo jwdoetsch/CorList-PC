@@ -44,7 +44,8 @@ class ItemPanel extends JPanel {
 	private final ImageIcon[] statusIcons;
 	
 	//model fields from source ItemModel
-	private int flagStatus;
+	//private int flagStatus;
+	private StatusFlag status;
 	private boolean flagExpand;
 	private int rowIndex;
 	private boolean isSelected;
@@ -94,7 +95,7 @@ class ItemPanel extends JPanel {
 		return new ItemPanelModel(
 				this.uiTextField.getText(),
 				this.uiTextArea.getText(),
-				this.flagStatus,
+				this.status,
 				this.flagExpand,
 				this.isHidden);
 	}
@@ -107,11 +108,12 @@ class ItemPanel extends JPanel {
 	private void injectItemModelValues (ItemPanelModel itemModel) {
 		this.uiTextField.setText(itemModel.title);
 		this.uiTextArea.setText(itemModel.desc);
-		this.flagStatus = itemModel.statusFlag;
+		//this.status = itemModel.status;
+		setStatus(itemModel.status);
 		this.flagExpand = itemModel.isExpanded;
 		
 		//refresh UI components that are flag dependent
-		setStatusButtonIcon();
+		//setStatus();
 		setDropButtonIcon();
 		
 		//adjust parent table row height to fit wrapped
@@ -201,22 +203,33 @@ class ItemPanel extends JPanel {
 		
 		//set up the status button icon popup menu
 		this.statusMenu = new JPopupMenu();
-		JMenuItem item1 = new JMenuItem("Incomplete");
-		JMenuItem item2 = new JMenuItem("Complete");
-		JMenuItem item3 = new JMenuItem("Alert");
-		JMenuItem item4 = new JMenuItem("Question");
-		item1.setIcon(statusIcons[0]);
-		item1.addActionListener(new UIActionStatusPopup(0));
-		item2.setIcon(statusIcons[1]);
-		item2.addActionListener(new UIActionStatusPopup(1));
-		item3.setIcon(statusIcons[2]);
-		item3.addActionListener(new UIActionStatusPopup(2));
-		item4.setIcon(statusIcons[3]);
-		item4.addActionListener(new UIActionStatusPopup(3));
-		this.statusMenu.add(item1);
-		this.statusMenu.add(item2);
-		this.statusMenu.add(item3);
-		this.statusMenu.add(item4);
+//		JMenuItem item0 = new JMenuItem("None");
+//		JMenuItem item1 = new JMenuItem("Incomplete");
+//		JMenuItem item2 = new JMenuItem("Complete");
+//		JMenuItem item3 = new JMenuItem("Alert");
+//		JMenuItem item4 = new JMenuItem("Question");
+//		item0.setIcon(StatusFlag.NONE.icon);
+//		item0.addActionListener(new UIActionStatusPopup(StatusFlag.NONE));
+//		item1.setIcon(StatusFlag.INCOMPLETE.icon);
+//		item1.addActionListener(new UIActionStatusPopup(StatusFlag.INCOMPLETE));
+//		item2.setIcon(StatusFlag.COMPLETE.icon);
+//		item2.addActionListener(new UIActionStatusPopup(StatusFlag.COMPLETE));
+//		item3.setIcon(StatusFlag.ALERT.icon);
+//		item3.addActionListener(new UIActionStatusPopup(StatusFlag.ALERT));
+//		item4.setIcon(StatusFlag.QUESTION.icon);
+//		item4.addActionListener(new UIActionStatusPopup(StatusFlag.QUESTION));
+//		this.statusMenu.add(item1);
+//		this.statusMenu.add(item2);
+//		this.statusMenu.add(item3);
+//		this.statusMenu.add(item4);
+		
+		for (StatusFlag status : StatusFlag.values()) {
+			JMenuItem popupItem = new JMenuItem(status.desc);
+			popupItem.setIcon(status.icon);
+			popupItem.addActionListener(new UIActionStatusPopup(status));
+			this.statusMenu.add(popupItem);
+		}
+		
 		//this.uiBtnStatus.addMouseListener(new PopupListener(statusMenu, new Point(-8, -8)));
 	
 		
@@ -297,9 +310,10 @@ class ItemPanel extends JPanel {
 	 * Sets the status button icon according to the status
 	 * flag.
 	 */
-	private void setStatusButtonIcon () {
+	private void setStatus (StatusFlag status) {
+		ItemPanel.this.status = status; //StatusFlag.getStatusFlag(flag);
 		ItemPanel.this.uiBtnStatus.setIcon(
-				statusIcons[ItemPanel.this.flagStatus]);
+				ItemPanel.this.status.icon);
 	}
 	
 	/**
@@ -323,11 +337,15 @@ class ItemPanel extends JPanel {
 	 */
 	private class UIActionStatus implements ActionListener {
 		public void actionPerformed (ActionEvent arg0) {
-			ItemPanel.this.flagStatus =
-					(ItemPanel.this.flagStatus + 1) % UI.ICON_FLAG_COUNT;
-			setStatusButtonIcon();
+//			ItemPanel.this.status =
+//					StatusFlag.getStatusFlag(
+//							(ItemPanel.this.status.code + 1) % UI.ICON_FLAG_COUNT);
+			//toggle between incomplete status (code 0) and
+			//completed status (code 1)
+			setStatus(StatusFlag.getStatusFlag(
+					(ItemPanel.this.status.code + 1) % UI.ICON_FLAG_COUNT));
 
-		}
+		} 
 	}
 	
 	/**
@@ -335,16 +353,17 @@ class ItemPanel extends JPanel {
 	 */
 	private class UIActionStatusPopup implements ActionListener {
 
-		private int flag;
+		//private int flag;
+		private StatusFlag status;
 		
-		UIActionStatusPopup (int flag) {
-			this.flag = flag;
+		UIActionStatusPopup (StatusFlag status) {
+			this.status = status;
 		}
 		
 		@Override
 		public void actionPerformed (ActionEvent e) {
-			ItemPanel.this.flagStatus = flag;
-			setStatusButtonIcon();
+			//ItemPanel.this.status = StatusFlag.getStatusFlag(flag);
+			setStatus(status);
 		}
 		
 	}

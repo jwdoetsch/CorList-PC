@@ -87,7 +87,8 @@ class ListMarshall {
 		String title = "";
 		String desc = "";
 		Dimension frameSize = new Dimension(200, 400); //default dimensions if frame config unspecified
-		int flag = 0;
+		//int flag = 0;
+		StatusFlag status = StatusFlag.NONE; 
 		boolean expanded = false;
 		
 		
@@ -135,10 +136,13 @@ class ListMarshall {
 						desc = grandchildren.item(j).getTextContent();
 					}
 					if (grandchildren.item(j).getNodeName().equals("flag")) {
-						flag = Integer.valueOf(grandchildren.item(j).getTextContent());
+						status = StatusFlag.getStatusFlag(
+								Integer.valueOf(
+										grandchildren.item(j).getTextContent()));
 					}
 					if (grandchildren.item(j).getNodeName().equals("expanded")) {
-						expanded = Boolean.valueOf(grandchildren.item(j).getTextContent());
+						expanded = Boolean.valueOf(
+								grandchildren.item(j).getTextContent());
 					}
 					
 				}
@@ -146,7 +150,7 @@ class ListMarshall {
 				
 				
 				
-				list.addItemModels(new ItemPanelModel(title, desc, flag, expanded, false));
+				list.addItemModels(new ItemPanelModel(title, desc, status, expanded, false));
 				
 			}
 		}
@@ -202,7 +206,7 @@ class ListMarshall {
 			
 			titleElement.setTextContent(itemModel.title);
 			descElement.setTextContent(itemModel.desc);
-			flagElement.setTextContent(String.valueOf(itemModel.statusFlag));
+			flagElement.setTextContent(String.valueOf(itemModel.status.code));
 			expandedElement.setTextContent(String.valueOf(itemModel.isExpanded));
 			
 			itemElement.appendChild(titleElement);
