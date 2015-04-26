@@ -44,10 +44,12 @@ class ItemPanel extends JPanel {
 	private final ImageIcon[] statusIcons;
 	
 	//model fields from source ItemModel
-	private int flagStatus;
+	//private int flagStatus;
+	private StatusFlag status;
 	private boolean flagExpand;
 	private int rowIndex;
 	private boolean isSelected;
+	private boolean isHidden;
 	private JTable parentTable;
 	private JPopupMenu popupMenu;
 	private JPopupMenu statusMenu;
@@ -75,10 +77,10 @@ class ItemPanel extends JPanel {
 		
 		//load icon constants
 		statusIcons = new ImageIcon[4];
-		statusIcons[0] = Constants.ICON_UNCHECKED;
-		statusIcons[1] = Constants.ICON_CHECKED;
-		statusIcons[2] = Constants.ICON_URGENT;
-		statusIcons[3] = Constants.ICON_ISSUE;
+		statusIcons[0] = UI.ICON_UNCHECKED;
+		statusIcons[1] = UI.ICON_CHECKED;
+		statusIcons[2] = UI.ICON_URGENT;
+		statusIcons[3] = UI.ICON_ISSUE;
 		
 		initComponents();
 		injectItemModelValues(itemModel);
@@ -93,8 +95,9 @@ class ItemPanel extends JPanel {
 		return new ItemPanelModel(
 				this.uiTextField.getText(),
 				this.uiTextArea.getText(),
-				this.flagStatus,
-				this.flagExpand);
+				this.status,
+				this.flagExpand,
+				this.isHidden);
 	}
 	
 	/**
@@ -105,16 +108,17 @@ class ItemPanel extends JPanel {
 	private void injectItemModelValues (ItemPanelModel itemModel) {
 		this.uiTextField.setText(itemModel.title);
 		this.uiTextArea.setText(itemModel.desc);
-		this.flagStatus = itemModel.flagStatus;
-		this.flagExpand = itemModel.flagExpand;
+		//this.status = itemModel.status;
+		setStatus(itemModel.status);
+		this.flagExpand = itemModel.isExpanded;
 		
 		//refresh UI components that are flag dependent
-		setStatusButtonIcon();
+		//setStatus();
 		setDropButtonIcon();
 		
 		//adjust parent table row height to fit wrapped
 		//description text
-		requestRowResize();		
+		syncRowHeight();		
 	}
 	
 	/**
@@ -124,7 +128,7 @@ class ItemPanel extends JPanel {
 		
 		//set up the source panel
 		setPreferredSize(new Dimension(
-				Constants.ITEMPANEL_WIDTH, Constants.ITEMPANEL_HEIGHT_EXPANDED));
+				UI.ITEMPANEL_WIDTH, UI.ITEMPANEL_HEIGHT_EXPANDED));
 		setLayout(new BorderLayout(0, 0));
 
 		//instantiate and construct the header panel and
@@ -133,27 +137,27 @@ class ItemPanel extends JPanel {
 		add(this.uiPanelHeader, BorderLayout.NORTH);
 		this.uiPanelHeader.setLayout(new BorderLayout(0, 0));
 		this.uiBtnStatus = new JButton("");
-		this.uiBtnStatus.setBackground(Constants.COLOR_ITEM);
+		this.uiBtnStatus.setBackground(UI.COLOR_ITEM);
 		this.uiBtnStatus.addActionListener(new UIActionStatus());
 		this.uiBtnStatus.setPreferredSize(new Dimension(
-			Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
+			UI.ITEMPANEL_HEIGHT, UI.ITEMPANEL_HEIGHT));
 		this.uiBtnStatus.setBorderPainted(false);
 		this.uiBtnStatus.setFocusPainted(false);
 		this.uiPanelHeader.add(this.uiBtnStatus, BorderLayout.WEST);
 		this.uiTextField = new JTextField();
 		this.uiTextField.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.uiTextField.setPreferredSize(new Dimension(6, Constants.ITEMPANEL_HEIGHT));
+		this.uiTextField.setPreferredSize(new Dimension(6, UI.ITEMPANEL_HEIGHT));
 		this.uiTextField.setColumns(10);
-		this.uiTextField.setFont(Constants.FONT_ITEM_TITLE);
-		this.uiTextField.setBackground(Constants.COLOR_ITEM);
+		this.uiTextField.setFont(UI.FONT_ITEM_TITLE);
+		this.uiTextField.setBackground(UI.COLOR_ITEM);
 		this.uiPanelHeader.add(this.uiTextField, BorderLayout.CENTER);
 		
 		this.uiPanelDrop = new JPanel();
-		this.uiPanelDrop.setBackground(Constants.COLOR_ITEM);
+		this.uiPanelDrop.setBackground(UI.COLOR_ITEM);
 		this.uiPanelDrop.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.uiPanelDrop.setSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
-		this.uiPanelDrop.setMaximumSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
-		this.uiPanelDrop.setMinimumSize(new Dimension(Constants.ITEMPANEL_HEIGHT, Constants.ITEMPANEL_HEIGHT));
+		this.uiPanelDrop.setSize(new Dimension(UI.ITEMPANEL_HEIGHT, UI.ITEMPANEL_HEIGHT));
+		this.uiPanelDrop.setMaximumSize(new Dimension(UI.ITEMPANEL_HEIGHT, UI.ITEMPANEL_HEIGHT));
+		this.uiPanelDrop.setMinimumSize(new Dimension(UI.ITEMPANEL_HEIGHT, UI.ITEMPANEL_HEIGHT));
 		this.uiPanelDrop.setPreferredSize(new Dimension(32, 32));
 		this.uiPanelHeader.add(this.uiPanelDrop, BorderLayout.EAST);
 		this.uiPanelDrop.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -164,12 +168,12 @@ class ItemPanel extends JPanel {
 		this.uiBtnExpand.setMargin(new Insets(0, 0, 0, 0));
 		this.uiPanelDrop.add(this.uiBtnExpand);
 		this.uiBtnExpand.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.uiBtnExpand.setBackground(Constants.COLOR_ITEM);
+		this.uiBtnExpand.setBackground(UI.COLOR_ITEM);
 		this.uiBtnExpand.setPreferredSize(new Dimension(20, 20));
 		this.uiBtnExpand.setBorderPainted(false);
 		this.uiBtnExpand.setFocusPainted(false);
 		this.uiBtnExpand.addActionListener(new UIActionExpand());
-		this.uiBtnExpand.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
+		this.uiBtnExpand.addMouseListener(new PopupAction(popupMenu, new Point(-56, -12)));
 		
 		//construct description components
 		this.uiScrollPane = new JScrollPane();
@@ -180,60 +184,71 @@ class ItemPanel extends JPanel {
 		this.uiTextArea.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.uiTextArea.setWrapStyleWord(true);
 		this.uiTextArea.setLineWrap(true);
-		this.uiTextArea.setBackground(Constants.COLOR_ITEM);
-		this.uiTextArea.setFont(Constants.FONT_ITEM_DESCRIPTIOn);
+		this.uiTextArea.setBackground(UI.COLOR_ITEM);
+		this.uiTextArea.setFont(UI.FONT_ITEM_DESCRIPTIOn);
 		this.uiTextArea.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
-				requestRowResize();				
+				syncRowHeight();				
 			}
 		});
 		
 		//set up the spacer
 		this.uiScrollPane.setViewportView(this.uiTextArea);
 		this.uiLabelLeftSpacer = new JLabel("");
-		this.uiLabelLeftSpacer.setBackground(Constants.COLOR_ITEM);
+		this.uiLabelLeftSpacer.setBackground(UI.COLOR_ITEM);
 		this.uiLabelLeftSpacer.setOpaque(true);
-		this.uiLabelLeftSpacer.setPreferredSize(new Dimension(Constants.ITEMPANEL_HEIGHT, 0));
+		this.uiLabelLeftSpacer.setPreferredSize(new Dimension(UI.ITEMPANEL_HEIGHT, 0));
 		add(this.uiLabelLeftSpacer, BorderLayout.WEST);
 		
 		//set up the status button icon popup menu
 		this.statusMenu = new JPopupMenu();
-		JMenuItem item1 = new JMenuItem("Incomplete");
-		JMenuItem item2 = new JMenuItem("Complete");
-		JMenuItem item3 = new JMenuItem("Alert");
-		JMenuItem item4 = new JMenuItem("Question");
-		item1.setIcon(statusIcons[0]);
-		item1.addActionListener(new UIActionStatusPopup(0));
-		item2.setIcon(statusIcons[1]);
-		item2.addActionListener(new UIActionStatusPopup(1));
-		item3.setIcon(statusIcons[2]);
-		item3.addActionListener(new UIActionStatusPopup(2));
-		item4.setIcon(statusIcons[3]);
-		item4.addActionListener(new UIActionStatusPopup(3));
-		this.statusMenu.add(item1);
-		this.statusMenu.add(item2);
-		this.statusMenu.add(item3);
-		this.statusMenu.add(item4);
+//		JMenuItem item0 = new JMenuItem("None");
+//		JMenuItem item1 = new JMenuItem("Incomplete");
+//		JMenuItem item2 = new JMenuItem("Complete");
+//		JMenuItem item3 = new JMenuItem("Alert");
+//		JMenuItem item4 = new JMenuItem("Question");
+//		item0.setIcon(StatusFlag.NONE.icon);
+//		item0.addActionListener(new UIActionStatusPopup(StatusFlag.NONE));
+//		item1.setIcon(StatusFlag.INCOMPLETE.icon);
+//		item1.addActionListener(new UIActionStatusPopup(StatusFlag.INCOMPLETE));
+//		item2.setIcon(StatusFlag.COMPLETE.icon);
+//		item2.addActionListener(new UIActionStatusPopup(StatusFlag.COMPLETE));
+//		item3.setIcon(StatusFlag.ALERT.icon);
+//		item3.addActionListener(new UIActionStatusPopup(StatusFlag.ALERT));
+//		item4.setIcon(StatusFlag.QUESTION.icon);
+//		item4.addActionListener(new UIActionStatusPopup(StatusFlag.QUESTION));
+//		this.statusMenu.add(item1);
+//		this.statusMenu.add(item2);
+//		this.statusMenu.add(item3);
+//		this.statusMenu.add(item4);
+		
+		for (StatusFlag status : StatusFlag.values()) {
+			JMenuItem popupItem = new JMenuItem(status.desc);
+			popupItem.setIcon(status.icon);
+			popupItem.addActionListener(new UIActionStatusPopup(status));
+			this.statusMenu.add(popupItem);
+		}
+		
 		//this.uiBtnStatus.addMouseListener(new PopupListener(statusMenu, new Point(-8, -8)));
 	
 		
 		//if the item is selected in the table then highlight
 		//necessary UI components
 		if (isSelected) {
-			this.uiBtnStatus.setBackground(Constants.COLOR_HIGHLIGHT2);
-			this.uiTextField.setBackground(Constants.COLOR_HIGHLIGHT);
-			this.uiBtnExpand.setBackground(Constants.COLOR_HIGHLIGHT2);
-			this.uiTextArea.setBackground(Constants.COLOR_HIGHLIGHT);
-			this.uiLabelLeftSpacer.setBackground(Constants.COLOR_HIGHLIGHT);
-			this.uiPanelDrop.setBackground(Constants.COLOR_HIGHLIGHT2);
+			this.uiBtnStatus.setBackground(UI.COLOR_HIGHLIGHT2);
+			this.uiTextField.setBackground(UI.COLOR_HIGHLIGHT);
+			this.uiBtnExpand.setBackground(UI.COLOR_HIGHLIGHT2);
+			this.uiTextArea.setBackground(UI.COLOR_HIGHLIGHT);
+			this.uiLabelLeftSpacer.setBackground(UI.COLOR_HIGHLIGHT);
+			this.uiPanelDrop.setBackground(UI.COLOR_HIGHLIGHT2);
 		}
 		
 		//add the control popup menu to panel components
-		this.uiTextField.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
-		this.uiBtnStatus.addMouseListener(new PopupListener(statusMenu, new Point(-8, -8)));
-		this.uiTextField.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
-		this.uiTextArea.addMouseListener(new PopupListener(popupMenu, new Point(-56, -12)));
+		this.uiTextField.addMouseListener(new PopupAction(popupMenu, new Point(-56, -12)));
+		this.uiBtnStatus.addMouseListener(new PopupAction(statusMenu, new Point(-8, -8)));
+		this.uiTextField.addMouseListener(new PopupAction(popupMenu, new Point(-56, -12)));
+		this.uiTextArea.addMouseListener(new PopupAction(popupMenu, new Point(-56, -12)));
 	}
 	
 	/**
@@ -242,7 +257,7 @@ class ItemPanel extends JPanel {
 	 */
 	private void setDropButtonIcon () {
 		uiBtnExpand.setIcon(this.flagExpand ?
-				Constants.ICON_COLLAPSE : Constants.ICON_EXPAND);
+				UI.ICON_COLLAPSE : UI.ICON_EXPAND);
 	}
 	
 	/**
@@ -267,13 +282,13 @@ class ItemPanel extends JPanel {
 			
 			//width = parent table width - spacer width - 1
 			dummyPane.setSize(parentTable.getSize().width
-					- Constants.ITEMPANEL_HEIGHT - 1, 32);
+					- UI.ITEMPANEL_HEIGHT - 1, 32);
 			dummyPane.setText(uiTextArea.getText());
 			dummyPane.setFont(uiTextArea.getFont());
 			return dummyPane.getPreferredSize().height + 34;
 
 		} else {
-			return Constants.ITEMPANEL_HEIGHT;
+			return UI.ITEMPANEL_HEIGHT;
 		}		
 	}
 	
@@ -282,7 +297,7 @@ class ItemPanel extends JPanel {
 	 * matches the height required to display all this item's
 	 * UI components (including wrapped description text).
 	 */
-	private void requestRowResize () {
+	private void syncRowHeight () {
 		int rowHeight = getPanelHeight();
 	
 		if (parentTable.getRowHeight(this.rowIndex) != rowHeight) {
@@ -295,9 +310,10 @@ class ItemPanel extends JPanel {
 	 * Sets the status button icon according to the status
 	 * flag.
 	 */
-	private void setStatusButtonIcon () {
+	private void setStatus (StatusFlag status) {
+		ItemPanel.this.status = status; //StatusFlag.getStatusFlag(flag);
 		ItemPanel.this.uiBtnStatus.setIcon(
-				statusIcons[ItemPanel.this.flagStatus]);
+				ItemPanel.this.status.icon);
 	}
 	
 	/**
@@ -311,7 +327,7 @@ class ItemPanel extends JPanel {
 			
 			setDropButtonIcon();
 			
-			requestRowResize();
+			syncRowHeight();
 		}
 	}
 	
@@ -321,11 +337,15 @@ class ItemPanel extends JPanel {
 	 */
 	private class UIActionStatus implements ActionListener {
 		public void actionPerformed (ActionEvent arg0) {
-			ItemPanel.this.flagStatus =
-					(ItemPanel.this.flagStatus + 1) % Constants.ICON_FLAG_COUNT;
-			setStatusButtonIcon();
+//			ItemPanel.this.status =
+//					StatusFlag.getStatusFlag(
+//							(ItemPanel.this.status.code + 1) % UI.ICON_FLAG_COUNT);
+			//toggle between incomplete status (code 0) and
+			//completed status (code 1)
+			setStatus(StatusFlag.getStatusFlag(
+					(ItemPanel.this.status.code + 1) % UI.ICON_FLAG_COUNT));
 
-		}
+		} 
 	}
 	
 	/**
@@ -333,16 +353,17 @@ class ItemPanel extends JPanel {
 	 */
 	private class UIActionStatusPopup implements ActionListener {
 
-		private int flag;
+		//private int flag;
+		private StatusFlag status;
 		
-		UIActionStatusPopup (int flag) {
-			this.flag = flag;
+		UIActionStatusPopup (StatusFlag status) {
+			this.status = status;
 		}
 		
 		@Override
 		public void actionPerformed (ActionEvent e) {
-			ItemPanel.this.flagStatus = flag;
-			setStatusButtonIcon();
+			//ItemPanel.this.status = StatusFlag.getStatusFlag(flag);
+			setStatus(status);
 		}
 		
 	}

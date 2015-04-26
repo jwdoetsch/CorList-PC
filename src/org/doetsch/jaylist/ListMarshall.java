@@ -54,8 +54,6 @@ class ListMarshall {
 	}
 	
 	
-	
-	
 	ListFrameModel unmarshall  (URL src) throws IOException, SAXException, ParserConfigurationException  {
 		Document doc;
 		DocumentBuilder docBuilder;
@@ -68,7 +66,7 @@ class ListMarshall {
                 "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
                 "http://www.w3.org/2001/XMLSchema");
 		docBuilderFactory.setAttribute(
-				"http://java.sun.com/xml/jaxp/properties/schemaSource", Constants.XML_LIST_SCHEMA.openStream());
+				"http://java.sun.com/xml/jaxp/properties/schemaSource", UI.XML_LIST_SCHEMA.openStream());
 		
 		docBuilder = docBuilderFactory.newDocumentBuilder();
 		docBuilder.setErrorHandler(new ErrorHandlerAdapter());
@@ -87,7 +85,8 @@ class ListMarshall {
 		String title = "";
 		String desc = "";
 		Dimension frameSize = new Dimension(200, 400); //default dimensions if frame config unspecified
-		int flag = 0;
+		//int flag = 0;
+		StatusFlag status = StatusFlag.NONE; 
 		boolean expanded = false;
 		
 		
@@ -135,10 +134,13 @@ class ListMarshall {
 						desc = grandchildren.item(j).getTextContent();
 					}
 					if (grandchildren.item(j).getNodeName().equals("flag")) {
-						flag = Integer.valueOf(grandchildren.item(j).getTextContent());
+						status = StatusFlag.getStatusFlag(
+								Integer.valueOf(
+										grandchildren.item(j).getTextContent()));
 					}
 					if (grandchildren.item(j).getNodeName().equals("expanded")) {
-						expanded = Boolean.valueOf(grandchildren.item(j).getTextContent());
+						expanded = Boolean.valueOf(
+								grandchildren.item(j).getTextContent());
 					}
 					
 				}
@@ -146,7 +148,7 @@ class ListMarshall {
 				
 				
 				
-				list.addItemModels(new ItemPanelModel(title, desc, flag, expanded));
+				list.addItemModels(new ItemPanelModel(title, desc, status, expanded, false));
 				
 			}
 		}
@@ -202,8 +204,8 @@ class ListMarshall {
 			
 			titleElement.setTextContent(itemModel.title);
 			descElement.setTextContent(itemModel.desc);
-			flagElement.setTextContent(String.valueOf(itemModel.flagStatus));
-			expandedElement.setTextContent(String.valueOf(itemModel.flagExpand));
+			flagElement.setTextContent(String.valueOf(itemModel.status.code));
+			expandedElement.setTextContent(String.valueOf(itemModel.isExpanded));
 			
 			itemElement.appendChild(titleElement);
 			itemElement.appendChild(descElement);

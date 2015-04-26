@@ -3,34 +3,30 @@ package org.doetsch.jaylist;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractCellEditor;
 import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
-import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -41,8 +37,6 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -50,11 +44,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
-import javax.swing.DropMode;
 
 
 /**
@@ -83,6 +72,8 @@ class ListFrame extends JFrame {
 	private JMenuItem uiMenuItemAdd;
 	private JMenuItem uiMenuItemRemove;
 	private JMenuItem uiMenuItemNew;
+	private JMenuItem uiMenuItemHide;
+
 
 
 	//determines save behavior according to whether the list 
@@ -90,38 +81,10 @@ class ListFrame extends JFrame {
 	private Launcher launcher; 
 	private boolean hasPath;
 	private URL path;
-
-
-//	/**
-//	 * Launch a ListFrame instance that opens a new list.
-//	 * Uses the Metal look and feel.
-//	 */
-//	public static void main (String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				
-//				try {
-//					UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-//				} catch (ClassNotFoundException | InstantiationException
-//						| IllegalAccessException
-//						| UnsupportedLookAndFeelException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-//				
-//				try {
-//					//pass the new list template to the new frame
-//					ListMarshall marshall = new ListMarshall();
-//					ListFrame frame = new ListFrame(marshall.unmarshall(
-//							Constants.XMl_NEW_LIST), false);
-//					frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
-
+	
+	//user-input UI config attributes
+	private ListViewMode viewMode;
+	
 	/**
 	 * Instantiates a ListFrame that patterns itself after the
 	 * given ListModel.
@@ -133,6 +96,8 @@ class ListFrame extends JFrame {
 		
 		initComponents();
 		injectListModel(listModel);
+		//viewMode = ListViewMode.HIDE_COMPLETED;
+		viewMode = ListViewMode.DEFAULT;
 	}
 	
 	/**
@@ -190,7 +155,7 @@ class ListFrame extends JFrame {
 	private void newItem () {
 		DefaultTableModel tableModel =
 				(DefaultTableModel)ListFrame.this.uiTable.getModel();
-		tableModel.addRow(new ItemPanelModel[] {new ItemPanelModel("<add a title>", "<add a description>", 0, false)});
+		tableModel.addRow(new ItemPanelModel[] {new ItemPanelModel("<add a title>", "<add a description>", StatusFlag.INCOMPLETE, false, false)});
 		
 		if (uiTable.isEditing()) {
 			uiTable.getCellEditor().stopCellEditing();
@@ -217,39 +182,6 @@ class ListFrame extends JFrame {
 		}			
 	}
 	
-//	private void open () {
-////		JFileChooser fc = new JFileChooser();
-//////		try {
-//////			fc.setCurrentDirectory(new File(ClassLoader.getSystemClassLoader().getResource("/lists").toURI()));
-//////		} catch (URISyntaxException e) {
-//////			// TODO Auto-generated catch block
-//////			e.printStackTrace();
-//////		}
-////		
-////		if (uiTable.isEditing()) {
-////			ListFrame.this.uiTable.getCellEditor().stopCellEditing();
-////		}
-////		ListFrame.this.uiTable.getSelectionModel().clearSelection();
-////		
-////		int state = fc.showOpenDialog(ListFrame.this);
-////		if (state == JFileChooser.APPROVE_OPTION) {
-////			ListMarshall marshall = new ListMarshall();
-////			try {
-////				ListFrame newList;
-////				newList = new ListFrame(marshall.unmarshall(fc.getSelectedFile().toURI().toURL()), true);
-////				newList.setVisible(true);
-////				
-////			/*
-////			 * catch XML decode and file IO exceptions and notify the
-////			 * user via dialog
-////			 */
-////			} catch (IOException | SAXException
-////					| ParserConfigurationException e1) {
-////				JOptionPane.showMessageDialog(ListFrame.this, "Can't open the selected file.");
-////			}
-////		}
-//	}
-
 	/**
 	 * Creates and returns a  ListModel instance that models the
 	 * field values and table item contents. 
@@ -280,38 +212,10 @@ class ListFrame extends JFrame {
 		//set up the JFrame
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100,
-				Constants.FRAME_WIDTH, Constants.FRAME_HEIGHT);
-//		this.addComponentListener(new ComponentListener() {
-//
-//			@Override
-//			public void componentHidden(ComponentEvent arg0) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void componentMoved(ComponentEvent arg0) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void componentResized(ComponentEvent arg0) {
-//				uiTable.repaint();
-//			}
-//
-//			@Override
-//			public void componentShown(ComponentEvent arg0) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//			
-//		});
+				UI.FRAME_WIDTH, UI.FRAME_HEIGHT);
 		
-		
-		
-		this.setIconImage(Constants.ICON_APP.getImage());
-		this.setMinimumSize(new Dimension(Constants.FRAME_WIDTH, 192));
+		this.setIconImage(UI.ICON_APP.getImage());
+		this.setMinimumSize(new Dimension(UI.FRAME_WIDTH, 192));
 		
 		//set up content pane
 		this.contentPane = new JPanel();
@@ -321,16 +225,7 @@ class ListFrame extends JFrame {
 		this.contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(this.contentPane);
 
-		//set up the menu items
-		this.uiMenuItemSave = new JMenuItem("Save");
-		this.uiMenuItemSave.addActionListener(new UIMenuSaveAction());
-		this.uiMenuItemNew = new JMenuItem("New");
-		this.uiMenuItemNew.addActionListener(new UIMenuNewAction());
-		this.uiMenuItemNew.setIcon(new ImageIcon(Constants.ICON_MENU_NEW));
-		this.uiMenuItemOpen = new JMenuItem("Open");
-		this.uiMenuItemOpen.addActionListener(new UIMenuOpenAction());
-		this.uiMenuItemOpen.setIcon(new ImageIcon(Constants.ICON_MENU_OPEN));
-		this.uiMenuItemSave.setIcon(new ImageIcon(Constants.ICON_MENU_SAVE));
+		
 		
 		//set up the header text pane
 		this.uiTextPane = new JTextPane();
@@ -355,21 +250,21 @@ class ListFrame extends JFrame {
 			}
 			
 		});
-		this.uiTextPane.setFont(Constants.FONT_HEADER);
-		this.uiTextPane.setBackground(Constants.COLOR_HEADER_BG);
-		this.uiTextPane.setMinimumSize(new Dimension(6, Constants.HEADER_HEIGHT));
+		this.uiTextPane.setFont(UI.FONT_HEADER);
+		this.uiTextPane.setBackground(UI.COLOR_HEADER_BG);
+		this.uiTextPane.setMinimumSize(new Dimension(6, UI.HEADER_HEIGHT));
 		
 		//set up table scroll pane
 		this.uiScrollPane = new JScrollPane();
 		this.uiScrollPane.setBorder(new EmptyBorder(5, 0, 0, 0));
-		this.uiScrollPane.setBackground(Constants.COLOR_GRID);
+		this.uiScrollPane.setBackground(UI.COLOR_GRID);
 		this.contentPane.add(this.uiScrollPane, BorderLayout.CENTER);
 		
 		//set up the table
 		this.uiTable = new JTable();
 		this.uiTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.uiTable.setFillsViewportHeight(true);
-		this.uiTable.setGridColor(Constants.COLOR_GRID);
+		this.uiTable.setGridColor(UI.COLOR_GRID);
 		this.uiTable.setShowVerticalLines(false);
 		this.uiTable.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.uiTable.setTableHeader(null);
@@ -395,21 +290,38 @@ class ListFrame extends JFrame {
 					escapeKey, "ESCAPE");
 		}
 		
+		//instantiate list popup menu items
 		this.uiMenuItemAdd = new JMenuItem("Add Item");
 		this.uiMenuItemAdd.addActionListener(new UIItemAddAction());
-		this.uiMenuItemAdd.setIcon(Constants.ICON_ADD);
-		
+		this.uiMenuItemAdd.setIcon(UI.ICON_ADD);
 		
 		this.uiMenuItemRemove = new JMenuItem("Remove Item");
-		this.uiMenuItemRemove.setIcon(Constants.ICON_REMOVE);
+		this.uiMenuItemRemove.setIcon(UI.ICON_REMOVE);
 		this.uiMenuItemRemove.addActionListener(new UIBItemRemoveAction());
 		
-		this.uiMenuItemSaveAs = new JMenuItem("Save As...");
-		this.uiMenuItemSaveAs.addActionListener(new UIMenuSaveAsAction());
-		this.uiMenuItemSaveAs.setIcon(Constants.ICON_SAVEAS);
-		//this.uiMenuItemSaveAs.addActionListener(new UIBtnRemoveActionListener()); 
+		this.uiMenuItemSave = new JMenuItem("Save");
+		this.uiMenuItemSave.setIcon(new ImageIcon(UI.ICON_MENU_SAVE));
+		this.uiMenuItemSave.addActionListener(new UIMenuSaveAction());
+
+		this.uiMenuItemNew = new JMenuItem("New");
+		this.uiMenuItemNew.setIcon(new ImageIcon(UI.ICON_MENU_NEW));
+		this.uiMenuItemNew.addActionListener(new UIMenuNewAction());
 		
-		//set up the popup menu
+		this.uiMenuItemOpen = new JMenuItem("Open");
+		this.uiMenuItemOpen.setIcon(new ImageIcon(UI.ICON_MENU_OPEN));
+		this.uiMenuItemOpen.addActionListener(new UIMenuOpenAction());
+		
+		this.uiMenuItemSaveAs = new JMenuItem("Save As...");
+		this.uiMenuItemSaveAs.setIcon(UI.ICON_SAVEAS);
+		this.uiMenuItemSaveAs.addActionListener(new UIMenuSaveAsAction());
+		
+		//instantiate advanced popup menu items
+		JMenu uiMenuAdvanced = new JMenu("Advanced");
+		this.uiMenuItemHide = new JMenuItem("Hide Completed");
+		this.uiMenuItemHide.addActionListener(new UIMenuHideAction());
+		uiMenuAdvanced.add(uiMenuItemHide);
+		
+		//instantiate and set up the popup menu
 		this.uiPopupMenu = new JPopupMenu();
 		this.uiPopupMenu.add(uiMenuItemAdd);
 		this.uiPopupMenu.add(uiMenuItemRemove);
@@ -418,13 +330,33 @@ class ListFrame extends JFrame {
 		this.uiPopupMenu.add(uiMenuItemOpen);
 		this.uiPopupMenu.add(uiMenuItemSave);
 		this.uiPopupMenu.add(uiMenuItemSaveAs);
+		this.uiPopupMenu.add(new JSeparator());
+		this.uiPopupMenu.add(uiMenuAdvanced);
 
-		this.uiTable.addMouseListener(new PopupListener(uiPopupMenu, new Point(-56, -12)));
+		this.uiTable.addMouseListener(new PopupAction(uiPopupMenu, new Point(-56, -12)));
+		this.uiTextPane.addMouseListener(new PopupAction(uiPopupMenu, new Point(-56, -12)));
 		
 		this.uiTable.setModel(new DefaultTableModel( ));
 		
 		initUIKeyBindings();
 		
+		this.uiTable.addMouseWheelListener(new UIMouseWheelBehavior());
+	}
+	
+	class UIMouseWheelBehavior implements MouseWheelListener {
+
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			int rot = e.getWheelRotation();
+			if ((e.getModifiersEx() & (InputEvent.SHIFT_DOWN_MASK)) ==
+					(InputEvent.SHIFT_DOWN_MASK)) {
+				if (rot < 0) {
+					shiftRowUp();	
+				} else if (rot > 0) {
+					shiftRowDown();
+				}
+			} 
+		}
 	}
 	
 	void initUIKeyBindings () {
@@ -464,39 +396,43 @@ class ListFrame extends JFrame {
 	@SuppressWarnings("serial")
 	class UIRowShiftUpAction extends AbstractAction {
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println(uiTable.getSelectedRow() + ": UP");
-			int rowIndex = uiTable.getSelectedRow();
-			if ((rowIndex < 1) || (uiTable.getRowCount() < 2)) {
-				return;
-			}
-			
-			uiTable.getSelectionModel().clearSelection();
-			
-			//swap the selected item with the one above it
-			stopEditingClearSelection();
-			swapListItems (rowIndex, rowIndex - 1);
-			uiTable.getSelectionModel().setSelectionInterval(rowIndex - 1, rowIndex - 1);
+		public void actionPerformed (ActionEvent e) {
+			shiftRowUp();
 		}
 	}
 
+	void shiftRowUp () {
+		int rowIndex = uiTable.getSelectedRow();
+		if ((rowIndex < 1) || (uiTable.getRowCount() < 2)) {
+			return;
+		}
+		
+		//swap the selected item with the one above it
+		stopEditingClearSelection();
+		swapListItems (rowIndex, rowIndex - 1);
+		uiTable.getSelectionModel().setSelectionInterval(rowIndex - 1, rowIndex - 1);
+	}
+	
 	@SuppressWarnings("serial")
 	class UIRowShiftDownAction extends AbstractAction {
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println(uiTable.getSelectedRow() + ": DOWN");
-			int rowIndex = uiTable.getSelectedRow();
-			if ((rowIndex == -1)
-					|| (rowIndex == uiTable.getRowCount() - 1)
-					|| (uiTable.getRowCount() < 2)) {
-				return;
-			}
-			
-			//swap the selected row with the one below
-			stopEditingClearSelection();
-			swapListItems (rowIndex, rowIndex + 1);	
-			uiTable.getSelectionModel().setSelectionInterval(rowIndex + 1, rowIndex + 1);
+		public void actionPerformed (ActionEvent e) {
+			shiftRowDown();
 		}
+	}
+	
+	void shiftRowDown () {
+		int rowIndex = uiTable.getSelectedRow();
+		if ((rowIndex == -1)
+				|| (rowIndex == uiTable.getRowCount() - 1)
+				|| (uiTable.getRowCount() < 2)) {
+			return;
+		}
+		
+		//swap the selected row with the one below
+		stopEditingClearSelection();
+		swapListItems (rowIndex, rowIndex + 1);	
+		uiTable.getSelectionModel().setSelectionInterval(rowIndex + 1, rowIndex + 1);
 	}
 	
 	/*
@@ -510,9 +446,22 @@ class ListFrame extends JFrame {
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 
-			ItemPanel itemPanel = new ItemPanel((ItemPanelModel)value, isSelected,
-					uiTable, row, uiPopupMenu);
-			return itemPanel;
+			ItemPanelModel sourceModel = (ItemPanelModel)value;
+			
+			//if the ui view mode is set to hide completed items
+			//and this rendering item is completed then return a blank
+			if ((viewMode == ListViewMode.HIDE_COMPLETED)
+					&& (sourceModel.status == StatusFlag.COMPLETE)) {
+				return new HiddenPanel(uiTable, row);
+				
+			} else {
+				
+				ItemPanel itemPanel = new ItemPanel(sourceModel, isSelected,
+						uiTable, row, uiPopupMenu);
+				return itemPanel;
+			}
+				
+			
 		}
 		
 	}
@@ -649,14 +598,11 @@ class ListFrame extends JFrame {
 		}
 	}
 	
-	
+
 	private class UIMenuNewAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			
 			stopEditingClearSelection();
-			
 			launcher.newList();
-			
 		}
 	}
 	
@@ -666,9 +612,6 @@ class ListFrame extends JFrame {
 		}
 	}
 	
-	/*
-	 * 
-	 */
 	private class UIBItemRemoveAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			
@@ -693,5 +636,25 @@ class ListFrame extends JFrame {
 				}
 			}
 		}
-	}	
+	}
+	
+	private class UIMenuHideAction implements ActionListener {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			switch (ListFrame.this.viewMode) {
+				case DEFAULT:
+					ListFrame.this.viewMode = ListViewMode.HIDE_COMPLETED;
+					ListFrame.this.uiMenuItemHide.setSelectedIcon(UI.ICON_CHECKED);
+					ListFrame.this.uiMenuItemHide.setSelected(true);
+					break;
+				case HIDE_COMPLETED:
+					ListFrame.this.viewMode = ListViewMode.DEFAULT;
+					ListFrame.this.uiMenuItemHide.setSelected(false);
+					break;
+				default:
+					break;
+			}
+		}
+	}
 }
