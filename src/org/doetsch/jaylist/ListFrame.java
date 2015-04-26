@@ -72,7 +72,7 @@ class ListFrame extends JFrame {
 	private JMenuItem uiMenuItemAdd;
 	private JMenuItem uiMenuItemRemove;
 	private JMenuItem uiMenuItemNew;
-	private JMenuItem uiMenuItemAdvancedHide;
+	private JMenuItem uiMenuItemHide;
 
 
 
@@ -316,10 +316,10 @@ class ListFrame extends JFrame {
 		this.uiMenuItemSaveAs.addActionListener(new UIMenuSaveAsAction());
 		
 		//instantiate advanced popup menu items
-		JMenu advancedItems = new JMenu("Advanced");
-		this.uiMenuItemAdvancedHide = new JMenuItem("Hide Completed");
-		this.uiMenuItemAdvancedHide.addActionListener(new UIMenuHideAction());
-		advancedItems.add(uiMenuItemAdvancedHide);
+		JMenu uiMenuAdvanced = new JMenu("Advanced");
+		this.uiMenuItemHide = new JMenuItem("Hide Completed");
+		this.uiMenuItemHide.addActionListener(new UIMenuHideAction());
+		uiMenuAdvanced.add(uiMenuItemHide);
 		
 		//instantiate and set up the popup menu
 		this.uiPopupMenu = new JPopupMenu();
@@ -331,7 +331,7 @@ class ListFrame extends JFrame {
 		this.uiPopupMenu.add(uiMenuItemSave);
 		this.uiPopupMenu.add(uiMenuItemSaveAs);
 		this.uiPopupMenu.add(new JSeparator());
-		this.uiPopupMenu.add(advancedItems);
+		this.uiPopupMenu.add(uiMenuAdvanced);
 
 		this.uiTable.addMouseListener(new PopupAction(uiPopupMenu, new Point(-56, -12)));
 		this.uiTextPane.addMouseListener(new PopupAction(uiPopupMenu, new Point(-56, -12)));
@@ -645,12 +645,12 @@ class ListFrame extends JFrame {
 			switch (ListFrame.this.viewMode) {
 				case DEFAULT:
 					ListFrame.this.viewMode = ListViewMode.HIDE_COMPLETED;
-					ListFrame.this.uiMenuItemAdvancedHide.setSelectedIcon(UI.ICON_CHECKED);
-					ListFrame.this.uiMenuItemAdvancedHide.setSelected(true);
+					ListFrame.this.uiMenuItemHide.setSelectedIcon(UI.ICON_CHECKED);
+					ListFrame.this.uiMenuItemHide.setSelected(true);
 					break;
 				case HIDE_COMPLETED:
 					ListFrame.this.viewMode = ListViewMode.DEFAULT;
-					ListFrame.this.uiMenuItemAdvancedHide.setSelected(false);
+					ListFrame.this.uiMenuItemHide.setSelected(false);
 					break;
 				default:
 					break;

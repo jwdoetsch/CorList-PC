@@ -1,89 +1,48 @@
 package org.doetsch.jaylist;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
-import java.awt.FlowLayout;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Component;
-
-import javax.swing.SwingConstants;
-
 import java.awt.AWTException;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Font;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollBar;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.plaf.ScrollBarUI;
-import javax.swing.plaf.basic.BasicScrollBarUI;
-import javax.swing.plaf.metal.MetalScrollBarUI;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.border.MatteBorder;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.border.SoftBevelBorder;
-import javax.swing.UIManager;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.AttributeList;
 import org.xml.sax.SAXException;
-
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.awt.Window.Type;
-
-import javax.swing.JPopupMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
-import javax.swing.JLabel;
-
-import java.awt.ComponentOrientation;
 
 public class Launcher extends JFrame {
 
@@ -94,32 +53,46 @@ public class Launcher extends JFrame {
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 			
-			if (value != null)
-				return new LauncherPanel((LauncherModel)value, false);
-			else
-				return new LauncherPanel(new LauncherModel("", null), true);
+			if (value != null) {
+				ListFrameModel lfm = (ListFrameModel) value;
+				LauncherModel lm = new LauncherModel(
+						lfm.getHeader(), lfm.getPath());
+				return new LauncherPanel(Launcher.this, lm, false);
+			} else {
+				return new LauncherPanel(Launcher.this, new LauncherModel("", null), true);
+			}
 		}
 		
 	}
 	
 	class MagicEditor extends AbstractCellEditor implements TableCellEditor {
 
-		LauncherModel model;
+		ListFrameModel lfm;
 		
 		@Override
 		public Object getCellEditorValue() {
-			return model;
+			return lfm;
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(JTable arg0, Object arg1,
-				boolean arg2, int arg3, int arg4) {
+		public Component getTableCellEditorComponent(JTable table, Object value,
+				boolean isSelected, int row, int col) {
 			
-			model = (LauncherModel)arg1;
-			if (arg1 != null)
-				return new LauncherPanel(model, false);
-			else
-				return new LauncherPanel(new LauncherModel("", null), true);
+//			model = (LauncherModel)arg1;
+//			if (arg1 != null)
+//				return new LauncherPanel(model, false);
+//			else
+//				return new LauncherPanel(new LauncherModel("", null), true);
+			if (value != null) {
+				lfm = (ListFrameModel) value;
+				LauncherModel lm =
+						new LauncherModel(lfm.getHeader(), lfm.getPath());
+				return new LauncherPanel(Launcher.this, lm, false);
+				
+			} else {
+				//return new LauncherPanel(new LauncherModel("", null), true);
+				return null;
+			}
 		}
 		
 	}
@@ -132,7 +105,8 @@ public class Launcher extends JFrame {
 	private JButton btnOpen;
 	private JScrollPane scrollPane;
 	private JTable table;
-	private ArrayList<LauncherModel> models;
+	//private ArrayList<LauncherModel> models;
+	private ArrayList<ListFrameModel> listModels;
 	private TrayIcon trayIcon;
 	private SystemTray systemTray;
 
@@ -220,7 +194,7 @@ public class Launcher extends JFrame {
 
 	private void initComponents() {
 		
-		models = new ArrayList<LauncherModel>();
+		//models = new ArrayList<LauncherModel>();
 		setTitle("Pinboard - JayList");
 		//setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		//setDefaultCloseOperation()
@@ -234,8 +208,8 @@ public class Launcher extends JFrame {
 		setContentPane(this.contentPane);
 		this.panel = new JPanel();
 		this.panel.setOpaque(false);
-		this.contentPane.add(this.panel, BorderLayout.NORTH);
-		this.panel.setLayout(new BoxLayout(this.panel, BoxLayout.X_AXIS));
+		this.contentPane.add(this.panel, BorderLayout.WEST);
+		this.panel.setLayout(new BoxLayout(this.panel, BoxLayout.Y_AXIS));
 		this.panel_1 = new JPanel();
 		this.panel_1.setBorder(new EmptyBorder(2, 2, 2, 2));
 		this.panel_1.setOpaque(false);
@@ -251,7 +225,7 @@ public class Launcher extends JFrame {
 		this.btnNew.setIcon(new ImageIcon(Launcher.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
 		//this.btnNew.setContentAreaFilled(false);
 		this.btnNew.setMnemonic('N');
-		this.btnNew.setBorder(new EmptyBorder(8, 8, 8, 8));
+		this.btnNew.setBorder(new EmptyBorder(4, 4, 4, 4));
 		this.btnNew.setVerticalTextPosition(SwingConstants.TOP);
 		this.btnNew.setBackground(UI.LAUNCHER_COLOR_BUTTON);
 		this.btnNew.setForeground(Color.WHITE);
@@ -280,10 +254,10 @@ public class Launcher extends JFrame {
 		this.panel_2.setLayout(new BorderLayout(0, 0));
 		
 		this.btnOpen = new JButton("Open");
+		this.btnOpen.setBorder(new EmptyBorder(4, 4, 4, 4));
 		this.btnOpen.setVerticalAlignment(SwingConstants.TOP);
 		this.btnOpen.setVerticalTextPosition(SwingConstants.BOTTOM);
 		this.btnOpen.setIcon(new ImageIcon(Launcher.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
-		this.btnOpen.setBorder(new EmptyBorder(8, 8, 8, 8));
 		this.btnOpen.setMnemonic('O');
 		this.btnOpen.setBackground(UI.LAUNCHER_COLOR_BUTTON);
 		this.btnOpen.setForeground(Color.WHITE);
@@ -302,29 +276,29 @@ public class Launcher extends JFrame {
 		
 		this.panel_2.add(this.btnOpen, BorderLayout.CENTER);
 		this.scrollPane = new JScrollPane();
+		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		this.scrollPane.setBackground(UI.LAUNCHER_COLOR_BG);
 		this.scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.contentPane.add(this.scrollPane, BorderLayout.CENTER);
 		this.table = new JTable();
-		this.table.setBackground(UI.LAUNCHER_COLOR_BG);
 		this.table.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.table.setShowGrid(false);
+		this.table.setBackground(UI.LAUNCHER_COLOR_BG);
 		this.table.setShowVerticalLines(false);
 		this.table.setShowHorizontalLines(false);
-		this.table.setShowGrid(false);
 		this.table.setRowSelectionAllowed(false);
 		this.table.setColumnSelectionAllowed(false);
 
 		this.table.setModel(new DefaultTableModel(
-				new LauncherModel[][] {
+				new ListFrameModel[][] {
 						{},
 					},
 					new String[] {
 						
 					}
 				));
-		this.table.setCellSelectionEnabled(true);
+		//this.table.setCellSelectionEnabled(true);
 		this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.table.setFillsViewportHeight(true);
 		this.scrollPane.setViewportView(this.table);
@@ -337,56 +311,57 @@ public class Launcher extends JFrame {
 		
 		pack();
 
-		models = syncHistory();		
-		syncTableModel();
+		//search lists/ and instantiate array of ListFrameModels
+		loadLists();
 		
-		
+		//refresh the table model with the current ListFrameModels
+		syncTableModel(); 
 	}
 
    
-	private ArrayList<LauncherModel> syncHistory() {
-		XMLResourceAdapter xmlRsrc = new XMLResourceAdapter();
-		ArrayList<LauncherModel> resources = new ArrayList<LauncherModel>();
-		Node n, root, child;
-		NodeList children;
-		NamedNodeMap atts;
-		
-		try {
-			n = xmlRsrc.getRootNode(Launcher.class.getResource("xml/history.xml"), 
-					Launcher.class.getResource("xml/history.xsd"));
-		} catch (IOException | SAXException | ParserConfigurationException e) {
-			e.printStackTrace();
-			return resources;
-		}
-		
-		root = n.getFirstChild();
-		children = root.getChildNodes();
-		
-		for (int i = 0; i < children.getLength(); i++) {
-			child = children.item(i);
-			if (child.getNodeName().equals("entry")) {
-				atts = child.getAttributes();
-				try {
-					resources.add(new LauncherModel(
-							atts.getNamedItem("title").getNodeValue(),
-							new File(atts.getNamedItem("path").getNodeValue()).toURI().toURL()));
-				} catch (MalformedURLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				
-			}
-			
-			
-		}
-		
-		for (LauncherModel m : resources) {
-			System.out.println(m.title + ": " + m.path);
-		}
-		
-		return resources;		
-	}
+//	private ArrayList<LauncherModel> syncHistory () {
+//		XMLResourceAdapter xmlRsrc = new XMLResourceAdapter();
+//		ArrayList<LauncherModel> resources = new ArrayList<LauncherModel>();
+//		Node n, root, child;
+//		NodeList children;
+//		NamedNodeMap atts;
+//		
+//		try {
+//			n = xmlRsrc.getRootNode(Launcher.class.getResource("xml/history.xml"), 
+//					Launcher.class.getResource("xml/history.xsd"));
+//		} catch (IOException | SAXException | ParserConfigurationException e) {
+//			e.printStackTrace();
+//			return resources;
+//		}
+//		
+//		root = n.getFirstChild();
+//		children = root.getChildNodes();
+//		
+//		for (int i = 0; i < children.getLength(); i++) {
+//			child = children.item(i);
+//			if (child.getNodeName().equals("entry")) {
+//				atts = child.getAttributes();
+//				try {
+//					resources.add(new LauncherModel(
+//							atts.getNamedItem("title").getNodeValue(),
+//							new File(atts.getNamedItem("path").getNodeValue()).toURI().toURL()));
+//				} catch (MalformedURLException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				
+//				
+//			}
+//			
+//			
+//		}
+//		
+//		for (LauncherModel m : resources) {
+//			System.out.println(m.title + ": " + m.path);
+//		}
+//		
+//		return resources;		
+//	}
 
 	
 	
@@ -404,27 +379,59 @@ public class Launcher extends JFrame {
 	void syncTableModel () {
 		
 		int col, row;
-		int cols = 4;
+		int cols = 3;
 		
-		int rows = (models.size() / cols)
+		int rows = (listModels.size() / cols)
 				//if there are only 1 or 2 cells in the row then count the 
 				//row as a whole row
-				+ (models.size() % cols > 0 ? 1 : 0) ;
+				+ (listModels.size() % cols > 0 ? 1 : 0) ;
 		
 		DefaultTableModel model = new DefaultTableModel(new LauncherPanel[rows][cols], new Object[cols]);
 		
 		
-		for (int i = 0; i < models.size(); i++) {
+		for (int i = 0; i < listModels.size(); i++) {
 			col = i % cols;
 			row = i / cols;
-			model.setValueAt(models.get(i), row, col);
+			model.setValueAt(listModels.get(i), row, col);
 		}
 		
 		table.setModel(model);
 				
 	}
 	
+	void loadLists () {
 
+		ListMarshall marshaller = new ListMarshall();
+		ListFrameModel model;	
+		
+		//open lists folder and find lists
+
+		File listFolder;
+		try {
+			listFolder = new File(
+					Launcher.class.getResource("../../../lists/").toURI());
+		
+			listModels = new ArrayList<ListFrameModel>();
+
+			for (File f : listFolder.listFiles()) {
+				
+				try {
+					model = marshaller.unmarshall(f.toURI().toURL());
+					model.setPath(f.toURI().toURL());
+					System.out.println(model.getPath());
+					listModels.add(model);
+				} catch (IOException | SAXException | ParserConfigurationException e) {
+					System.out.println(f.getPath() + " isn't valid");
+				}
+			}
+			
+		} catch (URISyntaxException e1) {
+			e1.printStackTrace();
+		}
+		
+		
+		
+	}
 
 	public void newList() {
 		ListMarshall marshall = new ListMarshall();

@@ -54,8 +54,6 @@ class ListMarshall {
 	}
 	
 	
-	
-	
 	ListFrameModel unmarshall  (URL src) throws IOException, SAXException, ParserConfigurationException  {
 		Document doc;
 		DocumentBuilder docBuilder;
