@@ -16,9 +16,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
 import java.net.URL;
+
 import javax.swing.border.EtchedBorder;
 import javax.swing.ImageIcon;
 
+@SuppressWarnings("serial")
 public class LauncherPanel extends JPanel {
 	private JButton btn;
 	private URL path;

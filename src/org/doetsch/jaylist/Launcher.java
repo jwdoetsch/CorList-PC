@@ -135,8 +135,6 @@ public class Launcher extends JFrame {
 	private ArrayList<LauncherModel> models;
 	private TrayIcon trayIcon;
 	private SystemTray systemTray;
-	private JPanel panel_3;
-	private JPanel panel_4;
 
 	/**
 	 * Launch the application.
@@ -158,6 +156,7 @@ public class Launcher extends JFrame {
 	 * Create the frame.
 	 */
 	public Launcher() {
+		setResizable(false);
 		initComponents();
 		initSystemTray();
 	}
@@ -302,24 +301,6 @@ public class Launcher extends JFrame {
 		});
 		
 		this.panel_2.add(this.btnOpen, BorderLayout.CENTER);
-		this.panel_3 = new JPanel();
-		this.panel_3.setSize(new Dimension(104, 104));
-		this.panel_3.setPreferredSize(new Dimension(104, 104));
-		this.panel_3.setOpaque(false);
-		this.panel_3.setMinimumSize(new Dimension(104, 104));
-		this.panel_3.setMaximumSize(new Dimension(104, 104));
-		this.panel_3.setBorder(new EmptyBorder(2, 2, 2, 2));
-		this.panel.add(this.panel_3);
-		this.panel_3.setLayout(null);
-		this.panel_4 = new JPanel();
-		this.panel_4.setSize(new Dimension(104, 104));
-		this.panel_4.setPreferredSize(new Dimension(104, 104));
-		this.panel_4.setOpaque(false);
-		this.panel_4.setMinimumSize(new Dimension(104, 104));
-		this.panel_4.setMaximumSize(new Dimension(104, 104));
-		this.panel_4.setBorder(new EmptyBorder(2, 2, 2, 2));
-		this.panel.add(this.panel_4);
-		this.panel_4.setLayout(null);
 		this.scrollPane = new JScrollPane();
 		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		this.scrollPane.setBackground(UI.LAUNCHER_COLOR_BG);
