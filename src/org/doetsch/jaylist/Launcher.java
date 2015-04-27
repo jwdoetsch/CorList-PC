@@ -9,6 +9,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.MenuItem;
+import java.awt.Point;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
@@ -16,9 +17,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
@@ -39,11 +43,9 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+@SuppressWarnings("serial")
 public class Launcher extends JFrame {
 
 	class MagicRenderer implements TableCellRenderer {
@@ -54,12 +56,12 @@ public class Launcher extends JFrame {
 				int column) {
 			
 			if (value != null) {
-				ListFrameModel lfm = (ListFrameModel) value;
-				LauncherModel lm = new LauncherModel(
-						lfm.getHeader(), lfm.getPath());
-				return new LauncherPanel(Launcher.this, lm, false);
+				ListFrame listFrame = (ListFrame) value;
+				LauncherPanel tile = new LauncherPanel(
+						listFrame, Launcher.this);
+				return tile;
 			} else {
-				return new LauncherPanel(Launcher.this, new LauncherModel("", null), true);
+				return null;
 			}
 		}
 		
@@ -67,34 +69,27 @@ public class Launcher extends JFrame {
 	
 	class MagicEditor extends AbstractCellEditor implements TableCellEditor {
 
-		ListFrameModel lfm;
+		//ListModel lfm;
+		ListFrame listFrame;
 		
 		@Override
 		public Object getCellEditorValue() {
-			return lfm;
+			return listFrame;
 		}
 
 		@Override
 		public Component getTableCellEditorComponent(JTable table, Object value,
 				boolean isSelected, int row, int col) {
-			
-//			model = (LauncherModel)arg1;
-//			if (arg1 != null)
-//				return new LauncherPanel(model, false);
-//			else
-//				return new LauncherPanel(new LauncherModel("", null), true);
+
 			if (value != null) {
-				lfm = (ListFrameModel) value;
-				LauncherModel lm =
-						new LauncherModel(lfm.getHeader(), lfm.getPath());
-				return new LauncherPanel(Launcher.this, lm, false);
-				
+				listFrame = (ListFrame) value;
+				LauncherPanel tile = new LauncherPanel(
+						listFrame, Launcher.this);
+				return tile;
 			} else {
-				//return new LauncherPanel(new LauncherModel("", null), true);
 				return null;
 			}
 		}
-		
 	}
 	
 	private JPanel contentPane;
@@ -105,8 +100,10 @@ public class Launcher extends JFrame {
 	private JButton btnOpen;
 	private JScrollPane scrollPane;
 	private JTable table;
-	//private ArrayList<LauncherModel> models;
-	private ArrayList<ListFrameModel> listModels;
+
+	//map of open entries
+	private ArrayList<ListFrame> listFrames;
+	
 	private TrayIcon trayIcon;
 	private SystemTray systemTray;
 
@@ -161,22 +158,22 @@ public class Launcher extends JFrame {
 				newList();
 			}
 		});
-		itemOpen.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				openList();
-			}
-			
-		});
+//		itemOpen.addActionListener(new ActionListener() {
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				openList();
+//			}
+//			
+//		});
 		
 		
 		try {
 			systemTray.add(trayIcon);
 			
 		} catch (AWTException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Can't add system tray icon: " + e.getMessage());
+			//e.printStackTrace();
 		}
 		
 		trayIcon.addActionListener(new ActionListener() {
@@ -199,7 +196,7 @@ public class Launcher extends JFrame {
 		//setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		//setDefaultCloseOperation()
 		//setBounds(100, 100, 358, 368);
-		setBounds(368, 128, 64, 64);
+		setBounds(368, 16, 64, 64);
 		this.contentPane = new JPanel();
 		this.contentPane.setBackground(UI.LAUNCHER_COLOR_BG);
 		this.contentPane.setPreferredSize(new Dimension(440, 320));
@@ -243,38 +240,38 @@ public class Launcher extends JFrame {
 			}
 		});
 		
-		this.panel_2 = new JPanel();
-		this.panel_2.setOpaque(false);
-		this.panel_2.setSize(new Dimension(104, 104));
-		this.panel_2.setPreferredSize(new Dimension(104, 104));
-		this.panel_2.setMinimumSize(new Dimension(104, 104));
-		this.panel_2.setMaximumSize(new Dimension(104, 104));
-		this.panel_2.setBorder(new EmptyBorder(2, 2, 2, 2));
-		this.panel.add(this.panel_2);
-		this.panel_2.setLayout(new BorderLayout(0, 0));
-		
-		this.btnOpen = new JButton("Open");
-		this.btnOpen.setBorder(new EmptyBorder(4, 4, 4, 4));
-		this.btnOpen.setVerticalAlignment(SwingConstants.TOP);
-		this.btnOpen.setVerticalTextPosition(SwingConstants.BOTTOM);
-		this.btnOpen.setIcon(new ImageIcon(Launcher.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
-		this.btnOpen.setMnemonic('O');
-		this.btnOpen.setBackground(UI.LAUNCHER_COLOR_BUTTON);
-		this.btnOpen.setForeground(Color.WHITE);
-		this.btnOpen.setPreferredSize(new Dimension(104, 104));
-		this.btnOpen.setMinimumSize(new Dimension(104, 104));
-		this.btnOpen.setMaximumSize(new Dimension(104, 104));
-		this.btnOpen.setMargin(new Insets(0, 0, 0, 0));
-		this.btnOpen.setHorizontalAlignment(SwingConstants.LEADING);
-		this.btnOpen.setFont(new Font("Arial", Font.PLAIN, 16));
-		this.btnOpen.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				openList();
-			}
-		});
-		
-		this.panel_2.add(this.btnOpen, BorderLayout.CENTER);
+//		this.panel_2 = new JPanel();
+//		this.panel_2.setOpaque(false);
+//		this.panel_2.setSize(new Dimension(104, 104));
+//		this.panel_2.setPreferredSize(new Dimension(104, 104));
+//		this.panel_2.setMinimumSize(new Dimension(104, 104));
+//		this.panel_2.setMaximumSize(new Dimension(104, 104));
+//		this.panel_2.setBorder(new EmptyBorder(2, 2, 2, 2));
+//		this.panel.add(this.panel_2);
+//		this.panel_2.setLayout(new BorderLayout(0, 0));
+//		
+//		this.btnOpen = new JButton("Open");
+//		this.btnOpen.setBorder(new EmptyBorder(4, 4, 4, 4));
+//		this.btnOpen.setVerticalAlignment(SwingConstants.TOP);
+//		this.btnOpen.setVerticalTextPosition(SwingConstants.BOTTOM);
+//		this.btnOpen.setIcon(new ImageIcon(Launcher.class.getResource("/org/doetsch/jaylist/resources/new_16x16.png")));
+//		this.btnOpen.setMnemonic('O');
+//		this.btnOpen.setBackground(UI.LAUNCHER_COLOR_BUTTON);
+//		this.btnOpen.setForeground(Color.WHITE);
+//		this.btnOpen.setPreferredSize(new Dimension(104, 104));
+//		this.btnOpen.setMinimumSize(new Dimension(104, 104));
+//		this.btnOpen.setMaximumSize(new Dimension(104, 104));
+//		this.btnOpen.setMargin(new Insets(0, 0, 0, 0));
+//		this.btnOpen.setHorizontalAlignment(SwingConstants.LEADING);
+//		this.btnOpen.setFont(new Font("Arial", Font.PLAIN, 16));
+//		this.btnOpen.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				openList();
+//			}
+//		});
+//		
+//		this.panel_2.add(this.btnOpen, BorderLayout.CENTER);
 		this.scrollPane = new JScrollPane();
 		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -291,7 +288,7 @@ public class Launcher extends JFrame {
 		this.table.setColumnSelectionAllowed(false);
 
 		this.table.setModel(new DefaultTableModel(
-				new ListFrameModel[][] {
+				new ListFrame[][] {
 						{},
 					},
 					new String[] {
@@ -312,63 +309,12 @@ public class Launcher extends JFrame {
 		pack();
 
 		//search lists/ and instantiate array of ListFrameModels
+		//refresh the table model with the current ListFrameModels ..syncTable;;;
 		loadLists();
 		
-		//refresh the table model with the current ListFrameModels
-		syncTableModel(); 
 	}
 
    
-//	private ArrayList<LauncherModel> syncHistory () {
-//		XMLResourceAdapter xmlRsrc = new XMLResourceAdapter();
-//		ArrayList<LauncherModel> resources = new ArrayList<LauncherModel>();
-//		Node n, root, child;
-//		NodeList children;
-//		NamedNodeMap atts;
-//		
-//		try {
-//			n = xmlRsrc.getRootNode(Launcher.class.getResource("xml/history.xml"), 
-//					Launcher.class.getResource("xml/history.xsd"));
-//		} catch (IOException | SAXException | ParserConfigurationException e) {
-//			e.printStackTrace();
-//			return resources;
-//		}
-//		
-//		root = n.getFirstChild();
-//		children = root.getChildNodes();
-//		
-//		for (int i = 0; i < children.getLength(); i++) {
-//			child = children.item(i);
-//			if (child.getNodeName().equals("entry")) {
-//				atts = child.getAttributes();
-//				try {
-//					resources.add(new LauncherModel(
-//							atts.getNamedItem("title").getNodeValue(),
-//							new File(atts.getNamedItem("path").getNodeValue()).toURI().toURL()));
-//				} catch (MalformedURLException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				
-//				
-//			}
-//			
-//			
-//		}
-//		
-//		for (LauncherModel m : resources) {
-//			System.out.println(m.title + ": " + m.path);
-//		}
-//		
-//		return resources;		
-//	}
-
-	
-	
-	
-
-
-	
 	/*
 	 * Patterns the table's model after the contents of
 	 * the history array. Renders the linear list of 
@@ -381,28 +327,29 @@ public class Launcher extends JFrame {
 		int col, row;
 		int cols = 3;
 		
-		int rows = (listModels.size() / cols)
+		int rows = (listFrames.size() / cols)
 				//if there are only 1 or 2 cells in the row then count the 
 				//row as a whole row
-				+ (listModels.size() % cols > 0 ? 1 : 0) ;
+				+ (listFrames.size() % cols > 0 ? 1 : 0) ;
 		
 		DefaultTableModel model = new DefaultTableModel(new LauncherPanel[rows][cols], new Object[cols]);
 		
-		
-		for (int i = 0; i < listModels.size(); i++) {
+		for (int i = 0; i < listFrames.size(); i++) {
 			col = i % cols;
 			row = i / cols;
-			model.setValueAt(listModels.get(i), row, col);
+			//model.setValueAt(((List<LauncherEntry>)values).get(i).listModel, row, col);
+			model.setValueAt(listFrames.get(i), row, col);
 		}
 		
-		table.setModel(model);
-				
+		table.setModel(model);				
 	}
 	
 	void loadLists () {
 
 		ListMarshall marshaller = new ListMarshall();
-		ListFrameModel model;	
+		ListModel model;
+		listFrames = new ArrayList<ListFrame>();
+		
 		
 		//open lists folder and find lists
 
@@ -411,25 +358,34 @@ public class Launcher extends JFrame {
 			listFolder = new File(
 					Launcher.class.getResource("../../../lists/").toURI());
 		
-			listModels = new ArrayList<ListFrameModel>();
-
 			for (File f : listFolder.listFiles()) {
 				
 				try {
 					model = marshaller.unmarshall(f.toURI().toURL());
 					model.setPath(f.toURI().toURL());
-					System.out.println(model.getPath());
-					listModels.add(model);
+					
+//					if (!entries.containsKey(model.getPath())) {
+//						LauncherEntry entry =
+//								new LauncherEntry(
+//										model, false, new ListFrame(this, model, true));
+//						entries.put(model.getPath(), entry);
+//					}
+					listFrames.add(
+							new ListFrame(Launcher.this, model));
+					
+							
 				} catch (IOException | SAXException | ParserConfigurationException e) {
 					System.out.println(f.getPath() + " isn't valid");
 				}
 			}
 			
+			
+			
 		} catch (URISyntaxException e1) {
 			e1.printStackTrace();
 		}
 		
-		
+		syncTableModel();
 		
 	}
 
@@ -437,36 +393,75 @@ public class Launcher extends JFrame {
 		ListMarshall marshall = new ListMarshall();
 			ListFrame newFrame;
 		try {
-			newFrame = new ListFrame(this, marshall.unmarshall(UI.XMl_NEW_LIST), false);
+			//newFrame = new ListFrame(this, marshall.unmarshall(UI.XMl_NEW_LIST), false);
+			newFrame = new ListFrame(
+					Launcher.this, marshall.unmarshall(UI.XMl_NEW_LIST));
 			newFrame.setVisible(true);
 			newFrame.setLocation(this.getLocation().x + 64,
 					this.getLocation().y + 64);
-		} catch (IOException | SAXException | ParserConfigurationException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (IOException | SAXException | ParserConfigurationException e) {
+			e.printStackTrace();
 		}
 				
 	}
 	
-	void openList () {
-		JFileChooser fc = new JFileChooser();
+//	void openList () {
+//		JFileChooser fc = new JFileChooser();
+//
+//		int state = fc.showOpenDialog(this);
+//		if (state == JFileChooser.APPROVE_OPTION) {
+//			ListMarshall marshall = new ListMarshall();
+//			try {
+//				ListFrame newList;
+//				newList = new ListFrame(this, marshall.unmarshall(fc.getSelectedFile().toURI().toURL()), true);
+//				newList.setVisible(true);
+//				
+//			/*
+//			 * catch XML decode and file IO exceptions and notify the
+//			 * user via dialog
+//			 */
+//			} catch (IOException | SAXException
+//					| ParserConfigurationException e1) {
+//				JOptionPane.showMessageDialog(this, "Can't open the selected file.");
+//			}
+//		}
+//	}
 
-		int state = fc.showOpenDialog(this);
-		if (state == JFileChooser.APPROVE_OPTION) {
-			ListMarshall marshall = new ListMarshall();
-			try {
-				ListFrame newList;
-				newList = new ListFrame(this, marshall.unmarshall(fc.getSelectedFile().toURI().toURL()), true);
-				newList.setVisible(true);
-				
-			/*
-			 * catch XML decode and file IO exceptions and notify the
-			 * user via dialog
-			 */
-			} catch (IOException | SAXException
-					| ParserConfigurationException e1) {
-				JOptionPane.showMessageDialog(this, "Can't open the selected file.");
-			}
-		}
-	}
+//	void open (ListModel listModel) {
+////		ListMarshall marshall = new ListMarshall();
+////		
+////		try {
+//			
+//			if (entries.containsKey(listModel.getPath())) {
+//				LauncherEntry entry = entries.get(listModel.getPath());
+//				if (entry.isOpen) {
+//					entry.listFrame.requestFocus();
+//					entry.listFrame.setVisible(true);
+//				} else {
+//					entry.isOpen = true;
+//					entry.listFrame.setLocation(
+//							new Point(
+//									this.getX(), this.getY()));
+//					entry.listFrame.setVisible(true);
+//				}
+//			}
+//			
+////			ListFrame newList;
+////			newList = new ListFrame(this, marshall.unmarshall(listModel.getPath()), true);
+////			Point coords = new Point(
+////					this.getX() + 48, this.getY() + 48);
+////			newList.setLocation(coords);
+////			newList.setVisible(true);
+//			
+//			
+//		/*
+//		 * catch XML decode and file IO exceptions and notify the
+//		 * user via dialog
+//		 */
+////		} catch (IOException | SAXException
+////				| ParserConfigurationException e1) {
+////			JOptionPane.showMessageDialog(this, "Can't open the selected file.");
+////		}
+//		
+//	}
 }

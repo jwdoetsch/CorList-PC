@@ -52,19 +52,15 @@ import javax.swing.text.StyledDocument;
  *  
  * @author Jacob Wesley Doetsch
  */
+@SuppressWarnings("serial")
 class ListFrame extends JFrame {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1516813645310303053L;
 	
 	private JPanel contentPane;
 	
 	//UI components
 	private JScrollPane uiScrollPane;
 	private JTable uiTable;
-	private JTextPane uiTextPane;
+	JTextPane uiTextPane;
 	private JPopupMenu uiPopupMenu;
 	private JMenuItem uiMenuItemSave;
 	private JMenuItem uiMenuItemSaveAs;
@@ -90,9 +86,9 @@ class ListFrame extends JFrame {
 	 * given ListModel.
 	 * @param listModel the ListModel to pattern
 	 */
-	public ListFrame (Launcher launcher, ListFrameModel listModel, boolean hasPath) {
+	public ListFrame (Launcher launcher, ListModel listModel) {
 		this.launcher = launcher;
-		this.hasPath = hasPath;
+		//this.hasPath = hasPath;
 		
 		initComponents();
 		injectListModel(listModel);
@@ -105,7 +101,7 @@ class ListFrame extends JFrame {
 	 *  
 	 * @param listModel
 	 */
-	private void injectListModel (ListFrameModel listModel) {
+	private void injectListModel (ListModel listModel) {
 		
 		path = listModel.getPath();
 		
@@ -188,8 +184,8 @@ class ListFrame extends JFrame {
 	 * 
 	 * @return the ListModel
 	 */
-	private ListFrameModel extractListModel () {
-		ListFrameModel listModel = new ListFrameModel();
+	private ListModel extractListModel () {
+		ListModel listModel = new ListModel();
 		listModel.setHeader(this.uiTextPane.getText());
 		listModel.setFrameSize(new Dimension(
 				this.getBounds().width, this.getBounds().height));
@@ -307,9 +303,9 @@ class ListFrame extends JFrame {
 		this.uiMenuItemNew.setIcon(new ImageIcon(UI.ICON_MENU_NEW));
 		this.uiMenuItemNew.addActionListener(new UIMenuNewAction());
 		
-		this.uiMenuItemOpen = new JMenuItem("Open");
-		this.uiMenuItemOpen.setIcon(new ImageIcon(UI.ICON_MENU_OPEN));
-		this.uiMenuItemOpen.addActionListener(new UIMenuOpenAction());
+//		this.uiMenuItemOpen = new JMenuItem("Open");
+//		this.uiMenuItemOpen.setIcon(new ImageIcon(UI.ICON_MENU_OPEN));
+//		this.uiMenuItemOpen.addActionListener(new UIMenuOpenAction());
 		
 		this.uiMenuItemSaveAs = new JMenuItem("Save As...");
 		this.uiMenuItemSaveAs.setIcon(UI.ICON_SAVEAS);
@@ -327,7 +323,7 @@ class ListFrame extends JFrame {
 		this.uiPopupMenu.add(uiMenuItemRemove);
 		this.uiPopupMenu.add(new JSeparator());
 		this.uiPopupMenu.add(uiMenuItemNew);
-		this.uiPopupMenu.add(uiMenuItemOpen);
+//		this.uiPopupMenu.add(uiMenuItemOpen);
 		this.uiPopupMenu.add(uiMenuItemSave);
 		this.uiPopupMenu.add(uiMenuItemSaveAs);
 		this.uiPopupMenu.add(new JSeparator());
@@ -585,18 +581,18 @@ class ListFrame extends JFrame {
 	
 	}
 	
-	/*
-	 * 
-	 */
-	private class UIMenuOpenAction implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			
-			stopEditingClearSelection();
-			
-			launcher.openList();
-			
-		}
-	}
+//	/*
+//	 * 
+//	 */
+//	private class UIMenuOpenAction implements ActionListener {
+//		public void actionPerformed(ActionEvent e) {
+//			
+//			stopEditingClearSelection();
+//			
+//			launcher.openList();
+//			
+//		}
+//	}
 	
 
 	private class UIMenuNewAction implements ActionListener {

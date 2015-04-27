@@ -11,19 +11,19 @@ import java.util.ArrayList;
  * 
  * @author Jacob Wesley Doetsch
  */
-class ListFrameModel {
+class ListModel {
 	
 	private URL path;
 	private String header;
 	private ArrayList<ItemPanelModel> itemModels;
 	private Dimension frameSize;
 	
-	ListFrameModel (String header) {
+	ListModel (String header) {
 		this.header = header;
 		this.itemModels = new ArrayList<ItemPanelModel>();
 	}
 	
-	ListFrameModel () {
+	ListModel () {
 		this.itemModels = new ArrayList<ItemPanelModel>();
 	}
 	

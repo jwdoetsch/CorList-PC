@@ -54,7 +54,7 @@ class ListMarshall {
 	}
 	
 	
-	ListFrameModel unmarshall  (URL src) throws IOException, SAXException, ParserConfigurationException  {
+	ListModel unmarshall  (URL src) throws IOException, SAXException, ParserConfigurationException  {
 		Document doc;
 		DocumentBuilder docBuilder;
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -72,13 +72,13 @@ class ListMarshall {
 		docBuilder.setErrorHandler(new ErrorHandlerAdapter());
 		doc = docBuilder.parse(src.openStream());
 		doc.normalize();
-		ListFrameModel newListModel = parse(doc);
+		ListModel newListModel = parse(doc);
 		newListModel.setPath(src);
 		return newListModel;
 	}
 	
-	private ListFrameModel parse (Node node) {
-		ListFrameModel list = new ListFrameModel();
+	private ListModel parse (Node node) {
+		ListModel list = new ListModel();
 		Node child;
 		NodeList grandchildren;
 		NamedNodeMap attributes;
@@ -158,7 +158,7 @@ class ListMarshall {
 		return list;
 	}
 	
-	void marshall (ListFrameModel listModel, URL dest) {
+	void marshall (ListModel listModel, URL dest) {
 		DocumentBuilderFactory docBuilderFactory;
 		DocumentBuilder docBuilder;
 		Document document;
