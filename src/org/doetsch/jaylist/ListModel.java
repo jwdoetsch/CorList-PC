@@ -15,19 +15,19 @@ class ListModel {
 	
 	private URL path;
 	private String header;
-	private ArrayList<ItemPanelModel> itemModels;
+	private ArrayList<ItemModel> itemModels;
 	private Dimension frameSize;
 	
 	ListModel (String header) {
 		this.header = header;
-		this.itemModels = new ArrayList<ItemPanelModel>();
+		this.itemModels = new ArrayList<ItemModel>();
 	}
 	
 	ListModel () {
-		this.itemModels = new ArrayList<ItemPanelModel>();
+		this.itemModels = new ArrayList<ItemModel>();
 	}
 	
-	void addItemModels (ItemPanelModel model) {
+	void addItemModels (ItemModel model) {
 		itemModels.add(model);
 	}
 	
@@ -47,7 +47,7 @@ class ListModel {
 		this.header = header;
 	}
 	
-	ArrayList<ItemPanelModel> getItemModels () {
+	ArrayList<ItemModel> getItemModels () {
 		return this.itemModels;
 	}
 	

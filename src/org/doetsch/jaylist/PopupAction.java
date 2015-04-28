@@ -13,8 +13,8 @@ class PopupAction extends MouseAdapter {
 	private JPopupMenu popup;
 	private Point offset;
 	
-	PopupAction (JPopupMenu popup, Point offset) {
-		this.popup = popup;
+	PopupAction (JPopupMenu popupMenu, Point offset) {
+		this.popup = popupMenu;
 		this.offset = offset;
 	}
 	

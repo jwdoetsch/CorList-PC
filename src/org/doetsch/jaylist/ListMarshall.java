@@ -86,7 +86,7 @@ class ListMarshall {
 		String desc = "";
 		Dimension frameSize = new Dimension(200, 400); //default dimensions if frame config unspecified
 		//int flag = 0;
-		StatusFlag status = StatusFlag.NONE; 
+		ItemStatus status = ItemStatus.NONE; 
 		boolean expanded = false;
 		
 		
@@ -134,7 +134,7 @@ class ListMarshall {
 						desc = grandchildren.item(j).getTextContent();
 					}
 					if (grandchildren.item(j).getNodeName().equals("flag")) {
-						status = StatusFlag.getStatusFlag(
+						status = ItemStatus.getStatusFlag(
 								Integer.valueOf(
 										grandchildren.item(j).getTextContent()));
 					}
@@ -148,7 +148,7 @@ class ListMarshall {
 				
 				
 				
-				list.addItemModels(new ItemPanelModel(title, desc, status, expanded, false));
+				list.addItemModels(new ItemModel(title, desc, status, expanded, false));
 				
 			}
 		}
@@ -195,7 +195,7 @@ class ListMarshall {
 		
 		
 		
-		for (ItemPanelModel itemModel : listModel.getItemModels()) {
+		for (ItemModel itemModel : listModel.getItemModels()) {
 			Element itemElement = document.createElement("item");
 			Element titleElement = document.createElement("title");
 			Element descElement = document.createElement("desc");

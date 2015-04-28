@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 
 @SuppressWarnings("serial")
-public class HiddenPanel extends JPanel {
+public class HiddenItemPanel extends JPanel {
 	private JLabel label;
 
 	private JTable parentTable;
@@ -17,7 +17,7 @@ public class HiddenPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public HiddenPanel (JTable parentTable, int rowIndex) {
+	public HiddenItemPanel (JTable parentTable, int rowIndex) {
 		this.parentTable = parentTable;	
 		this.rowIndex = rowIndex;
 		initComponents();

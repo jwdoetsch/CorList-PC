@@ -31,7 +31,7 @@ import org.xml.sax.SAXParseException;
  * @author Jacob Wesley Doetsch
  *
  */
-public class XMLResourceAdapter {
+public class XMLResourceValidator {
 
 	/*
 	 * ErrorHandlerAdapter forwards the associated exceptions

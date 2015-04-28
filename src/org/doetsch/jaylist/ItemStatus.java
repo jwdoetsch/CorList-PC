@@ -12,7 +12,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Jacob Wesley Doetsch
  */
-enum StatusFlag {
+enum ItemStatus {
 	
 	NONE (-1, null, "None"),
 	INCOMPLETE (0, UI.ICON_UNCHECKED, "Incomplete"),
@@ -24,7 +24,7 @@ enum StatusFlag {
 	final ImageIcon icon;
 	final String desc;
 	
-	StatusFlag (int flag, ImageIcon icon, String desc) {
+	ItemStatus (int flag, ImageIcon icon, String desc) {
 		this.code = flag;
 		this.icon = icon;
 		this.desc = desc;
@@ -38,7 +38,7 @@ enum StatusFlag {
 	 * @param code
 	 * @return
 	 */
-	static StatusFlag getStatusFlag (int code) {
+	static ItemStatus getStatusFlag (int code) {
 		switch (code) {
 			case -1 :
 				return NONE;

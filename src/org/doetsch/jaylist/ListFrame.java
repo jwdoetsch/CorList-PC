@@ -75,25 +75,25 @@ class ListFrame extends JFrame {
 	//determines save behavior according to whether the list 
 	//is a new list or an opened list
 	private Launcher launcher; 
-	private boolean hasPath;
+	private boolean isNew;
 	private URL path;
 	
 	//user-input UI config attributes
-	private ListViewMode viewMode;
+	private ConfigConstants.ListViewMode viewMode;
 	
 	/**
 	 * Instantiates a ListFrame that patterns itself after the
 	 * given ListModel.
 	 * @param listModel the ListModel to pattern
 	 */
-	public ListFrame (Launcher launcher, ListModel listModel) {
+	public ListFrame (Launcher launcher, ListModel listModel, boolean isNew) {
 		this.launcher = launcher;
-		//this.hasPath = hasPath;
+		this.isNew = isNew;
 		
 		initComponents();
 		injectListModel(listModel);
 		//viewMode = ListViewMode.HIDE_COMPLETED;
-		viewMode = ListViewMode.DEFAULT;
+		viewMode = ConfigConstants.ListViewMode.DEFAULT;
 	}
 	
 	/**
@@ -112,18 +112,18 @@ class ListFrame extends JFrame {
 		
 		//build the table model
 		DefaultTableModel tableModel = new DefaultTableModel(
-				new ItemPanelModel[][] {
+				new ItemModel[][] {
 				},
 				new String[] {
 					"Items"
 				}
 			);
-		for (ItemPanelModel itemModel : listModel.getItemModels()) {
-			tableModel.addRow(new ItemPanelModel[] {itemModel});
+		for (ItemModel itemModel : listModel.getItemModels()) {
+			tableModel.addRow(new ItemModel[] {itemModel});
 		}
 
 		//select the header text of new lists
-		if (hasPath) {
+		if (isNew) {
 			this.uiTextPane.setSelectionStart(0);
 			this.uiTextPane.setSelectionEnd(25);
 		}
@@ -138,20 +138,19 @@ class ListFrame extends JFrame {
 	
 	private void setTitle () {
 		//set title bar
-		if (hasPath) {
-			File f = new File(path.getFile());
-			this.setTitle(f.getName().replace("%20", " ") + " - JayList");
-			
-		} else {
-			
+		if (isNew) {
 			this.setTitle("new* - JayList");
+
+		} else {
+			File f = new File(path.getFile());
+			this.setTitle(f.getName().replace("%20", " ") + " - JayList");			
 		}		
 	}
 	
 	private void newItem () {
 		DefaultTableModel tableModel =
 				(DefaultTableModel)ListFrame.this.uiTable.getModel();
-		tableModel.addRow(new ItemPanelModel[] {new ItemPanelModel("<add a title>", "<add a description>", StatusFlag.INCOMPLETE, false, false)});
+		tableModel.addRow(new ItemModel[] {new ItemModel("<add a title>", "<add a description>", ItemStatus.INCOMPLETE, false, false)});
 		
 		if (uiTable.isEditing()) {
 			uiTable.getCellEditor().stopCellEditing();
@@ -170,7 +169,7 @@ class ListFrame extends JFrame {
 			try {
 				path = fc.getSelectedFile().toURI().toURL();
 				marshall.marshall(ListFrame.this.extractListModel(), path);
-				hasPath = true;
+				isNew = true;
 				setTitle();
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
@@ -191,7 +190,7 @@ class ListFrame extends JFrame {
 				this.getBounds().width, this.getBounds().height));
 		
 		for (int i = 0; i < uiTable.getRowCount(); i++) {
-			ItemPanelModel itemModel = (ItemPanelModel)uiTable.getValueAt(i, 0);
+			ItemModel itemModel = (ItemModel)uiTable.getValueAt(i, 0);
 			listModel.addItemModels(itemModel);
 		}
 		
@@ -267,7 +266,7 @@ class ListFrame extends JFrame {
 		//give the table a single row/column so the renderer and editor can
 		//be added
 		this.uiTable.setModel(new DefaultTableModel(
-			new ItemPanelModel[][] {
+			new ItemModel[][] {
 				{null},
 				{},
 			},
@@ -376,11 +375,11 @@ class ListFrame extends JFrame {
 		DefaultTableModel tableModel = 
 				(DefaultTableModel) this.uiTable.getModel();
 		
-		ItemPanelModel item1 =
-				(ItemPanelModel) tableModel.getValueAt(index1, 0);
+		ItemModel item1 =
+				(ItemModel) tableModel.getValueAt(index1, 0);
 
-		ItemPanelModel item2 =
-				(ItemPanelModel) tableModel.getValueAt(index2, 0);
+		ItemModel item2 =
+				(ItemModel) tableModel.getValueAt(index2, 0);
 
 		tableModel.setValueAt(item1, index2, 0);
 		tableModel.setValueAt(item2, index1, 0);
@@ -442,13 +441,13 @@ class ListFrame extends JFrame {
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 
-			ItemPanelModel sourceModel = (ItemPanelModel)value;
+			ItemModel sourceModel = (ItemModel)value;
 			
 			//if the ui view mode is set to hide completed items
 			//and this rendering item is completed then return a blank
-			if ((viewMode == ListViewMode.HIDE_COMPLETED)
-					&& (sourceModel.status == StatusFlag.COMPLETE)) {
-				return new HiddenPanel(uiTable, row);
+			if ((viewMode == ConfigConstants.ListViewMode.HIDE_COMPLETED)
+					&& (sourceModel.status == ItemStatus.COMPLETE)) {
+				return new HiddenItemPanel(uiTable, row);
 				
 			} else {
 				
@@ -508,7 +507,7 @@ class ListFrame extends JFrame {
 		public Component getTableCellEditorComponent (JTable table, Object value,
 				boolean isSelected, int row, int column) {
 
-			itemPanel = new ItemPanel((ItemPanelModel)value, true, uiTable,
+			itemPanel = new ItemPanel((ItemModel)value, true, uiTable,
 					row, uiPopupMenu);
 			return itemPanel;
 		}
@@ -560,7 +559,7 @@ class ListFrame extends JFrame {
 			/*
 			 * if the list is new then trigger the Save As save action 
 			 */
-			if (hasPath) {
+			if (isNew) {
 				
 				savePath = path;
 				ListMarshall marshall = new ListMarshall();
@@ -640,12 +639,14 @@ class ListFrame extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			switch (ListFrame.this.viewMode) {
 				case DEFAULT:
-					ListFrame.this.viewMode = ListViewMode.HIDE_COMPLETED;
+					ListFrame.this.viewMode =
+						ConfigConstants.ListViewMode.HIDE_COMPLETED;
 					ListFrame.this.uiMenuItemHide.setSelectedIcon(UI.ICON_CHECKED);
 					ListFrame.this.uiMenuItemHide.setSelected(true);
 					break;
 				case HIDE_COMPLETED:
-					ListFrame.this.viewMode = ListViewMode.DEFAULT;
+					ListFrame.this.viewMode =
+						ConfigConstants.ListViewMode.DEFAULT;
 					ListFrame.this.uiMenuItemHide.setSelected(false);
 					break;
 				default:
