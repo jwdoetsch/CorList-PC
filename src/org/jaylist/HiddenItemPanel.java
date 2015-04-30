@@ -6,13 +6,17 @@ import java.awt.FlowLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import java.awt.Component;
+import javax.swing.Box;
+import java.awt.BorderLayout;
 
 @SuppressWarnings("serial")
 public class HiddenItemPanel extends JPanel {
-	private JLabel label;
+	private JLabel lblChk;
 
 	private JTable parentTable;
 	private int rowIndex;
+	private JLabel lblMore;
 	
 	/**
 	 * Create the panel.
@@ -25,12 +29,17 @@ public class HiddenItemPanel extends JPanel {
 	}
 	
 	private void initComponents () {
-		setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		setBackground(UI.COLOR_ITEM);
-		this.label = new JLabel("");
-		this.label.setIcon(UI.ICON_HIDDEN);
-		this.label.setPreferredSize(new Dimension(32, 8));
-		add(this.label);
+		setLayout(new BorderLayout(0, 0));
+		this.lblChk = new JLabel("");
+		this.lblChk.setIcon(UI.ICON_HIDDEN);
+		this.lblChk.setPreferredSize(new Dimension(32, 8));
+		add(this.lblChk, BorderLayout.WEST);
+		
+		this.lblMore = new JLabel("");
+		this.lblMore.setIcon(UI.ICON_HIDDEN2);
+		this.lblMore.setPreferredSize(new Dimension(32, 8));
+		add(this.lblMore, BorderLayout.EAST);
 	}
 	
 	private void syncRowHeight () {

@@ -28,9 +28,9 @@ class UI {
 	static final int ICON_FLAG_COUNT = 2;
 	
 	static final ImageIcon ICON_APP = new ImageIcon(
-			ItemPanel.class.getResource("assets/gfx/app_64x64.png"));
+			UI.class.getResource("assets/gfx/app_64x64.png"));
 	static final ImageIcon ICON_CHECKED = new ImageIcon(
-			ItemPanel.class.getResource("assets/gfx/checked.png"));
+			UI.class.getResource("assets/gfx/checked.png"));
 	static final ImageIcon ICON_UNCHECKED = new ImageIcon(
 			UI.class.getResource("assets/gfx/unchecked.png"));
 	static final ImageIcon ICON_URGENT = new ImageIcon(
@@ -50,7 +50,11 @@ class UI {
 	static final ImageIcon ICON_REMOVE = new ImageIcon(
 			UI.class.getResource("assets/gfx/menu-remove.png"));
 	static final ImageIcon ICON_HIDDEN = new ImageIcon(
-			UI.class.getResource("assets/gfx/hidden.png"));
+			UI.class.getResource("assets/gfx/checked_32x8.png"));
+	static final ImageIcon ICON_HIDDEN2 = new ImageIcon(
+			UI.class.getResource("assets/gfx/hidden_32x8.png"));
+	
+	
 	static final ImageIcon ICON_MENU_NEW = new ImageIcon(
 			UI.class.getResource("assets/gfx/new_20x20.png"));
 	static final ImageIcon ICON_MENU_OPEN = new ImageIcon(
@@ -68,10 +72,10 @@ class UI {
 	static final Color LAUNCHER_COLOR_BUTTON = new Color(54, 138, 230);
 	static final Color LAUNCHER_COLOR_BG = new Color(246, 251, 255);
 	static final URL XMl_NEW_LIST =
-			ListFrame.class.getResource("assets/xml/new.xml");
+			UI.class.getResource("assets/xml/new.xml");
 
 	static final URL XML_LIST_SCHEMA = 
-			ListMarshall.class.getResource("assets/xml/list.xsd");
+			UI.class.getResource("assets/xml/list.xsd");
 	static final ImageIcon ICON_TRAY = new ImageIcon(
 			UI.class.getResource("assets/gfx/tray.png"));
 	

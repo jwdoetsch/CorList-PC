@@ -6,17 +6,24 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Insets;
 import java.awt.MenuItem;
+import java.awt.Point;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -34,6 +41,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.jaylist.gfx.ImageTextWriter;
 import org.xml.sax.SAXException;
 
 @SuppressWarnings("serial")
@@ -83,6 +91,68 @@ public class Launcher extends JFrame {
 		}
 	}
 	
+	class LauncherPanel extends JPanel {
+		
+		private JButton btn;
+		private ListFrame listFrame;
+		private Launcher parentLauncher;
+		
+		LauncherPanel (ListFrame listFrame, Launcher parentLauncher) {
+			this.listFrame = listFrame;
+			this.parentLauncher = parentLauncher;
+			initComponents();
+		}
+		
+		private void initComponents () {
+			
+			//padding/border around the button
+			int tilePadding = 2;
+
+			setOpaque(false);
+			setBorder(new EmptyBorder(tilePadding, tilePadding, tilePadding, tilePadding));
+			setPreferredSize(new Dimension(104, 104));
+			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+			
+			this.btn = new JButton();
+			updateTileText();
+			this.btn.setVerticalTextPosition(SwingConstants.TOP);
+			this.btn.setBackground(UI.LAUNCHER_COLOR_BUTTON);
+			this.btn.setForeground(Color.WHITE);
+			this.btn.setFont(UI.LAUNCHER_FONT);
+			this.btn.setBorder(new EmptyBorder(4, 4, 4, 4));
+			this.btn.setMinimumSize(new Dimension(104 - tilePadding * 2, 104 - tilePadding * 2));
+			this.btn.setMaximumSize(new Dimension(104 - tilePadding * 2, 104 - tilePadding * 2));
+			
+			this.btn.setPreferredSize(new Dimension(104 - tilePadding * 2, 104 - tilePadding * 2));
+			this.btn.setMargin(new Insets(0, 0, 0, 0));
+			this.btn.setFont(new Font("Arial", Font.PLAIN, 16));
+			this.btn.setHorizontalAlignment(SwingConstants.LEADING);
+			this.btn.setVerticalAlignment(SwingConstants.TOP);
+			add(this.btn);
+			
+			this.btn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					if (listFrame.isVisible()) {
+						listFrame.requestFocus();
+					} else {
+						listFrame.setLocation(
+								new Point(
+										parentLauncher.getX() + 48,
+										parentLauncher.getY() + 48));
+						listFrame.setVisible(true);
+					}
+				}
+			});
+
+		}
+		
+		void updateTileText () {
+			this.btn.setText("<html><p>" + listFrame.uiTextPane.getText() + "</p></html>");
+		}
+
+	}
+	
 	private JPanel contentPane;
 	private JPanel panelCtrl;
 	private JButton btnNew;
@@ -120,6 +190,7 @@ public class Launcher extends JFrame {
 	 * Create the frame.
 	 */
 	public Launcher() {
+		setResizable(false);
 		initComponents();
 		initSystemTray();
 	}
@@ -163,9 +234,26 @@ public class Launcher extends JFrame {
 	}
 
 	private void initComponents() {
-		
+
 		//models = new ArrayList<LauncherModel>();
 		setTitle("Pinboard - JayList");
+		//setIconImage(UI.ICON_APP.getImage());
+
+		BufferedImage i;
+		try {
+//			i = ImageIO.read(UI.class.getResource("assets/gfx/app_64x64.png"));
+//			Graphics g = i.getGraphics();
+//			g.setFont(new Font("Arial", Font.BOLD, 28));
+//			g.setColor(Color.WHITE);
+//			g.drawString("1/2", 23, 56);
+//			setIconImage(i);
+			ImageTextWriter itw = new ImageTextWriter();
+			setIconImage(itw.writeText(UI.class.getResource("assets/gfx/app_64x64.png"), "1/2"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		//setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		//setDefaultCloseOperation()
 		//setBounds(100, 100, 358, 368);
@@ -204,6 +292,7 @@ public class Launcher extends JFrame {
 		this.btnNew.setVerticalAlignment(SwingConstants.TOP);
 		this.panelNew.add(this.btnNew);
 		this.panelCfg = new JPanel();
+		this.panelCfg.setOpaque(false);
 		this.panelCfg.setSize(new Dimension(104, 104));
 		this.panelCfg.setPreferredSize(new Dimension(104, 104));
 		this.panelCfg.setMinimumSize(new Dimension(104, 104));
@@ -213,12 +302,12 @@ public class Launcher extends JFrame {
 		this.panelCfg.setLayout(new BorderLayout(0, 0));
 		this.btnCfg = new JButton("");
 		this.btnCfg.setBorderPainted(false);
-		this.btnCfg.setBackground(Color.WHITE);
+		this.btnCfg.setOpaque(true);
+		this.btnCfg.setBackground(new Color(229, 241, 255));
 		this.btnCfg.setIcon(UI.ICON_APP);
 		this.btnCfg.setFocusPainted(false);
 		this.panelCfg.add(this.btnCfg, BorderLayout.CENTER);
 		this.btnNew.addActionListener(new UILauncherNewAction());
-		
 
 		this.scrollPane = new JScrollPane();
 		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -314,7 +403,7 @@ public class Launcher extends JFrame {
 				
 				//catches and reports lists that don't validate
 				} catch (IOException | SAXException | ParserConfigurationException e) {
-					System.out.println(f.getPath() + " isn't valid");
+					//System.out.println(f.getPath() + " isn't valid");
 				}
 			}
 			
