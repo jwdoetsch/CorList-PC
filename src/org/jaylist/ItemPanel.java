@@ -173,7 +173,7 @@ class ItemPanel extends JPanel {
 		this.uiBtnExpand.setBorderPainted(false);
 		this.uiBtnExpand.setFocusPainted(false);
 		this.uiBtnExpand.addActionListener(new UIActionExpand());
-		this.uiBtnExpand.addMouseListener(new PopupAction(popupMenu, new Point(-56, -12)));
+		this.uiBtnExpand.addMouseListener(new UIOffsetPopupAction(popupMenu, new Point(-56, -12)));
 		
 		//construct description components
 		this.uiScrollPane = new JScrollPane();
@@ -245,10 +245,10 @@ class ItemPanel extends JPanel {
 		}
 		
 		//add the control popup menu to panel components
-		this.uiTextField.addMouseListener(new PopupAction(popupMenu, new Point(-56, -12)));
-		this.uiBtnStatus.addMouseListener(new PopupAction(statusMenu, new Point(-8, -8)));
-		this.uiTextField.addMouseListener(new PopupAction(popupMenu, new Point(-56, -12)));
-		this.uiTextArea.addMouseListener(new PopupAction(popupMenu, new Point(-56, -12)));
+		this.uiTextField.addMouseListener(new UIOffsetPopupAction(popupMenu, new Point(-56, -12)));
+		this.uiBtnStatus.addMouseListener(new UIOffsetPopupAction(statusMenu, new Point(-8, -8)));
+		this.uiTextField.addMouseListener(new UIOffsetPopupAction(popupMenu, new Point(-56, -12)));
+		this.uiTextArea.addMouseListener(new UIOffsetPopupAction(popupMenu, new Point(-56, -12)));
 	}
 	
 	/**

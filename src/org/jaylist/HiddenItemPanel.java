@@ -1,14 +1,11 @@
 package org.jaylist;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import java.awt.Component;
-import javax.swing.Box;
-import java.awt.BorderLayout;
 
 @SuppressWarnings("serial")
 public class HiddenItemPanel extends JPanel {

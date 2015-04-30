@@ -248,7 +248,7 @@ public class Launcher extends JFrame {
 //			g.drawString("1/2", 23, 56);
 //			setIconImage(i);
 			ImageTextWriter itw = new ImageTextWriter();
-			setIconImage(itw.writeText(UI.class.getResource("assets/gfx/app_64x64.png"), "1/2"));
+			setIconImage(itw.writeText(UI.class.getResource("assets/gfx/app_64x64.png"), "2/11"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

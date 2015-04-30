@@ -169,7 +169,7 @@ class ListFrame extends JFrame {
 			try {
 				path = fc.getSelectedFile().toURI().toURL();
 				marshall.marshall(ListFrame.this.extractListModel(), path);
-				isNew = true;
+				isNew = false;
 				setTitle();
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
@@ -328,8 +328,8 @@ class ListFrame extends JFrame {
 		this.uiPopupMenu.add(new JSeparator());
 		this.uiPopupMenu.add(uiMenuAdvanced);
 
-		this.uiTable.addMouseListener(new PopupAction(uiPopupMenu, new Point(-56, -12)));
-		this.uiTextPane.addMouseListener(new PopupAction(uiPopupMenu, new Point(-56, -12)));
+		this.uiTable.addMouseListener(new UIOffsetPopupAction(uiPopupMenu, new Point(-56, -12)));
+		this.uiTextPane.addMouseListener(new UIOffsetPopupAction(uiPopupMenu, new Point(-56, -12)));
 		
 		this.uiTable.setModel(new DefaultTableModel( ));
 		
@@ -561,13 +561,14 @@ class ListFrame extends JFrame {
 			 */
 			if (isNew) {
 				
-				savePath = path;
-				ListMarshall marshall = new ListMarshall();
-				marshall.marshall(ListFrame.this.extractListModel(), savePath);
+				saveAs();
 				
 			} else {
 				
-				saveAs();
+				
+				savePath = path;
+				ListMarshall marshall = new ListMarshall();
+				marshall.marshall(ListFrame.this.extractListModel(), savePath);
 			
 			}
 			
