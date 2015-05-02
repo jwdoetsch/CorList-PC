@@ -19,16 +19,18 @@ class UI {
 
 	static final Color COLOR_BUTTON_BG = new Color(27, 125, 255);
 	static final Color COLOR_BUTTON_FG = Color.WHITE;
-	static final Color COLOR_HEADER_BG = new Color(248, 248, 248);
+	static final Color COLOR_HEADER_BG = new Color(251, 251, 251);
 	static final Color COLOR_ITEM = new Color(254, 254, 254);
 	static final Color COLOR_HIGHLIGHT = new Color(228, 241, 254);
 	static final Color COLOR_HIGHLIGHT2 = new Color(228, 241, 254);
-	static final Color COLOR_GRID = new Color(128, 128, 128);
+	static final Color COLOR_GRID = new Color(239, 239, 239);
 	
 	static final int ICON_FLAG_COUNT = 2;
 	
 	static final ImageIcon ICON_APP = new ImageIcon(
 			UI.class.getResource("assets/gfx/app_64x64.png"));
+	static final URL URL_ICON_APP = 
+			UI.class.getResource("assets/gfx/app_64x64.png");
 	static final ImageIcon ICON_CHECKED = new ImageIcon(
 			UI.class.getResource("assets/gfx/checked.png"));
 	static final ImageIcon ICON_UNCHECKED = new ImageIcon(

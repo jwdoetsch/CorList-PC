@@ -21,11 +21,13 @@ import java.net.URL;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
 import javax.swing.ActionMap;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -54,6 +56,48 @@ import javax.swing.text.StyledDocument;
  */
 @SuppressWarnings("serial")
 class ListFrame extends JFrame {
+	
+	public class HiddenItemPanel extends JPanel {
+		
+		private JLabel lblChk;
+		private JTable parentTable;
+		private int rowIndex;
+		private JLabel lblMore;
+		
+		/**
+		 * Create the panel.
+		 */
+		public HiddenItemPanel (JTable parentTable, int rowIndex) {
+			this.parentTable = parentTable;	
+			this.rowIndex = rowIndex;
+			initComponents();
+			syncRowHeight();
+		}
+		
+		private void initComponents () {
+			setBackground(UI.COLOR_ITEM);
+			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+			this.lblChk = new JLabel("");
+			this.lblChk.setIcon(UI.ICON_HIDDEN);
+			this.lblChk.setPreferredSize(new Dimension(32, 8));
+			add(this.lblChk);
+			
+			this.lblMore = new JLabel("");
+			this.lblMore.setIcon(UI.ICON_HIDDEN2);
+			this.lblMore.setPreferredSize(new Dimension(32, 8));
+			add(this.lblMore);
+		}
+		
+		private void syncRowHeight () {
+		
+			int height = UI.ICON_HIDDEN.getIconHeight() + 1;
+			
+			if (parentTable.getRowHeight(this.rowIndex) != height) {
+				parentTable.setRowHeight(this.rowIndex, height);
+			}
+		}
+
+	}
 	
 	private JPanel contentPane;
 	
@@ -105,7 +149,8 @@ class ListFrame extends JFrame {
 		
 		path = listModel.getPath();
 		
-		setTitle();
+//		setTitle();
+		this.setTitle(listModel.getHeader());
 		
 		//set header text
 		this.uiTextPane.setText(listModel.getHeader());
@@ -125,7 +170,7 @@ class ListFrame extends JFrame {
 		//select the header text of new lists
 		if (isNew) {
 			this.uiTextPane.setSelectionStart(0);
-			this.uiTextPane.setSelectionEnd(25);
+			this.uiTextPane.setSelectionEnd(this.uiTextPane.getText().length());
 		}
 		
 		//inject the new TableModel
@@ -136,16 +181,16 @@ class ListFrame extends JFrame {
 		
 	}
 	
-	private void setTitle () {
-		//set title bar
-		if (isNew) {
-			this.setTitle("new* - JayList");
-
-		} else {
-			File f = new File(path.getFile());
-			this.setTitle(f.getName().replace("%20", " ") + " - JayList");			
-		}		
-	}
+//	private void setTitle () {
+//		//set title bar
+//		if (isNew) {
+//			this.setTitle("new* - JayList");
+//
+//		} else {
+//			File f = new File(path.getFile());
+//			this.setTitle(f.getName().replace("%20", " ") + " - JayList");			
+//		}		
+//	}
 	
 	private void newItem () {
 		DefaultTableModel tableModel =
@@ -170,7 +215,7 @@ class ListFrame extends JFrame {
 				path = fc.getSelectedFile().toURI().toURL();
 				marshall.marshall(ListFrame.this.extractListModel(), path);
 				isNew = false;
-				setTitle();
+				//setTitle();
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
@@ -234,16 +279,20 @@ class ListFrame extends JFrame {
 		doc.setParagraphAttributes(0, doc.getLength(), center, false);
 		this.uiTextPane.addFocusListener(new FocusAdapter() {
 			
-			//stop table cell editing and deselect item when the header
-			//gains focus
+			//stop table cell editing and deselect item when the focus gained
 			@Override
-			public void focusGained(FocusEvent arg0) {
+			public void focusGained (FocusEvent arg0) {
 				if (uiTable.isEditing()) {
 					ListFrame.this.uiTable.getCellEditor().stopCellEditing();
 				}
 				ListFrame.this.uiTable.getSelectionModel().clearSelection();
 			}
 			
+			//update the frame title when editing is finished
+			@Override
+			public void focusLost (FocusEvent arg0) {
+				ListFrame.this.setTitle(uiTextPane.getText());
+			}
 		});
 		this.uiTextPane.setFont(UI.FONT_HEADER);
 		this.uiTextPane.setBackground(UI.COLOR_HEADER_BG);

@@ -7,8 +7,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.MenuItem;
 import java.awt.Point;
@@ -23,10 +21,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -235,28 +231,18 @@ public class Launcher extends JFrame {
 
 	private void initComponents() {
 
-		//models = new ArrayList<LauncherModel>();
 		setTitle("Pinboard - JayList");
-		//setIconImage(UI.ICON_APP.getImage());
+		setIconImage(UI.ICON_APP.getImage());
 
-		BufferedImage i;
-		try {
-//			i = ImageIO.read(UI.class.getResource("assets/gfx/app_64x64.png"));
-//			Graphics g = i.getGraphics();
-//			g.setFont(new Font("Arial", Font.BOLD, 28));
-//			g.setColor(Color.WHITE);
-//			g.drawString("1/2", 23, 56);
-//			setIconImage(i);
-			ImageTextWriter itw = new ImageTextWriter();
-			setIconImage(itw.writeText(UI.class.getResource("assets/gfx/app_64x64.png"), "2/11"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//adding the col
+//		try {
+//			ImageTextWriter itw = new ImageTextWriter();
+//			setIconImage(itw.writeText(UI.URL_ICON_APP, "2/11"));
+//
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		
-		//setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		//setDefaultCloseOperation()
-		//setBounds(100, 100, 358, 368);
 		setBounds(368, 16, 64, 64);
 		this.contentPane = new JPanel();
 		this.contentPane.setBackground(UI.LAUNCHER_COLOR_BG);

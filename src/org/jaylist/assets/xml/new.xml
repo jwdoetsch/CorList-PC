@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <list>
 
-	<header>&lt;describe your list here&gt;</header>
+	<header>&lt;describe the list with a header&gt;</header>
 	<config>
 		<frame width="256" height="512" />
 	</config>
