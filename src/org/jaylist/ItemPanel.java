@@ -25,6 +25,7 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.BoxLayout;
+
 import java.awt.FlowLayout;
 
 @SuppressWarnings("serial")

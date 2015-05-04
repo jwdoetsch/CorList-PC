@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -31,13 +32,16 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.ColorUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.jaylist.gfx.ImageTextWriter;
+import org.jayutils.gfx.ImageTextWriter;
 import org.xml.sax.SAXException;
 
 @SuppressWarnings("serial")
@@ -170,6 +174,11 @@ public class Launcher extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		UIManager.put("ToolTip.background",
+				new Color(251, 251, 251));
+		Border border = BorderFactory.createLineBorder(
+				new Color(255, 188, 86), 2);
+		UIManager.put("ToolTip.border", border);
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -232,7 +241,8 @@ public class Launcher extends JFrame {
 	private void initComponents() {
 
 		setTitle("Pinboard - JayList");
-		setIconImage(UI.ICON_APP.getImage());
+		//setIconImage(UI.ICON_APP.getImage());
+		setIconImage(UI.ICON_APP_BLUE.getImage());
 
 		//adding the col
 //		try {
@@ -283,14 +293,20 @@ public class Launcher extends JFrame {
 		this.panelCfg.setPreferredSize(new Dimension(104, 104));
 		this.panelCfg.setMinimumSize(new Dimension(104, 104));
 		this.panelCfg.setMaximumSize(new Dimension(104, 104));
-		this.panelCfg.setBorder(new EmptyBorder(2, 2, 2, 2));
+		this.panelCfg.setBorder(new EmptyBorder(22, 22, 22, 22));
 		this.panelCtrl.add(this.panelCfg);
 		this.panelCfg.setLayout(new BorderLayout(0, 0));
 		this.btnCfg = new JButton("");
+		this.btnCfg.setToolTipText("Open CorSuite Launcher...");
+		this.btnCfg.setMinimumSize(new Dimension(60, 60));
+		this.btnCfg.setMaximumSize(new Dimension(60, 60));
+		this.btnCfg.setSize(new Dimension(60, 60));
+		this.btnCfg.setPreferredSize(new Dimension(60, 60));
+		this.btnCfg.setBorder(new EmptyBorder(2, 2, 2, 2));
 		this.btnCfg.setBorderPainted(false);
 		this.btnCfg.setOpaque(true);
 		this.btnCfg.setBackground(new Color(229, 241, 255));
-		this.btnCfg.setIcon(UI.ICON_APP);
+		this.btnCfg.setIcon(UI.ICON_JAYAPP);
 		this.btnCfg.setFocusPainted(false);
 		this.panelCfg.add(this.btnCfg, BorderLayout.CENTER);
 		this.btnNew.addActionListener(new UILauncherNewAction());

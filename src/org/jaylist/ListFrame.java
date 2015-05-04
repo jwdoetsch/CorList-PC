@@ -46,6 +46,10 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.border.BevelBorder;
+import java.awt.Font;
+import javax.swing.JButton;
+import javax.swing.border.SoftBevelBorder;
 
 
 /**
@@ -124,6 +128,9 @@ class ListFrame extends JFrame {
 	
 	//user-input UI config attributes
 	private ConfigConstants.ListViewMode viewMode;
+	private JPanel panel;
+	private JLabel lblNewLabel;
+	private JButton btnNewButton;
 	
 	/**
 	 * Instantiates a ListFrame that patterns itself after the
@@ -365,7 +372,7 @@ class ListFrame extends JFrame {
 		this.uiMenuItemHide.addActionListener(new UIMenuHideAction());
 		uiMenuAdvanced.add(uiMenuItemHide);
 		
-		//instantiate and set up the popup menu
+//		//instantiate and set up the popup menu
 		this.uiPopupMenu = new JPopupMenu();
 		this.uiPopupMenu.add(uiMenuItemAdd);
 		this.uiPopupMenu.add(uiMenuItemRemove);
@@ -381,6 +388,20 @@ class ListFrame extends JFrame {
 		this.uiTextPane.addMouseListener(new UIOffsetPopupAction(uiPopupMenu, new Point(-56, -12)));
 		
 		this.uiTable.setModel(new DefaultTableModel( ));
+		this.panel = new JPanel();
+		this.panel.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.contentPane.add(this.panel, BorderLayout.SOUTH);
+		this.panel.setLayout(new BorderLayout(0, 0));
+		this.lblNewLabel = new JLabel("New label");
+		this.lblNewLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+		this.lblNewLabel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		this.panel.add(this.lblNewLabel);
+		this.btnNewButton = new JButton("");
+		this.btnNewButton.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.btnNewButton.setPreferredSize(new Dimension(16, 16));
+		this.btnNewButton.setMinimumSize(new Dimension(16, 16));
+		this.btnNewButton.setMaximumSize(new Dimension(16, 16));
+		this.panel.add(this.btnNewButton, BorderLayout.EAST);
 		
 		initUIKeyBindings();
 		

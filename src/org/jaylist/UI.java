@@ -7,6 +7,7 @@ import java.net.URL;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+
 class UI {
 
 	static final int FRAME_WIDTH = 266;
@@ -29,8 +30,25 @@ class UI {
 	
 	static final ImageIcon ICON_APP = new ImageIcon(
 			UI.class.getResource("assets/gfx/app_64x64.png"));
+
+	static final ImageIcon ICON_APP_BLUE = new ImageIcon(
+			UI.class.getResource("assets/gfx/app_blue.png"));
+	static final ImageIcon ICON_APP_GREEN = new ImageIcon(
+			UI.class.getResource("assets/gfx/app_green.png"));
+	static final ImageIcon ICON_APP_PINK = new ImageIcon(
+			UI.class.getResource("assets/gfx/app_pink.png"));
+	static final ImageIcon ICON_APP_ORANGE = new ImageIcon(
+			UI.class.getResource("assets/gfx/app_orange.png"));
+
+	
+	static final ImageIcon ICON_JAYAPP = new ImageIcon(
+			UI.class.getResource("assets/gfx/app_blue_60x60.png"));
+	
 	static final URL URL_ICON_APP = 
 			UI.class.getResource("assets/gfx/app_64x64.png");
+	static final URL URL_ICON_JAYAPP = 
+			UI.class.getResource("assets/gfx/apps_50x50.png");
+
 	static final ImageIcon ICON_CHECKED = new ImageIcon(
 			UI.class.getResource("assets/gfx/checked.png"));
 	static final ImageIcon ICON_UNCHECKED = new ImageIcon(
