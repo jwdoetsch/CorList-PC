@@ -1,4 +1,4 @@
-package org.jaylist;
+package org.corlist;
 
 import java.awt.Dimension;
 

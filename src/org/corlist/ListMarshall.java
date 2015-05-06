@@ -1,9 +1,8 @@
-package org.jaylist;
+package org.corlist;
 
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -28,7 +27,8 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import org.jayutils.xml.*;
+import org.corlist.utils.*;
+
 
 class ListMarshall {
 	

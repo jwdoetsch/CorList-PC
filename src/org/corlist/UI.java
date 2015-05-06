@@ -1,4 +1,4 @@
-package org.jaylist;
+package org.corlist;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -97,7 +97,7 @@ class UI {
 	static final URL XML_LIST_SCHEMA = 
 			UI.class.getResource("assets/xml/list.xsd");
 	static final ImageIcon ICON_TRAY = new ImageIcon(
-			UI.class.getResource("assets/gfx/tray.png"));
+			UI.class.getResource("assets/gfx/systray_16x16.png"));
 	
 	
 }

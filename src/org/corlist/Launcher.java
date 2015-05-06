@@ -1,4 +1,4 @@
-package org.jaylist;
+package org.corlist;
 
 import java.awt.AWTException;
 import java.awt.BorderLayout;
@@ -41,8 +41,10 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.jayutils.gfx.ImageTextWriter;
 import org.xml.sax.SAXException;
+
+import org.corlist.utils.*;
+
 
 @SuppressWarnings("serial")
 public class Launcher extends JFrame {
