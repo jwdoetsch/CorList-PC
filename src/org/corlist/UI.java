@@ -29,7 +29,8 @@ class UI {
 	static final int ICON_FLAG_COUNT = 2;
 	
 	static final ImageIcon ICON_APP = new ImageIcon(
-			UI.class.getResource("assets/gfx/app_64x64.png"));
+			UI.class.getResource("assets/gfx/corlist_icon.png"));
+	
 
 	static final ImageIcon ICON_APP_BLUE = new ImageIcon(
 			UI.class.getResource("assets/gfx/app_blue.png"));
@@ -45,7 +46,7 @@ class UI {
 			UI.class.getResource("assets/gfx/app_blue_60x60.png"));
 	
 	static final URL URL_ICON_APP = 
-			UI.class.getResource("assets/gfx/app_64x64.png");
+			UI.class.getResource("assets/gfx/corlist_icon.png");
 	static final URL URL_ICON_JAYAPP = 
 			UI.class.getResource("assets/gfx/apps_50x50.png");
 
