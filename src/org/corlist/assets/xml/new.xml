@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<list>
+
+	<header>&lt;describe the list with a header&gt;</header>
+	<config>
+		<frame width="256" height="512" />
+	</config>
+	
+	<item>
+    	<title>&lt;add an item title&gt;</title>
+    	<desc>&lt;add an item description&gt;</desc>
+    	<flag>0</flag>
+    	<expanded>true</expanded>
+	</item>
+	
+</list>
