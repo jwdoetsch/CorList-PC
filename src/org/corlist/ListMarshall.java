@@ -26,8 +26,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
-import org.corlist.utils.*;
+import org.corlist.util.*;
 
 
 class ListMarshall {
@@ -55,33 +54,10 @@ class ListMarshall {
 		
 	}
 	
-	
-//	ListModel unmarshall  (URL src) throws IOException, SAXException, ParserConfigurationException  {
-//		Document doc;
-//		DocumentBuilder docBuilder;
-//		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-//		
-//		//configure the factory for validation against the supertodo schema
-//		docBuilderFactory.setNamespaceAware(true);
-//		docBuilderFactory.setValidating(true);
-//		docBuilderFactory.setAttribute(
-//                "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-//                "http://www.w3.org/2001/XMLSchema");
-//		docBuilderFactory.setAttribute(
-//				"http://java.sun.com/xml/jaxp/properties/schemaSource", UI.XML_LIST_SCHEMA.openStream());
-//		
-//		docBuilder = docBuilderFactory.newDocumentBuilder();
-//		docBuilder.setErrorHandler(new ErrorHandlerAdapter());
-//		doc = docBuilder.parse(src.openStream());
-//		doc.normalize();
-//		ListModel newListModel = parse(doc);
-//		newListModel.setPath(src);
-//		return newListModel;
-//	}
-	
 	ListModel unmarshall (URL src) throws IOException, SAXException, ParserConfigurationException {
 		XMLValidator validator = new XMLValidator();
 		ListModel newListModel = parse(validator.validate(src, UI.XML_LIST_SCHEMA));
+		newListModel.setPath(src);
 		return newListModel;
 	}
 	
@@ -162,7 +138,6 @@ class ListMarshall {
 		}
 		
 		list.setFrameSize(frameSize);
-		
 		return list;
 	}
 	

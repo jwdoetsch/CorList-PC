@@ -18,7 +18,10 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.swing.AbstractCellEditor;
@@ -42,8 +45,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
-
-import org.corlist.utils.*;
+import org.corlist.util.*;
 
 
 @SuppressWarnings("serial")
@@ -71,7 +73,7 @@ public class Launcher extends JFrame {
 	class LaunchTableEditor extends AbstractCellEditor implements TableCellEditor {
 
 		//ListModel lfm;
-		ListFrame listFrame;
+		private ListFrame listFrame;
 		
 		@Override
 		public Object getCellEditorValue() {
@@ -149,10 +151,25 @@ public class Launcher extends JFrame {
 
 		}
 		
+		/**
+		 * Sanitizes the given string to made it HTML-friendly
+		 * so that it renders properly within the launcher tile.
+		 * @param str
+		 */
+		private String sanitize (String str) {
+			String result = "";
+			result = str.replace("<", "&lt;");
+			result = result.replace(">", "&gt;");
+			return result;
+		}
+		
 		void updateTileText () {
-			this.btn.setText("<html><p>" + listFrame.uiTextPane.getText() + "</p></html>");
+			this.btn.setText("<html><p>" + sanitize(listFrame.uiTextPane.getText()) + "</p></html>");
 		}
 
+		ListFrame getListFrame () {
+			return this.listFrame;
+		}
 	}
 	
 	private JPanel contentPane;
@@ -161,9 +178,11 @@ public class Launcher extends JFrame {
 	private JButton btnCfg;
 	private JPanel panelNew;
 	private JPanel panelCfg;
+	private DefaultTableModel tableModel;
 	
 	private JScrollPane scrollPane;
 	private JTable table;
+	private ArrayList<ListFrame> listFrames;
 
 	//map of open entries
 	//private ArrayList<ListFrame> listFrames;
@@ -175,7 +194,7 @@ public class Launcher extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+	public static void main (String[] args) {
 		UIManager.put("ToolTip.background",
 				new Color(251, 251, 251));
 		Border border = BorderFactory.createLineBorder(
@@ -196,13 +215,13 @@ public class Launcher extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Launcher() {
+	public Launcher () {
 		setResizable(false);
 		initComponents();
 		initSystemTray();
 	}
 	
-	private void initSystemTray() {
+	private void initSystemTray () {
 		systemTray = SystemTray.getSystemTray();
 		if (!SystemTray.isSupported()) {
 			return;
@@ -218,6 +237,7 @@ public class Launcher extends JFrame {
 		MenuItem itemExit = new MenuItem("Exit");
 		menu.add(itemNew);
 		menu.add(itemExit);
+
 		itemNew.addActionListener(new UILauncherNewAction());
 		try {
 			systemTray.add(trayIcon);
@@ -226,6 +246,8 @@ public class Launcher extends JFrame {
 			System.out.println("Can't add system tray icon: " + e.getMessage());
 			//e.printStackTrace();
 		}
+		
+		itemExit.addActionListener(new UILauncherExitAction());
 		
 		trayIcon.addActionListener(new ActionListener() {
 			@Override
@@ -240,11 +262,11 @@ public class Launcher extends JFrame {
 		
 	}
 
-	private void initComponents() {
+	private void initComponents () {
 
 		setTitle("Pinboard - JayList");
 		//setIconImage(UI.ICON_APP.getImage());
-		setIconImage(UI.ICON_APP_BLUE.getImage());
+		setIconImage(UI.ICON_CORLIST_LAUNCHER.getImage());
 
 		//adding the col
 //		try {
@@ -308,7 +330,7 @@ public class Launcher extends JFrame {
 		this.btnCfg.setBorderPainted(false);
 		this.btnCfg.setOpaque(true);
 		this.btnCfg.setBackground(new Color(229, 241, 255));
-		this.btnCfg.setIcon(UI.ICON_JAYAPP);
+		this.btnCfg.setIcon(UI.ICON_LAUNCHER);
 		this.btnCfg.setFocusPainted(false);
 		this.panelCfg.add(this.btnCfg, BorderLayout.CENTER);
 		this.btnNew.addActionListener(new UILauncherNewAction());
@@ -363,9 +385,7 @@ public class Launcher extends JFrame {
 	 * n is the number of rows necessary to accommodate
 	 * all the LauncherModels.
 	 */
-	void syncTableModel (ArrayList<ListFrame> listFrames) {
-		
-		
+	void syncTableModel () {
 		
 		int col, row;
 		int cols = 3;
@@ -373,15 +393,19 @@ public class Launcher extends JFrame {
 				//if there are only 1 or 2 cells in the row then count the 
 				//row as a whole row
 				+ (listFrames.size() % cols > 0 ? 1 : 0) ;
-		DefaultTableModel launcherModel = new DefaultTableModel(new LauncherPanel[rows][cols], new Object[cols]);
+		tableModel = new DefaultTableModel(new ListFrame[rows][cols], new Object[cols]);
 		
 		for (int i = 0; i < listFrames.size(); i++) {
 			col = i % cols;
 			row = i / cols;
-			launcherModel.setValueAt(listFrames.get(i), row, col);
+			tableModel.setValueAt(listFrames.get(i), row, col);
 		}
 		
-		table.setModel(launcherModel);				
+		table.setModel(tableModel);			
+	}
+	
+	void buildLauncherModel () {
+		
 	}
 	
 	void loadLists () {
@@ -390,53 +414,132 @@ public class Launcher extends JFrame {
 		File listFolder;
 		
 		//(re)set list model
-		ArrayList<ListFrame> listFrames = new ArrayList<ListFrame>();
-
-		try {
-			//search for the lists/ folder
-			listFolder = new File(
-					ClassLoader.getSystemClassLoader().getResource("lists/").toURI());
-			//seek valid lists
-			for (File f : listFolder.listFiles()) {
-				
-				try {
-					model = marshaller.unmarshall(f.toURI().toURL());
-					model.setPath(f.toURI().toURL());
-					listFrames.add(
-							new ListFrame(Launcher.this, model, false));
-				
-				//catches and reports lists that don't validate
-				} catch (IOException | SAXException | ParserConfigurationException e) {
-					//System.out.println(f.getPath() + " isn't valid");
-				}
-			}
+		listFrames = new ArrayList<ListFrame>();
+		AdjacentResourceLoader loader = AdjacentResourceLoader.getLoader();
+		listFolder = new File(loader.getResource("lists/"));
 			
+		//seek valid lists
+		for (File f : listFolder.listFiles()) {
+			try {
+				model = marshaller.unmarshall(f.toURI().toURL());
+				model.setPath(f.toURI().toURL());
+				listFrames.add(
+						new ListFrame(Launcher.this, model));
+
+			//catches and reports lists that don't validate
+			} catch (IOException | SAXException | ParserConfigurationException e) {
+				//System.out.println(f.getPath() + " isn't valid");
+			}
+		}
+			
+		syncTableModel();
+	}
+
+	public void newList () {
+		
+		AdjacentResourceLoader loader = AdjacentResourceLoader.getLoader();
+		ListMarshall listLoader = new ListMarshall();
+		ListFrame newListFrame;
+		ListModel newListModel;
+		
+		//generate a hexadecimal file name based on current system time
+		String newFileName = String.format("%05X", System.currentTimeMillis());
+		URI newFilePath = loader.getResource("lists/" + newFileName + ".corlist");
+		
+		//try making a new list XML document in the lists/ folder
+		try {
+			Files.copy(Paths.get(UI.XMl_NEW_LIST.toURI()), 
+					Paths.get(newFilePath));
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		} catch (URISyntaxException e1) {
 			e1.printStackTrace();
 		}
-		
-		syncTableModel(listFrames);
-	}
 
-	public void newList() {
-		ListMarshall marshall = new ListMarshall();
-			ListFrame newFrame;
+		//try instantiating the new list
 		try {
-			newFrame = new ListFrame(
-					Launcher.this, marshall.unmarshall(UI.XMl_NEW_LIST), true);
-			newFrame.setVisible(true);
-			newFrame.setLocation(this.getLocation().x + 64,
+			newListModel = listLoader.unmarshall(newFilePath.toURL());
+			//newListModel.setPath(newFilePath.toURL());
+			newListFrame = new ListFrame(Launcher.this, newListModel);
+			listFrames.add(newListFrame);
+			newListFrame.setVisible(true);
+			newListFrame.setLocation(this.getLocation().x + 64,
 					this.getLocation().y + 64);
-		} catch (IOException | SAXException | ParserConfigurationException e) {
+			syncTableModel();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
+
+		
+//		
+//		ListMarshall marshall = new ListMarshall();
+//			ListFrame newFrame;
+//		try {
+//			newFrame = new ListFrame(
+//					Launcher.this, marshall.unmarshall(UI.XMl_NEW_LIST), true);
+//			newFrame.setVisible(true);
+//			newFrame.setLocation(this.getLocation().x + 64,
+//					this.getLocation().y + 64);
+//		} catch (IOException | SAXException | ParserConfigurationException e) {
+//			e.printStackTrace();
+//		}
 				
+	}
+	
+	/*
+	 * Iterate through, close and dispose ListFrame instances
+	 * and this Launcher instance.
+	 */
+	private void terminate () {
+		
+//		//close and dispose ListFrames
+//		for (int row = 0; row < tableModel.getRowCount(); row++) {
+//			for (int col = 0; col < tableModel.getColumnCount(); col++) {
+//				listFrame = (ListFrame)tableModel.getValueAt(row, col);
+//				
+//				if (listFrame != null) {
+//					listFrame.setVisible(false);
+//					listFrame.dispose();
+//				}
+//			}
+//		}
+		
+		for (ListFrame listFrame : listFrames) {
+			if (listFrame != null) {
+				listFrame.setVisible(false);
+				listFrame.dispose();
+			}
+		}
+		
+		//dispose this Launcher
+		this.setVisible(false);
+		systemTray.remove(trayIcon);		
+		this.dispose();
+	}
+	
+	void escapeTableFocus () {
+		if (table.isEditing()) {
+			table.getCellEditor().stopCellEditing();
+		}
+		table.getSelectionModel().clearSelection();
 	}
 	
 	private class UILauncherNewAction implements ActionListener {
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void actionPerformed (ActionEvent arg0) {
 			newList();
+		}
+	}
+	
+	private class UILauncherExitAction implements ActionListener {
+		@Override
+		public void actionPerformed (ActionEvent arg0) {
+			terminate();
 		}
 	}
 	

@@ -64,7 +64,7 @@ class ListFrame extends JFrame {
 	public class HiddenItemPanel extends JPanel {
 		
 		private JLabel lblChk;
-		private JTable parentTable;
+		JTable parentTable;
 		private int rowIndex;
 		private JLabel lblMore;
 		
@@ -123,7 +123,6 @@ class ListFrame extends JFrame {
 	//determines save behavior according to whether the list 
 	//is a new list or an opened list
 	private Launcher launcher; 
-	private boolean isNew;
 	private URL path;
 	
 	//user-input UI config attributes
@@ -137,10 +136,9 @@ class ListFrame extends JFrame {
 	 * given ListModel.
 	 * @param listModel the ListModel to pattern
 	 */
-	public ListFrame (Launcher launcher, ListModel listModel, boolean isNew) {
+	public ListFrame (Launcher launcher, ListModel listModel) {
 		this.launcher = launcher;
-		this.isNew = isNew;
-		
+	
 		initComponents();
 		injectListModel(listModel);
 		//viewMode = ListViewMode.HIDE_COMPLETED;
@@ -174,11 +172,11 @@ class ListFrame extends JFrame {
 			tableModel.addRow(new ItemModel[] {itemModel});
 		}
 
-		//select the header text of new lists
-		if (isNew) {
-			this.uiTextPane.setSelectionStart(0);
-			this.uiTextPane.setSelectionEnd(this.uiTextPane.getText().length());
-		}
+//		//select the header text of new lists
+//		if (isNew) {
+//			this.uiTextPane.setSelectionStart(0);
+//			this.uiTextPane.setSelectionEnd(this.uiTextPane.getText().length());
+//		}
 		
 		//inject the new TableModel
 		this.uiTable.setModel(tableModel);
@@ -204,10 +202,11 @@ class ListFrame extends JFrame {
 				(DefaultTableModel)ListFrame.this.uiTable.getModel();
 		tableModel.addRow(new ItemModel[] {new ItemModel("<add a title>", "<add a description>", ItemStatus.INCOMPLETE, false, false)});
 		
-		if (uiTable.isEditing()) {
-			uiTable.getCellEditor().stopCellEditing();
-		}
-		uiTable.getSelectionModel().clearSelection();
+//		if (uiTable.isEditing()) {
+//			uiTable.getCellEditor().stopCellEditing();
+//		}
+//		uiTable.getSelectionModel().clearSelection();
+		escapeTableFocus();
 		uiTable.changeSelection(uiTable.getRowCount() - 1, 0, true, false);
 	}
 	
@@ -221,7 +220,7 @@ class ListFrame extends JFrame {
 			try {
 				path = fc.getSelectedFile().toURI().toURL();
 				marshall.marshall(ListFrame.this.extractListModel(), path);
-				isNew = false;
+//				isNew = false;
 				//setTitle();
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
@@ -261,7 +260,7 @@ class ListFrame extends JFrame {
 		setBounds(100, 100,
 				UI.FRAME_WIDTH, UI.FRAME_HEIGHT);
 		
-		this.setIconImage(UI.ICON_APP.getImage());
+		this.setIconImage(UI.ICON_CORLIST.getImage());
 		this.setMinimumSize(new Dimension(UI.FRAME_WIDTH, 192));
 		
 		//set up content pane
@@ -289,16 +288,18 @@ class ListFrame extends JFrame {
 			//stop table cell editing and deselect item when the focus gained
 			@Override
 			public void focusGained (FocusEvent arg0) {
-				if (uiTable.isEditing()) {
-					ListFrame.this.uiTable.getCellEditor().stopCellEditing();
-				}
-				ListFrame.this.uiTable.getSelectionModel().clearSelection();
+//				if (uiTable.isEditing()) {
+//					ListFrame.this.uiTable.getCellEditor().stopCellEditing();
+//				}
+//				ListFrame.this.uiTable.getSelectionModel().clearSelection();
+				escapeTableFocus();
 			}
 			
 			//update the frame title when editing is finished
 			@Override
 			public void focusLost (FocusEvent arg0) {
 				ListFrame.this.setTitle(uiTextPane.getText());
+				launcher.escapeTableFocus();
 			}
 		});
 		this.uiTextPane.setFont(UI.FONT_HEADER);
@@ -331,8 +332,8 @@ class ListFrame extends JFrame {
 			}
 		));
 		this.uiScrollPane.setViewportView(this.uiTable);
-		this.uiTable.setDefaultRenderer(uiTable.getColumnClass(0), new MagicRenderer());
-		this.uiTable.setDefaultEditor(uiTable.getColumnClass(0), new MagicEditor());
+		this.uiTable.setDefaultRenderer(uiTable.getColumnClass(0), new TableItemRenderer());
+		this.uiTable.setDefaultEditor(uiTable.getColumnClass(0), new TableItemEditor());
 
 		{ //disable the escape keystroke when the jtable is focused
 			KeyStroke escapeKey = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
@@ -458,7 +459,6 @@ class ListFrame extends JFrame {
 		
 	}
 
-	@SuppressWarnings("serial")
 	class UIRowShiftUpAction extends AbstractAction {
 		@Override
 		public void actionPerformed (ActionEvent e) {
@@ -473,12 +473,11 @@ class ListFrame extends JFrame {
 		}
 		
 		//swap the selected item with the one above it
-		stopEditingClearSelection();
+		escapeTableFocus();
 		swapListItems (rowIndex, rowIndex - 1);
 		uiTable.getSelectionModel().setSelectionInterval(rowIndex - 1, rowIndex - 1);
 	}
 	
-	@SuppressWarnings("serial")
 	class UIRowShiftDownAction extends AbstractAction {
 		@Override
 		public void actionPerformed (ActionEvent e) {
@@ -495,7 +494,7 @@ class ListFrame extends JFrame {
 		}
 		
 		//swap the selected row with the one below
-		stopEditingClearSelection();
+		escapeTableFocus();
 		swapListItems (rowIndex, rowIndex + 1);	
 		uiTable.getSelectionModel().setSelectionInterval(rowIndex + 1, rowIndex + 1);
 	}
@@ -504,7 +503,7 @@ class ListFrame extends JFrame {
 	 * Instantiates and renders an ItemPanel based on ItemModel
 	 * instances encapsulated in the table model.
 	 */
-	class MagicRenderer implements TableCellRenderer {
+	class TableItemRenderer implements TableCellRenderer {
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
@@ -536,7 +535,7 @@ class ListFrame extends JFrame {
 	 * 
 	 */
 	@SuppressWarnings("serial")
-	class MagicEditor extends AbstractCellEditor implements TableCellEditor {
+	class TableItemEditor extends AbstractCellEditor implements TableCellEditor {
 
 		//the itempanel that is currently being added
 		ItemPanel itemPanel;
@@ -601,12 +600,12 @@ class ListFrame extends JFrame {
 	private class ContentPaneMouseListener extends MouseAdapter {
 		@Override
 		public void mousePressed(MouseEvent arg0) {
-			stopEditingClearSelection();
+			escapeTableFocus();
 		}
 	}
 	
 	
-	void stopEditingClearSelection () {
+	void escapeTableFocus () {
 		if (uiTable.isEditing()) {
 			ListFrame.this.uiTable.getCellEditor().stopCellEditing();
 		}
@@ -624,23 +623,23 @@ class ListFrame extends JFrame {
 			
 			URL savePath;
 			
-			stopEditingClearSelection();
+			escapeTableFocus();
 			
-			/*
-			 * if the list is new then trigger the Save As save action 
-			 */
-			if (isNew) {
+//			/*
+//			 * if the list is new then trigger the Save As save action 
+//			 */
+//			if (isNew) {
+//				
+//				saveAs();
+//				
+//			} else {
 				
-				saveAs();
 				
-			} else {
-				
-				
-				savePath = path;
-				ListMarshall marshall = new ListMarshall();
-				marshall.marshall(ListFrame.this.extractListModel(), savePath);
+			savePath = path;
+			ListMarshall marshall = new ListMarshall();
+			marshall.marshall(ListFrame.this.extractListModel(), savePath);
 			
-			}
+//			}
 			
 			
 			
@@ -667,7 +666,7 @@ class ListFrame extends JFrame {
 
 	private class UIMenuNewAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			stopEditingClearSelection();
+			escapeTableFocus();
 			launcher.newList();
 		}
 	}
@@ -695,7 +694,7 @@ class ListFrame extends JFrame {
 				
 				if (choice == JOptionPane.OK_OPTION) {
 				
-					stopEditingClearSelection();
+					escapeTableFocus();
 					
 					tableModel.removeRow(row);
 					
