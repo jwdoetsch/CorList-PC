@@ -7,14 +7,19 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.MenuItem;
 import java.awt.Point;
 import java.awt.PopupMenu;
+import java.awt.Rectangle;
 import java.awt.SystemTray;
+import java.awt.TexturePaint;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -23,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -81,6 +87,8 @@ public class Launcher extends JFrame {
 			listFrame = (ListFrame) value;
 			tile = new LauncherPanel(
 					listFrame);
+			tile.setBackground(Color.RED);
+			
 			return tile;
 		}
 	}
@@ -136,13 +144,11 @@ public class Launcher extends JFrame {
 		
 		private void initComponents () {
 			
-			//border around the button
-			int tilePadding = 2;
-
 			setOpaque(false);
 			setBorder(new EmptyBorder(tilePadding, tilePadding, tilePadding, tilePadding));
-			setPreferredSize(new Dimension(104, 104));
-			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+			setPreferredSize(new Dimension(tileWidth, tileHeight));
+			setLayout(new BorderLayout());
+			
 			
 			this.btn = new JButton();
 			setTileText();
@@ -151,15 +157,11 @@ public class Launcher extends JFrame {
 			this.btn.setForeground(Color.WHITE);
 			this.btn.setFont(UI.LAUNCHER_FONT);
 			this.btn.setBorder(new EmptyBorder(4, 4, 4, 4));
-			this.btn.setMinimumSize(new Dimension(104 - tilePadding * 2, 104 - tilePadding * 2));
-			this.btn.setMaximumSize(new Dimension(104 - tilePadding * 2, 104 - tilePadding * 2));
-			
-			this.btn.setPreferredSize(new Dimension(104 - tilePadding * 2, 104 - tilePadding * 2));
 			this.btn.setMargin(new Insets(0, 0, 0, 0));
 			this.btn.setFont(new Font("Arial", Font.PLAIN, 16));
 			this.btn.setHorizontalAlignment(SwingConstants.LEADING);
-			this.btn.setVerticalAlignment(SwingConstants.TOP);
-			add(this.btn);
+			this.btn.setVerticalAlignment(SwingConstants.CENTER);
+			add(this.btn, BorderLayout.CENTER);
 			
 			this.btn.addActionListener(new ActionListener() {
 				@Override
@@ -182,33 +184,39 @@ public class Launcher extends JFrame {
 		 * Sanitizes the given string to made it HTML-friendly
 		 * so that it renders properly within the launcher tile.
 		 */
-		private String sanitize (String str) {
-			String result = "";
-			result = str.replace("<", "&lt;");
-			result = result.replace(">", "&gt;");
+		private String format (String str) {
+//			String result = str.replace("<", "&lt;");
+//			result = result.replace(">", "&gt;");
+			String result = str.replace("\n", " ");
 			return result;
 		}
 		
 		private void setTileText () {
-			this.btn.setText("<html><p>" + sanitize(listFrame.uiTextPane.getText()) + "</p></html>");
+			//this.btn.setText("<html><p>" + sanitize(listFrame.uiTextPane.getText()) + "</p></html>");
+			this.btn.setText(format(listFrame.uiTextPane.getText()));
 		}
 	}
 	
 	private JPanel uiContentPane;
 	private JPanel uiPanelCtrl;
 	private JButton uiBtnNew;
-	private JButton uiBtnCfg;
 	private JPanel uiPanelNew;
-	private JPanel uiPanelCfg;
 	private JScrollPane uiScrollPane;
 	private JTable uiTable;
 	
 	private DefaultTableModel tableModel;
-	private ArrayList<ListFrame> listFrames;
+	private ArrayList<ListFrame> launchModel;
 	
 	private TrayIcon trayIcon;
 	private SystemTray tray;
 
+	private int tilePadding = 2;
+	private int tileWidth = 256;
+	private int tileHeight = 48;
+	private JPanel panel;
+	private JPanel panel_1;
+	private JButton button_1;
+	private JButton button_2;
 
 	/**
 	 * Launch CorList.
@@ -240,7 +248,6 @@ public class Launcher extends JFrame {
 	 * Create the frame.
 	 */
 	public Launcher () {
-		setResizable(false);
 		initComponents();
 		initSystemTray();
 	}
@@ -287,7 +294,31 @@ public class Launcher extends JFrame {
 		setIconImage(UI.ICON_CORLIST_LAUNCHER.getImage());
 		setBounds(368, 16, 64, 64);
 		
-		this.uiContentPane = new JPanel();
+		//this.uiContentPane = new JPanel();
+		this.uiContentPane = new JPanel () {
+			
+			   //private TexturePaint paint;
+
+			    @Override
+			    protected void paintComponent(Graphics g) {
+			        super.paintComponent(g);
+			        Graphics2D g2d = (Graphics2D) g;
+			        TexturePaint texturePaint;
+			        BufferedImage textureImg;
+					try {
+						textureImg = ImageIO.read(Launcher.class.getResource(
+								"assets/gfx/texture.png"));
+						texturePaint = new TexturePaint(textureImg,
+								new Rectangle(0, 0, textureImg.getWidth(), textureImg.getHeight()));
+						g2d.setPaint(texturePaint);
+				        g2d.fillRect(0, 0, getWidth(), getHeight());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			        
+			    }
+		};
 		this.uiContentPane.setBackground(UI.LAUNCHER_COLOR_BG);
 		this.uiContentPane.setPreferredSize(new Dimension(441, 320));
 		this.uiContentPane.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -295,15 +326,15 @@ public class Launcher extends JFrame {
 		setContentPane(this.uiContentPane);
 		this.uiPanelCtrl = new JPanel();
 		this.uiPanelCtrl.setOpaque(false);
-		this.uiContentPane.add(this.uiPanelCtrl, BorderLayout.WEST);
-		this.uiPanelCtrl.setLayout(new BoxLayout(this.uiPanelCtrl, BoxLayout.Y_AXIS));
+		this.uiContentPane.add(this.uiPanelCtrl, BorderLayout.NORTH);
+		this.uiPanelCtrl.setLayout(new BoxLayout(this.uiPanelCtrl, BoxLayout.X_AXIS));
 		this.uiPanelNew = new JPanel();
 		this.uiPanelNew.setBorder(new EmptyBorder(2, 2, 2, 2));
 		this.uiPanelNew.setOpaque(false);
-		this.uiPanelNew.setMaximumSize(new Dimension(104, 208));
-		this.uiPanelNew.setMinimumSize(new Dimension(104, 208));
-		this.uiPanelNew.setPreferredSize(new Dimension(104, 208));
-		this.uiPanelNew.setSize(new Dimension(104, 208));
+		this.uiPanelNew.setMaximumSize(new Dimension(100, 56));
+		this.uiPanelNew.setMinimumSize(new Dimension(100, 56));
+		this.uiPanelNew.setPreferredSize(new Dimension(100, 56));
+		this.uiPanelNew.setSize(new Dimension(100, 56));
 		this.uiPanelCtrl.add(this.uiPanelNew);
 		this.uiPanelNew.setLayout(new BorderLayout(0, 0));
 		
@@ -318,28 +349,44 @@ public class Launcher extends JFrame {
 		this.uiBtnNew.setHorizontalAlignment(SwingConstants.LEADING);
 		this.uiBtnNew.setVerticalAlignment(SwingConstants.TOP);
 		this.uiPanelNew.add(this.uiBtnNew);
-		this.uiPanelCfg = new JPanel();
-		this.uiPanelCfg.setOpaque(false);
-		this.uiPanelCfg.setSize(new Dimension(104, 104));
-		this.uiPanelCfg.setPreferredSize(new Dimension(104, 104));
-		this.uiPanelCfg.setMinimumSize(new Dimension(104, 104));
-		this.uiPanelCfg.setMaximumSize(new Dimension(104, 104));
-		this.uiPanelCfg.setBorder(new EmptyBorder(22, 22, 22, 22));
-		this.uiPanelCtrl.add(this.uiPanelCfg);
-		this.uiPanelCfg.setLayout(new BorderLayout(0, 0));
-		this.uiBtnCfg = new JButton("");
-		this.uiBtnCfg.setToolTipText("Open CorSuite Launcher...");
-		this.uiBtnCfg.setMinimumSize(new Dimension(60, 60));
-		this.uiBtnCfg.setMaximumSize(new Dimension(60, 60));
-		this.uiBtnCfg.setSize(new Dimension(60, 60));
-		this.uiBtnCfg.setPreferredSize(new Dimension(60, 60));
-		this.uiBtnCfg.setBorder(new EmptyBorder(2, 2, 2, 2));
-		this.uiBtnCfg.setBorderPainted(false);
-		this.uiBtnCfg.setOpaque(true);
-		this.uiBtnCfg.setBackground(new Color(229, 241, 255));
-		this.uiBtnCfg.setIcon(UI.ICON_LAUNCHER);
-		this.uiBtnCfg.setFocusPainted(false);
-		this.uiPanelCfg.add(this.uiBtnCfg, BorderLayout.CENTER);
+		this.panel = new JPanel();
+		this.panel.setSize(new Dimension(100, 56));
+		this.panel.setPreferredSize(new Dimension(100, 56));
+		this.panel.setOpaque(false);
+		this.panel.setMinimumSize(new Dimension(100, 56));
+		this.panel.setMaximumSize(new Dimension(100, 56));
+		this.panel.setBorder(new EmptyBorder(2, 2, 2, 2));
+		this.uiPanelCtrl.add(this.panel);
+		this.panel.setLayout(new BorderLayout(0, 0));
+		this.button_2 = new JButton("New");
+		this.button_2.setVerticalTextPosition(SwingConstants.TOP);
+		this.button_2.setVerticalAlignment(SwingConstants.TOP);
+		this.button_2.setMnemonic('N');
+		this.button_2.setHorizontalAlignment(SwingConstants.LEADING);
+		this.button_2.setForeground(Color.WHITE);
+		this.button_2.setFont(new Font("Arial", Font.PLAIN, 16));
+		this.button_2.setBorder(new EmptyBorder(4, 4, 4, 4));
+		this.button_2.setBackground(new Color(54, 138, 230));
+		this.panel.add(this.button_2, BorderLayout.CENTER);
+		this.panel_1 = new JPanel();
+		this.panel_1.setSize(new Dimension(100, 56));
+		this.panel_1.setPreferredSize(new Dimension(100, 56));
+		this.panel_1.setOpaque(false);
+		this.panel_1.setMinimumSize(new Dimension(100, 56));
+		this.panel_1.setMaximumSize(new Dimension(100, 56));
+		this.panel_1.setBorder(new EmptyBorder(2, 2, 2, 2));
+		this.uiPanelCtrl.add(this.panel_1);
+		this.panel_1.setLayout(new BorderLayout(0, 0));
+		this.button_1 = new JButton("New");
+		this.button_1.setVerticalTextPosition(SwingConstants.TOP);
+		this.button_1.setVerticalAlignment(SwingConstants.TOP);
+		this.button_1.setMnemonic('N');
+		this.button_1.setHorizontalAlignment(SwingConstants.LEADING);
+		this.button_1.setForeground(Color.WHITE);
+		this.button_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		this.button_1.setBorder(new EmptyBorder(4, 4, 4, 4));
+		this.button_1.setBackground(new Color(54, 138, 230));
+		this.panel_1.add(this.button_1, BorderLayout.CENTER);
 		this.uiBtnNew.addActionListener(new UILauncherNewAction());
 
 		this.uiScrollPane = new JScrollPane();
@@ -367,12 +414,12 @@ public class Launcher extends JFrame {
 		this.uiTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.uiTable.setFillsViewportHeight(true);
 		this.uiTable.setTableHeader(null);
-		this.uiTable.setRowHeight(104);
+		this.uiTable.setRowHeight(tileHeight);
 		this.uiTable.setDefaultRenderer(Object.class, new LaunchTableCellRenderer());
 		this.uiTable.setDefaultEditor(Object.class, new LaunchTableCellEditor());
 		this.uiTable.setIntercellSpacing(new Dimension(0, 0));
+		this.uiTable.setOpaque(false);
 		this.uiScrollPane.setViewportView(this.uiTable);
-		
 		pack();
 
 		//search lists/ and instantiate array of ListFrameModels
@@ -391,17 +438,17 @@ public class Launcher extends JFrame {
 	void syncTableModel () {
 		
 		int col, row;
-		int cols = 3;
-		int rows = (listFrames.size() / cols)
+		int cols = 1;
+		int rows = (launchModel.size() / cols)
 				//if there are only 1 or 2 cells in the row then count the 
 				//row as a whole row
-				+ (listFrames.size() % cols > 0 ? 1 : 0) ;
+				+ (launchModel.size() % cols > 0 ? 1 : 0) ;
 		tableModel = new DefaultTableModel(new ListFrame[rows][cols], new Object[cols]);
 		
-		for (int i = 0; i < listFrames.size(); i++) {
+		for (int i = 0; i < launchModel.size(); i++) {
 			col = i % cols;
 			row = i / cols;
-			tableModel.setValueAt(listFrames.get(i), row, col);
+			tableModel.setValueAt(launchModel.get(i), row, col);
 		}
 		
 		uiTable.setModel(tableModel);			
@@ -418,7 +465,7 @@ public class Launcher extends JFrame {
 		File listFolder;
 		
 		//(re)set list model
-		listFrames = new ArrayList<ListFrame>();
+		launchModel = new ArrayList<ListFrame>();
 		AdjacentResourceLoader loader = AdjacentResourceLoader.getLoader();
 		listFolder = new File(loader.getResource("lists/"));
 			
@@ -427,7 +474,7 @@ public class Launcher extends JFrame {
 			try {
 				model = marshaller.unmarshall(f.toURI().toURL());
 				model.setPath(f.toURI().toURL());
-				listFrames.add(
+				launchModel.add(
 						new ListFrame(Launcher.this, model));
 
 			//catches and reports lists that don't validate
@@ -465,7 +512,7 @@ public class Launcher extends JFrame {
 			newListModel = listLoader.unmarshall(newFilePath.toURL());
 			//newListModel.setPath(newFilePath.toURL());
 			newListFrame = new ListFrame(Launcher.this, newListModel);
-			listFrames.add(newListFrame);
+			launchModel.add(newListFrame);
 			newListFrame.setVisible(true);
 			newListFrame.setLocation(this.getLocation().x + 64,
 					this.getLocation().y + 64);
@@ -513,7 +560,7 @@ public class Launcher extends JFrame {
 //			}
 //		}
 		
-		for (ListFrame listFrame : listFrames) {
+		for (ListFrame listFrame : launchModel) {
 			if (listFrame != null) {
 				listFrame.setVisible(false);
 				listFrame.dispose();
