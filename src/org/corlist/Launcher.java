@@ -15,7 +15,6 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -38,78 +37,106 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.ColorUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.corlist.util.AdjacentResourceLoader;
 import org.xml.sax.SAXException;
-import org.corlist.util.*;
 
-
+/*
+ * Launcher
+ * 
+ * Launcher is public in scope because AdjacentResourceLoader
+ * loads adjacent project resources relative to the launcher
+ * class Path. 
+ *
+ * @author Jacob Wesley Doetsch
+ */
 @SuppressWarnings("serial")
 public class Launcher extends JFrame {
 
-	class LaunchTableRenderer implements TableCellRenderer {
+	/*
+	 * LaunchTableRenderer returns LauncherPanel instances
+	 * encapsulating the ListFrame currently selected by
+	 * the Launcher table.
+	 */
+	private class LaunchTableCellRenderer implements TableCellRenderer {
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table,
+		public Component getTableCellRendererComponent (JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 			
-			if (value != null) {
-				ListFrame listFrame = (ListFrame) value;
-				LauncherPanel tile = new LauncherPanel(
-						listFrame, Launcher.this);
-				return tile;
-			} else {
+			ListFrame listFrame;
+			LauncherPanel tile;
+			
+			//cells may be empty due to the 3-column nature of
+			//the table (e.g. 10 items means 2 empty cells)
+			if (value == null) {
 				return null;
 			}
+			
+			listFrame = (ListFrame) value;
+			tile = new LauncherPanel(
+					listFrame);
+			return tile;
 		}
-		
 	}
 	
-	class LaunchTableEditor extends AbstractCellEditor implements TableCellEditor {
+	/*
+	 * LaunchTableEditor behaves like LaunchTableRenderer.
+	 * When editing is finished, the original ListFrame from
+	 * the table will be returned unmodified.
+	 */
+	private class LaunchTableCellEditor
+			extends AbstractCellEditor implements TableCellEditor {
 
-		//ListModel lfm;
 		private ListFrame listFrame;
 		
 		@Override
-		public Object getCellEditorValue() {
+		public Object getCellEditorValue () {
 			return listFrame;
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(JTable table, Object value,
+		public Component getTableCellEditorComponent (JTable table, Object value,
 				boolean isSelected, int row, int col) {
 
-			if (value != null) {
-				listFrame = (ListFrame) value;
-				LauncherPanel tile = new LauncherPanel(
-						listFrame, Launcher.this);
-				return tile;
-			} else {
+			LauncherPanel tile;
+			
+			//cells may be empty due to the 3-column nature of
+			//the table (e.g. 10 items means 2 empty cells)
+			if (value == null) {
 				return null;
 			}
+			
+			listFrame = (ListFrame) value;
+			tile = new LauncherPanel(
+					listFrame);
+			return tile;
 		}
 	}
 	
-	class LauncherPanel extends JPanel {
+	/*
+	 * LauncherPanel encapsulates a ListFrame instance and is
+	 * itself a simple JPanel containing one button that will
+	 * show the ListFrame.
+	 */
+	private class LauncherPanel extends JPanel {
 		
 		private JButton btn;
 		private ListFrame listFrame;
-		private Launcher parentLauncher;
 		
-		LauncherPanel (ListFrame listFrame, Launcher parentLauncher) {
+		private LauncherPanel (ListFrame listFrame) {
 			this.listFrame = listFrame;
-			this.parentLauncher = parentLauncher;
 			initComponents();
 		}
 		
 		private void initComponents () {
 			
-			//padding/border around the button
+			//border around the button
 			int tilePadding = 2;
 
 			setOpaque(false);
@@ -118,7 +145,7 @@ public class Launcher extends JFrame {
 			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 			
 			this.btn = new JButton();
-			updateTileText();
+			setTileText();
 			this.btn.setVerticalTextPosition(SwingConstants.TOP);
 			this.btn.setBackground(UI.LAUNCHER_COLOR_BUTTON);
 			this.btn.setForeground(Color.WHITE);
@@ -140,21 +167,20 @@ public class Launcher extends JFrame {
 					if (listFrame.isVisible()) {
 						listFrame.requestFocus();
 					} else {
+						//location set relative to the parent launcher
 						listFrame.setLocation(
 								new Point(
-										parentLauncher.getX() + 48,
-										parentLauncher.getY() + 48));
+										Launcher.this.getX() + 48,
+										Launcher.this.getY() + 48));
 						listFrame.setVisible(true);
 					}
 				}
 			});
-
 		}
 		
-		/**
+		/*
 		 * Sanitizes the given string to made it HTML-friendly
 		 * so that it renders properly within the launcher tile.
-		 * @param str
 		 */
 		private String sanitize (String str) {
 			String result = "";
@@ -163,48 +189,46 @@ public class Launcher extends JFrame {
 			return result;
 		}
 		
-		void updateTileText () {
+		private void setTileText () {
 			this.btn.setText("<html><p>" + sanitize(listFrame.uiTextPane.getText()) + "</p></html>");
-		}
-
-		ListFrame getListFrame () {
-			return this.listFrame;
 		}
 	}
 	
-	private JPanel contentPane;
-	private JPanel panelCtrl;
-	private JButton btnNew;
-	private JButton btnCfg;
-	private JPanel panelNew;
-	private JPanel panelCfg;
-	private DefaultTableModel tableModel;
+	private JPanel uiContentPane;
+	private JPanel uiPanelCtrl;
+	private JButton uiBtnNew;
+	private JButton uiBtnCfg;
+	private JPanel uiPanelNew;
+	private JPanel uiPanelCfg;
+	private JScrollPane uiScrollPane;
+	private JTable uiTable;
 	
-	private JScrollPane scrollPane;
-	private JTable table;
+	private DefaultTableModel tableModel;
 	private ArrayList<ListFrame> listFrames;
-
-	//map of open entries
-	//private ArrayList<ListFrame> listFrames;
 	
 	private TrayIcon trayIcon;
-	private SystemTray systemTray;
+	private SystemTray tray;
 
 
 	/**
-	 * Launch the application.
+	 * Launch CorList.
 	 */
 	public static void main (String[] args) {
+
+		Border border = BorderFactory.createLineBorder(
+				new Color(255, 188, 86), 1);
 		UIManager.put("ToolTip.background",
 				new Color(251, 251, 251));
-		Border border = BorderFactory.createLineBorder(
-				new Color(255, 188, 86), 2);
 		UIManager.put("ToolTip.border", border);
+		
 		EventQueue.invokeLater(new Runnable() {
+			
 			public void run() {
+				
 				try {
 					Launcher frame = new Launcher();
 					frame.setVisible(true);
+				
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -212,7 +236,7 @@ public class Launcher extends JFrame {
 		});
 	}
 
-	/**
+	/*
 	 * Create the frame.
 	 */
 	public Launcher () {
@@ -222,14 +246,12 @@ public class Launcher extends JFrame {
 	}
 	
 	private void initSystemTray () {
-		systemTray = SystemTray.getSystemTray();
+		tray = SystemTray.getSystemTray();
 		if (!SystemTray.isSupported()) {
 			return;
 		}
 		
-		trayIcon = new TrayIcon(UI.ICON_TRAY.getImage(), 
-					
-				"JayList");
+		trayIcon = new TrayIcon(UI.ICON_TRAY.getImage(), "JayList");
 		
 		PopupMenu menu = new PopupMenu();
 		trayIcon.setPopupMenu(menu);
@@ -240,11 +262,10 @@ public class Launcher extends JFrame {
 
 		itemNew.addActionListener(new UILauncherNewAction());
 		try {
-			systemTray.add(trayIcon);
+			tray.add(trayIcon);
 			
 		} catch (AWTException e) {
 			System.out.println("Can't add system tray icon: " + e.getMessage());
-			//e.printStackTrace();
 		}
 		
 		itemExit.addActionListener(new UILauncherExitAction());
@@ -258,99 +279,84 @@ public class Launcher extends JFrame {
 				}
 			}
 		});
-		
-		
 	}
 
 	private void initComponents () {
 
 		setTitle("Pinboard - JayList");
-		//setIconImage(UI.ICON_APP.getImage());
 		setIconImage(UI.ICON_CORLIST_LAUNCHER.getImage());
-
-		//adding the col
-//		try {
-//			ImageTextWriter itw = new ImageTextWriter();
-//			setIconImage(itw.writeText(UI.URL_ICON_APP, "2/11"));
-//
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		
 		setBounds(368, 16, 64, 64);
-		this.contentPane = new JPanel();
-		this.contentPane.setBackground(UI.LAUNCHER_COLOR_BG);
-		this.contentPane.setPreferredSize(new Dimension(441, 320));
-		this.contentPane.setBorder(new EmptyBorder(4, 4, 4, 4));
-		this.contentPane.setLayout(new BorderLayout(0, 0));
-		setContentPane(this.contentPane);
-		this.panelCtrl = new JPanel();
-		this.panelCtrl.setOpaque(false);
-		this.contentPane.add(this.panelCtrl, BorderLayout.WEST);
-		this.panelCtrl.setLayout(new BoxLayout(this.panelCtrl, BoxLayout.Y_AXIS));
-		this.panelNew = new JPanel();
-		this.panelNew.setBorder(new EmptyBorder(2, 2, 2, 2));
-		this.panelNew.setOpaque(false);
-		//this.panel_1.setBorder(new EmptyBorder(4, 4, 4, 4));
-		this.panelNew.setMaximumSize(new Dimension(104, 208));
-		this.panelNew.setMinimumSize(new Dimension(104, 208));
-		this.panelNew.setPreferredSize(new Dimension(104, 208));
-		this.panelNew.setSize(new Dimension(104, 208));
-		this.panelCtrl.add(this.panelNew);
-		this.panelNew.setLayout(new BorderLayout(0, 0));
 		
-		this.btnNew = new JButton("New");
-		this.btnNew.setIcon(UI.ICON_LAUNCHER_NEW);
-		//this.btnNew.setContentAreaFilled(false);
-		this.btnNew.setMnemonic('N');
-		this.btnNew.setBorder(new EmptyBorder(4, 4, 4, 4));
-		this.btnNew.setVerticalTextPosition(SwingConstants.TOP);
-		this.btnNew.setBackground(UI.LAUNCHER_COLOR_BUTTON);
-		this.btnNew.setForeground(Color.WHITE);
-		this.btnNew.setFont(UI.LAUNCHER_FONT);
-		this.btnNew.setHorizontalAlignment(SwingConstants.LEADING);
-		this.btnNew.setVerticalAlignment(SwingConstants.TOP);
-		this.panelNew.add(this.btnNew);
-		this.panelCfg = new JPanel();
-		this.panelCfg.setOpaque(false);
-		this.panelCfg.setSize(new Dimension(104, 104));
-		this.panelCfg.setPreferredSize(new Dimension(104, 104));
-		this.panelCfg.setMinimumSize(new Dimension(104, 104));
-		this.panelCfg.setMaximumSize(new Dimension(104, 104));
-		this.panelCfg.setBorder(new EmptyBorder(22, 22, 22, 22));
-		this.panelCtrl.add(this.panelCfg);
-		this.panelCfg.setLayout(new BorderLayout(0, 0));
-		this.btnCfg = new JButton("");
-		this.btnCfg.setToolTipText("Open CorSuite Launcher...");
-		this.btnCfg.setMinimumSize(new Dimension(60, 60));
-		this.btnCfg.setMaximumSize(new Dimension(60, 60));
-		this.btnCfg.setSize(new Dimension(60, 60));
-		this.btnCfg.setPreferredSize(new Dimension(60, 60));
-		this.btnCfg.setBorder(new EmptyBorder(2, 2, 2, 2));
-		this.btnCfg.setBorderPainted(false);
-		this.btnCfg.setOpaque(true);
-		this.btnCfg.setBackground(new Color(229, 241, 255));
-		this.btnCfg.setIcon(UI.ICON_LAUNCHER);
-		this.btnCfg.setFocusPainted(false);
-		this.panelCfg.add(this.btnCfg, BorderLayout.CENTER);
-		this.btnNew.addActionListener(new UILauncherNewAction());
+		this.uiContentPane = new JPanel();
+		this.uiContentPane.setBackground(UI.LAUNCHER_COLOR_BG);
+		this.uiContentPane.setPreferredSize(new Dimension(441, 320));
+		this.uiContentPane.setBorder(new EmptyBorder(4, 4, 4, 4));
+		this.uiContentPane.setLayout(new BorderLayout(0, 0));
+		setContentPane(this.uiContentPane);
+		this.uiPanelCtrl = new JPanel();
+		this.uiPanelCtrl.setOpaque(false);
+		this.uiContentPane.add(this.uiPanelCtrl, BorderLayout.WEST);
+		this.uiPanelCtrl.setLayout(new BoxLayout(this.uiPanelCtrl, BoxLayout.Y_AXIS));
+		this.uiPanelNew = new JPanel();
+		this.uiPanelNew.setBorder(new EmptyBorder(2, 2, 2, 2));
+		this.uiPanelNew.setOpaque(false);
+		this.uiPanelNew.setMaximumSize(new Dimension(104, 208));
+		this.uiPanelNew.setMinimumSize(new Dimension(104, 208));
+		this.uiPanelNew.setPreferredSize(new Dimension(104, 208));
+		this.uiPanelNew.setSize(new Dimension(104, 208));
+		this.uiPanelCtrl.add(this.uiPanelNew);
+		this.uiPanelNew.setLayout(new BorderLayout(0, 0));
+		
+		this.uiBtnNew = new JButton("New");
+		this.uiBtnNew.setIcon(UI.ICON_LAUNCHER_NEW);
+		this.uiBtnNew.setMnemonic('N');
+		this.uiBtnNew.setBorder(new EmptyBorder(4, 4, 4, 4));
+		this.uiBtnNew.setVerticalTextPosition(SwingConstants.TOP);
+		this.uiBtnNew.setBackground(UI.LAUNCHER_COLOR_BUTTON);
+		this.uiBtnNew.setForeground(Color.WHITE);
+		this.uiBtnNew.setFont(UI.LAUNCHER_FONT);
+		this.uiBtnNew.setHorizontalAlignment(SwingConstants.LEADING);
+		this.uiBtnNew.setVerticalAlignment(SwingConstants.TOP);
+		this.uiPanelNew.add(this.uiBtnNew);
+		this.uiPanelCfg = new JPanel();
+		this.uiPanelCfg.setOpaque(false);
+		this.uiPanelCfg.setSize(new Dimension(104, 104));
+		this.uiPanelCfg.setPreferredSize(new Dimension(104, 104));
+		this.uiPanelCfg.setMinimumSize(new Dimension(104, 104));
+		this.uiPanelCfg.setMaximumSize(new Dimension(104, 104));
+		this.uiPanelCfg.setBorder(new EmptyBorder(22, 22, 22, 22));
+		this.uiPanelCtrl.add(this.uiPanelCfg);
+		this.uiPanelCfg.setLayout(new BorderLayout(0, 0));
+		this.uiBtnCfg = new JButton("");
+		this.uiBtnCfg.setToolTipText("Open CorSuite Launcher...");
+		this.uiBtnCfg.setMinimumSize(new Dimension(60, 60));
+		this.uiBtnCfg.setMaximumSize(new Dimension(60, 60));
+		this.uiBtnCfg.setSize(new Dimension(60, 60));
+		this.uiBtnCfg.setPreferredSize(new Dimension(60, 60));
+		this.uiBtnCfg.setBorder(new EmptyBorder(2, 2, 2, 2));
+		this.uiBtnCfg.setBorderPainted(false);
+		this.uiBtnCfg.setOpaque(true);
+		this.uiBtnCfg.setBackground(new Color(229, 241, 255));
+		this.uiBtnCfg.setIcon(UI.ICON_LAUNCHER);
+		this.uiBtnCfg.setFocusPainted(false);
+		this.uiPanelCfg.add(this.uiBtnCfg, BorderLayout.CENTER);
+		this.uiBtnNew.addActionListener(new UILauncherNewAction());
 
-		this.scrollPane = new JScrollPane();
-		this.scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		this.scrollPane.setBackground(UI.LAUNCHER_COLOR_BG);
-		this.scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		this.contentPane.add(this.scrollPane, BorderLayout.CENTER);
-		this.table = new JTable();
-		this.table.setBorder(new EmptyBorder(0, 0, 20, 0));
-		this.table.setShowGrid(false);
-		this.table.setBackground(UI.LAUNCHER_COLOR_BG);
-		this.table.setShowVerticalLines(false);
-		this.table.setShowHorizontalLines(false);
-		this.table.setRowSelectionAllowed(false);
-		this.table.setColumnSelectionAllowed(false);
-
-		this.table.setModel(new DefaultTableModel(
+		this.uiScrollPane = new JScrollPane();
+		this.uiScrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		this.uiScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		this.uiScrollPane.setBackground(UI.LAUNCHER_COLOR_BG);
+		this.uiScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		this.uiContentPane.add(this.uiScrollPane, BorderLayout.CENTER);
+		this.uiTable = new JTable();
+		this.uiTable.setBorder(new EmptyBorder(0, 0, 20, 0));
+		this.uiTable.setShowGrid(false);
+		this.uiTable.setBackground(UI.LAUNCHER_COLOR_BG);
+		this.uiTable.setShowVerticalLines(false);
+		this.uiTable.setShowHorizontalLines(false);
+		this.uiTable.setRowSelectionAllowed(false);
+		this.uiTable.setColumnSelectionAllowed(false);
+		this.uiTable.setModel(new DefaultTableModel(
 				new ListFrame[][] {
 						{},
 					},
@@ -358,23 +364,20 @@ public class Launcher extends JFrame {
 						
 					}
 				));
-		//this.table.setCellSelectionEnabled(true);
-		this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		this.table.setFillsViewportHeight(true);
-		this.scrollPane.setViewportView(this.table);
-		this.table.setTableHeader(null);
-		this.table.setRowHeight(104);
-		this.table.setDefaultRenderer(Object.class, new LaunchTableRenderer());
-		this.table.setDefaultEditor(Object.class, new LaunchTableEditor());
-		this.table.setIntercellSpacing(new Dimension(0, 0));
-
+		this.uiTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		this.uiTable.setFillsViewportHeight(true);
+		this.uiTable.setTableHeader(null);
+		this.uiTable.setRowHeight(104);
+		this.uiTable.setDefaultRenderer(Object.class, new LaunchTableCellRenderer());
+		this.uiTable.setDefaultEditor(Object.class, new LaunchTableCellEditor());
+		this.uiTable.setIntercellSpacing(new Dimension(0, 0));
+		this.uiScrollPane.setViewportView(this.uiTable);
 		
 		pack();
 
 		//search lists/ and instantiate array of ListFrameModels
 		//refresh the table model with the current ListFrameModels ..syncTable;;;
 		loadLists();
-		
 	}
 
    
@@ -401,13 +404,14 @@ public class Launcher extends JFrame {
 			tableModel.setValueAt(listFrames.get(i), row, col);
 		}
 		
-		table.setModel(tableModel);			
+		uiTable.setModel(tableModel);			
 	}
 	
-	void buildLauncherModel () {
-		
-	}
-	
+	/*
+	 * Loads the lists from the lists/ resource folder,
+	 * instantiates a ListFrame for each list, and adds
+	 * them to the table model.
+	 */
 	void loadLists () {
 		ListMarshall marshaller = new ListMarshall();
 		ListModel model;
@@ -518,15 +522,15 @@ public class Launcher extends JFrame {
 		
 		//dispose this Launcher
 		this.setVisible(false);
-		systemTray.remove(trayIcon);		
+		tray.remove(trayIcon);		
 		this.dispose();
 	}
 	
 	void escapeTableFocus () {
-		if (table.isEditing()) {
-			table.getCellEditor().stopCellEditing();
+		if (uiTable.isEditing()) {
+			uiTable.getCellEditor().stopCellEditing();
 		}
-		table.getSelectionModel().clearSelection();
+		uiTable.getSelectionModel().clearSelection();
 	}
 	
 	private class UILauncherNewAction implements ActionListener {

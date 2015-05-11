@@ -300,6 +300,7 @@ class ListFrame extends JFrame {
 			public void focusLost (FocusEvent arg0) {
 				ListFrame.this.setTitle(uiTextPane.getText());
 				launcher.escapeTableFocus();
+				
 			}
 		});
 		this.uiTextPane.setFont(UI.FONT_HEADER);
