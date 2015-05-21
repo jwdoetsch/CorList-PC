@@ -92,6 +92,7 @@ class UI {
 			UI.class.getResource("assets/xml/list.xsd");
 	static final ImageIcon ICON_TRAY = new ImageIcon(
 			UI.class.getResource("assets/gfx/systray_16x16.png"));
+	static final String LAUNCHER_TITLE = "Launcher - CorList";
 	
 	
 }

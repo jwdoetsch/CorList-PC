@@ -54,15 +54,15 @@ class ListMarshall {
 		
 	}
 	
-	ListModel unmarshall (URL src) throws IOException, SAXException, ParserConfigurationException {
+	ListFrameModel unmarshall (URL src) throws IOException, SAXException, ParserConfigurationException {
 		XMLValidator validator = new XMLValidator();
-		ListModel newListModel = parse(validator.validate(src, UI.XML_LIST_SCHEMA));
+		ListFrameModel newListModel = parse(validator.validate(src, UI.XML_LIST_SCHEMA));
 		newListModel.setPath(src);
 		return newListModel;
 	}
 	
-	private ListModel parse (Node node) {
-		ListModel list = new ListModel();
+	private ListFrameModel parse (Node node) {
+		ListFrameModel list = new ListFrameModel();
 		Node child;
 		NodeList grandchildren;
 		NamedNodeMap attributes;
@@ -141,7 +141,7 @@ class ListMarshall {
 		return list;
 	}
 	
-	void marshall (ListModel listModel, URL dest) {
+	void marshall (ListFrameModel listModel, URL dest) {
 		DocumentBuilderFactory docBuilderFactory;
 		DocumentBuilder docBuilder;
 		Document document;
